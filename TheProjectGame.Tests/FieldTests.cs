@@ -58,29 +58,30 @@ namespace TheProjectGame.Tests
         [TestMethod]
         public void NewGoalField()
         {
-            var field = new GoalField(1, 2);
+            var field = new GoalField(1, 2,Team.Blue);
             Assert.AreEqual(1, field.X);
             Assert.AreEqual(2, field.Y);
+            Assert.AreEqual(Team.Blue, field.Owner);
         }
 
         [TestMethod]
         public void GoalFieldGetType()
         {
-            var field = new GoalField(1, 1);
+            var field = new GoalField(1, 1,Team.Blue);
             Assert.AreEqual(FieldType.Goal, field.GetFieldType());
         }
 
         [TestMethod]
         public void NewGoalType()
         {
-            var field = new GoalField(1, 1);
+            var field = new GoalField(1, 1,Team.Blue);
             Assert.AreEqual(GoalType.Unknown, field.GoalType);
         }
 
         [TestMethod]
         public void NewGoalTypeNotFullfilled()
         {
-            var field = new GoalField(1, 1,GoalType.NotFullfilled);
+            var field = new GoalField(1, 1,Team.Blue, GoalType.NotFullfilled);
             Assert.AreEqual(GoalType.NotFullfilled, field.GoalType);
         }
     }
