@@ -9,11 +9,17 @@ using Configuration;
 
 namespace GameMaster
 {
+    public enum GameMasterState { AwaitingPlayers, GameInprogress, GameOver};
     public class GameMaster
     {
-        private List<Agent> agents;
+        private GameMasterState state;
+        private ulong nextPieceId = 0;
+        private Random random;
+        private List<Player.Agent> agents;
+        private Board actualBoard;
+        private GameMasterSettingsGameDefinition gameSettings;
 
-        public List<Agent> GetAgents
+        public List<Player.Agent> GetAgents
         {
             get
             {
@@ -21,24 +27,31 @@ namespace GameMaster
             }
         }
 
-        public List<Agent> GetAgentsByTeam(Messages.TeamColour team)
+        public GameMasterState GetState
+        {
+            get
+            {
+                return state;
+            }
+        }
+
+
+        public List<Player.Agent> GetAgentsByTeam(Messages.TeamColour team)
         {
             return agents.Where(q => q.GetTeam == team).ToList();
         }
 
-        public Agent GetAgentByGuid(ulong guid)
+        public Player.Agent GetAgentByGuid(ulong guid)
         {
             return agents.Where(q => q.GUID == guid).FirstOrDefault();
         }
 
-        public void RegisterAgent(Agent agent)
+        public void RegisterAgent(Player.Agent agent)
         {
             var newGuid = agents.Max(q => q.GUID) + 1;
             agent.SetGuid(newGuid);
             agents.Add(agent);
         }
-
-        private Board actualBoard;
 
         public Board Board
         {
@@ -48,11 +61,55 @@ namespace GameMaster
             }
         }
 
-        private GameMasterSettingsGameDefinition gameSettings;
-
         public GameMaster(GameMasterSettingsGameDefinition settings)
         {
+            state = GameMasterState.AwaitingPlayers;
+            random = new Random();
+            agents = new List<Player.Agent>();
             gameSettings = settings;
+            InitBoard(gameSettings);
+        }
+
+        private void InitBoard(GameMasterSettingsGameDefinition settings)
+        {
+
+            actualBoard = new Board(uint.Parse(settings.BoardWidth), uint.Parse(settings.TaskAreaLength), uint.Parse(settings.GoalAreaLength));
+            PlaceInitialPieces(settings.InitialNumberOfPieces);
+        }
+
+        private void PlaceInitialPieces(uint piecesCount)
+        {
+            for (uint i = 0; i < piecesCount; i++)
+            {
+                var piece = CreatePiece();
+                var field = GetEmptyFieldForPiece();
+                field.SetPiece(piece);
+            }
+        }
+
+        private Piece CreatePiece()
+        {
+            var possibleSham = random.NextDouble();
+            if (possibleSham <= gameSettings.ShamProbability)
+                return new Piece(PieceType.sham, nextPieceId++);
+            else
+                return new Piece(PieceType.normal, nextPieceId++);
+        }
+
+        private GameArea.TaskField GetEmptyFieldForPiece()
+        {
+            uint x, y;
+            GameArea.TaskField field;
+            if (actualBoard.TaskFields.Where(q => q.GetPiece != null).Count() == (int)(actualBoard.BoardWidth * actualBoard.TaskAreaHeight))
+                return null;
+            do
+            {
+                x = (uint)random.Next() % actualBoard.TaskAreaHeight + actualBoard.GoalAreaHeight;
+                y = (uint)random.Next() % actualBoard.BoardWidth;
+                field = actualBoard.GetTaskField(x, y);
+            }
+            while (field.GetPiece != null);
+            return field;
         }
     }
 }

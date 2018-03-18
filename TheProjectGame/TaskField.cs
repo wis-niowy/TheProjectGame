@@ -8,9 +8,12 @@ namespace GameArea
     public class TaskField:Field
     {
         private Piece piece;
-        public Piece GetPiece()
+        public Piece GetPiece
         {
-            return piece;
+            get
+            {
+                return piece;
+            }
         }
 
         public void SetPiece(Piece value)

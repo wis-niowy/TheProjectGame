@@ -226,6 +226,14 @@ namespace Messages
             xField = x;
             yField = y;
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+                return false;
+            var location = (Location)obj;
+            return location.xField == xField && location.yField == yField;
+        }
     }
     
     /// <remarks/>
@@ -317,9 +325,10 @@ namespace Messages
         
         private bool playerIdFieldSpecified;
 
-        public Piece(PieceType type)
+        public Piece(PieceType type,ulong id)
         {
             typeField = type;
+            idField = id;
         }
 
         public Piece()
@@ -407,7 +416,7 @@ namespace Messages
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/")]
     [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=true)]
-    public partial class Player {
+    public partial class Agent {
         
         private TeamColour teamField;
         
@@ -717,7 +726,7 @@ namespace Messages
     [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=false)]
     public partial class Game : PlayerMessage {
         
-        private Player[] playersField;
+        private Agent[] playersField;
         
         private GameBoard boardField;
         
@@ -725,7 +734,7 @@ namespace Messages
         
         /// <remarks/>
         [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
-        public Player[] Players {
+        public Agent[] Players {
             get {
                 return this.playersField;
             }
@@ -1060,14 +1069,14 @@ namespace Messages
     [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=false)]
     public partial class ConfirmJoiningGame : PlayerMessage {
         
-        private Player playerDefinitionField;
+        private Agent playerDefinitionField;
         
         private ulong gameIdField;
         
         private string privateGuidField;
         
         /// <remarks/>
-        public Player PlayerDefinition {
+        public Agent PlayerDefinition {
             get {
                 return this.playerDefinitionField;
             }

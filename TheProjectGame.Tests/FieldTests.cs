@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using GameArea;
+using Player;
 
 namespace TheProjectGame.Tests
 {
@@ -16,7 +17,7 @@ namespace TheProjectGame.Tests
             var field = new GameArea.TaskField(1u, 2u);
             Assert.AreEqual(1u, field.x);
             Assert.AreEqual(2u, field.y);
-            Assert.IsNull(field.GetPiece());
+            Assert.IsNull(field.GetPiece);
         }
 
         [TestMethod]
@@ -24,7 +25,7 @@ namespace TheProjectGame.Tests
         {
             var piece = new Piece();
             var fieldWithPiece = new GameArea.TaskField(1, 2, piece);
-            Assert.IsNotNull(fieldWithPiece.GetPiece());
+            Assert.IsNotNull(fieldWithPiece.GetPiece);
         }
 
         [TestMethod]
@@ -33,7 +34,7 @@ namespace TheProjectGame.Tests
             var piece = new Piece();
             var emptyField = new GameArea.TaskField(1, 2);
             emptyField.SetPiece(piece);
-            Assert.IsNotNull(emptyField.GetPiece());
+            Assert.IsNotNull(emptyField.GetPiece);
         }
 
         [TestMethod]
@@ -42,7 +43,7 @@ namespace TheProjectGame.Tests
             var piece = new Piece();
             var taskField = new GameArea.TaskField(1, 2, piece);
             taskField.RemovePiece();
-            Assert.IsNull(taskField.GetPiece());
+            Assert.IsNull(taskField.GetPiece);
         }
 
         [TestMethod]
@@ -59,7 +60,7 @@ namespace TheProjectGame.Tests
         [TestMethod]
         public void NewGoalField()
         {
-            var field = new GameArea.GoalField(1u, 2u,TeamColour.blue);
+            var field = new GameArea.GoalField(1u, 2u, TeamColour.blue);
             Assert.AreEqual(1u, field.x);
             Assert.AreEqual(2u, field.y);
             Assert.AreEqual(TeamColour.blue, field.Owner);
@@ -68,22 +69,24 @@ namespace TheProjectGame.Tests
         [TestMethod]
         public void GoalFieldGetType()
         {
-            var field = new GameArea.GoalField(1u, 1u,TeamColour.blue);
+            var field = new GameArea.GoalField(1u, 1u, TeamColour.blue);
             Assert.AreEqual(FieldType.Goal, field.GetFieldType());
         }
 
         [TestMethod]
         public void NewGoalType()
         {
-            var field = new GameArea.GoalField(1, 1,TeamColour.blue);
+            var field = new GameArea.GoalField(1, 1, TeamColour.blue);
             Assert.AreEqual(GoalFieldType.unknown, field.GoalType);
         }
 
         [TestMethod]
         public void NewGoalTypeGoal()
         {
-            var field = new GameArea.GoalField(1, 1,TeamColour.blue, GoalFieldType.goal);
+            var field = new GameArea.GoalField(1, 1, TeamColour.blue, GoalFieldType.goal);
             Assert.AreEqual(GoalFieldType.goal, field.GoalType);
         }
     }
+
+
 }

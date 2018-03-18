@@ -20,26 +20,26 @@ namespace GameArea.Tests
         [TestMethod]
         public void PieceUnknown()
         {
-            var piece = new Piece(PieceType.unknown);
+            var piece = new Piece(PieceType.unknown,0);
             Assert.AreEqual(PieceType.unknown, piece.type);
         }
         [TestMethod]
         public void PieceValid()
         {
-            var piece = new Piece(PieceType.normal);
+            var piece = new Piece(PieceType.normal,0);
             Assert.AreEqual(PieceType.normal, piece.type);
         }
         [TestMethod]
         public void PieceSham()
         {
-            var piece = new Piece(PieceType.sham);
+            var piece = new Piece(PieceType.sham,0);
             Assert.AreEqual(PieceType.sham, piece.type);
         }
 
         [TestMethod]
         public void SetShamToValid()
         {
-            var piece = new Piece(PieceType.sham);
+            var piece = new Piece(PieceType.sham,0);
             Assert.AreEqual(PieceType.sham, piece.type, "Invalid object initialization - piece is not Sham");
             piece.type = PieceType.normal;
             Assert.AreEqual(PieceType.normal, piece.type,"Piece.Type not changed to Valid");
