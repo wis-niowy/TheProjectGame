@@ -17,6 +17,8 @@ pipelines:
           - export TEST_NAME2=TheProjectGame.Tests
           - export PROJECT_NAME3=GameMaster
           - export TEST_NAME3=GameMaster.Tests
+          - export PROJECT_NAME4=Configuration
+          - export PROJECT_NAME5=Messages
           - dotnet restore
           - dotnet build $PROJECT_NAME1
           - dotnet test $TEST_NAME1
@@ -24,3 +26,5 @@ pipelines:
           - dotnet test $TEST_NAME2
           - dotnet build $PROJECT_NAME3
           - dotnet test $TEST_NAME3
+          - dotnet build $PROJECT_NAME4
+          - dotnet build $PROJECT_NAME5
