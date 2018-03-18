@@ -11,8 +11,16 @@ pipelines:
         caches:
           - dotnetcore
         script: # Modify the commands below to build your repository.
-          - export PROJECT_NAME=Agent
-          - export TEST_NAME=Agent.Tests
+          - export PROJECT_NAME1=Agent
+          - export TEST_NAME1=Agent.Tests
+          - export PROJECT_NAME2=TheProjectGame
+          - export TEST_NAME2=TheProjectGame.Tests
+          - export PROJECT_NAME3=GameMaster
+          - export TEST_NAME3=GameMaster.Tests
           - dotnet restore
-          - dotnet build $PROJECT_NAME
-          - dotnet test $TEST_NAME
+          - dotnet build $PROJECT_NAME1
+          - dotnet test $TEST_NAME1
+          - dotnet build $PROJECT_NAME2
+          - dotnet test $TEST_NAME2
+          - dotnet build $PROJECT_NAME3
+          - dotnet test $TEST_NAME3
