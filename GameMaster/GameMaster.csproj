@@ -6,7 +6,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Agent\Player.csproj" />
-    <ProjectReference Include="..\TheProjectGame\TheProjectGame.csproj" />
+    <ProjectReference Include="..\Configuration\Configuration.csproj" />
+    <ProjectReference Include="..\Messages\Messages.csproj" />
+    <ProjectReference Include="..\TheProjectGame\GameArea.csproj" />
   </ItemGroup>
 
 </Project>

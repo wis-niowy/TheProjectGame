@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Messages;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace TheProjectGame.GameArea
+namespace GameArea
 {
     public class TaskField:Field
     {
@@ -17,7 +18,7 @@ namespace TheProjectGame.GameArea
             piece = value;
         }
 
-        public TaskField(int x, int y, Piece piece = null):base(x,y)
+        public TaskField(uint x, uint y, Piece piece = null):base(x,y)
         {
             this.piece = piece;
         }

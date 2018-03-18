@@ -126,6 +126,8 @@ namespace Messages
                 this.pieceIdFieldSpecified = value;
             }
         }
+
+        public TaskField(uint x, uint y) : base(x, y) { }
     }
     
     /// <remarks/>
@@ -177,6 +179,8 @@ namespace Messages
                 this.playerIdFieldSpecified = value;
             }
         }
+
+        public Field(uint x, uint y) : base(x, y) { }
     }
     
     /// <remarks/>
@@ -216,6 +220,12 @@ namespace Messages
                 this.yField = value;
             }
         }
+
+        public Location(uint x, uint y)
+        {
+            xField = x;
+            yField = y;
+        }
     }
     
     /// <remarks/>
@@ -252,6 +262,8 @@ namespace Messages
                 this.teamField = value;
             }
         }
+
+        public GoalField(uint x, uint y) : base(x, y) { }
     }
     
     /// <remarks/>
@@ -304,7 +316,17 @@ namespace Messages
         private ulong playerIdField;
         
         private bool playerIdFieldSpecified;
-        
+
+        public Piece(PieceType type)
+        {
+            typeField = type;
+        }
+
+        public Piece()
+        {
+            typeField = PieceType.unknown;
+        }
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public ulong id {

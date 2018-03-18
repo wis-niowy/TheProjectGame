@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using TheProjectGame.GameArea;
+using GameArea;
+using Messages;
 
 namespace Player.Tests
 {
@@ -10,27 +11,27 @@ namespace Player.Tests
         [TestMethod]
         public void NewAgent()
         {
-            var agent = new Agent(Team.Blue);
+            var agent = new Agent(TeamColour.blue);
             Assert.IsNotNull(agent);
-            Assert.AreEqual(0, agent.GetLocation.X);
-            Assert.AreEqual(0, agent.GetLocation.Y);
-            Assert.AreEqual(Team.Blue, agent.GetTeam);
-            Assert.AreEqual(0, agent.GUID);
+            Assert.AreEqual(0u, agent.GetLocation.x);
+            Assert.AreEqual(0u, agent.GetLocation.y);
+            Assert.AreEqual(TeamColour.blue, agent.GetTeam);
+            Assert.AreEqual(0ul, agent.GUID);
         }
 
         [TestMethod]
         public void GuidSet()
         {
-            var agent = new Agent(Team.Blue);
-            agent.SetGuid(5);
-            Assert.AreEqual(5, agent.GUID);
+            var agent = new Agent(TeamColour.blue);
+            agent.SetGuid(5u);
+            Assert.AreEqual(5u, agent.GUID);
         }
 
         [TestMethod]
         public void BoardSet()
         {
-            var board = new Board(2, 2, 2);
-            var agent = new Agent(Team.Blue);
+            var board = new Board(2u, 2u, 2u);
+            var agent = new Agent(TeamColour.blue);
             Assert.IsNull(agent.GetBoard);
             agent.SetBoard(board);
             Assert.IsNotNull(agent.GetBoard);
@@ -40,11 +41,11 @@ namespace Player.Tests
         [TestMethod]
         public void SetLocation()
         {
-            var agent = new Agent(Team.Blue);
-            var newLocation = new Point(2, 3);
+            var agent = new Agent(TeamColour.blue);
+            var newLocation = new Location(2u, 3u);
             agent.SetLocation(newLocation);
-            Assert.AreEqual(newLocation.X, agent.GetLocation.X);
-            Assert.AreEqual(newLocation.Y, agent.GetLocation.Y);
+            Assert.AreEqual(newLocation.x, agent.GetLocation.x);
+            Assert.AreEqual(newLocation.y, agent.GetLocation.y);
         }
     }
 }

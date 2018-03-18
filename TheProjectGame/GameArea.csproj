@@ -9,4 +9,9 @@
     <PackageReference Include="Codaxy.Xsd2" Version="0.9.9" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Configuration\Configuration.csproj" />
+    <ProjectReference Include="..\Messages\Messages.csproj" />
+  </ItemGroup>
+
 </Project>

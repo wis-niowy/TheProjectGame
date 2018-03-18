@@ -1,15 +1,14 @@
-﻿using System;
+﻿using Messages;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace TheProjectGame.GameArea
+namespace GameArea
 {
-    public enum Team { Red, Blue}
-    public enum GoalType { Empty, Fullfilled, NotFullfilled, Unknown}
     public class GoalField : Field
     {
-        private GoalType type;
-        public GoalField(int x, int y, Team owner,GoalType goalType = GoalType.Unknown):base(x,y)
+        private GoalFieldType type;
+        public GoalField(uint x, uint y, TeamColour owner, GoalFieldType goalType = GoalFieldType.unknown) :base(x,y)
         {
             type = goalType;
             this.owner = owner;
@@ -20,7 +19,7 @@ namespace TheProjectGame.GameArea
             return FieldType.Goal;
         }
 
-        public GoalType GoalType
+        public GoalFieldType GoalType
         {
             get
             {
@@ -32,9 +31,9 @@ namespace TheProjectGame.GameArea
             }
         }
 
-        private Team owner;
+        private TeamColour owner;
 
-        public Team Owner
+        public TeamColour Owner
         {
             get
             {

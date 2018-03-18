@@ -2,21 +2,21 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace TheProjectGame.GameArea
+namespace GameArea
 {
     public class Board
     {
-        private int width;
-        private int pieceAreaHeight;
-        private int goalAreaHeight;
-        public int BoardWidth
+        private uint width;
+        private uint pieceAreaHeight;
+        private uint goalAreaHeight;
+        public uint BoardWidth
         {
             get
             {
                 return width;
             }
         }
-        public int PieceAreaHeight
+        public uint PieceAreaHeight
         {
             get
             {
@@ -24,11 +24,11 @@ namespace TheProjectGame.GameArea
             }
         }
 
-        public int GoalAreaHeight
+        public uint GoalAreaHeight
         {
             get { return goalAreaHeight; }
         }
-        public int BoardHeight
+        public uint BoardHeight
         {
             get
             {
@@ -36,7 +36,7 @@ namespace TheProjectGame.GameArea
             }
         }
         private Field[,] fields;
-        public Board(int width, int pieceAreaHeight, int goalAreaHeight)
+        public Board(uint width, uint pieceAreaHeight, uint goalAreaHeight)
         {
             this.width = width;
             this.pieceAreaHeight = pieceAreaHeight;

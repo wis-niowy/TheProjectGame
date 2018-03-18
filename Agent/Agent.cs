@@ -1,13 +1,14 @@
-﻿using System;
-using TheProjectGame.GameArea;
+﻿using Messages;
+using System;
+using GameArea;
 
 namespace Player
 {
     public class Agent
     {
-        private int guid;
+        private ulong guid;
 
-        public int GUID
+        public ulong GUID
         {
             get
             {
@@ -15,13 +16,13 @@ namespace Player
             }
         }
 
-        public void SetGuid (int newGuid)
+        public void SetGuid (ulong newGuid)
         {
             guid = newGuid;
         }
 
-        private Team team;
-        public Team GetTeam
+        private TeamColour team;
+        public TeamColour GetTeam
         {
             get
             {
@@ -29,16 +30,16 @@ namespace Player
             }
         }
 
-        public void SetTeam(Team newTeam)
+        public void SetTeam(TeamColour newTeam)
         {
             team = newTeam;
         }
 
-        public Agent(Team team,int guid = 0 )
+        public Agent(TeamColour team,ulong guid = 0 )
         {
             this.team = team;
             this.guid = guid;
-            this.location = new Point(0,0);
+            this.location = new Location(0,0);
         }
 
         private Board agentBoard;
@@ -78,8 +79,8 @@ namespace Player
             }
         }
 
-        private Point location;
-        public Point GetLocation
+        private Location location;
+        public Location GetLocation
         {
             get
             {
@@ -87,14 +88,14 @@ namespace Player
             }
         }
 
-        public void SetLocation(Point point)
+        public void SetLocation(Location point)
         {
             location = point;
         }
 
-        public void SetLocation(int x, int y)
+        public void SetLocation(uint x, uint y)
         {
-            location = new Point(x,y);
+            location = new Location(x,y);
         }
     }
 }

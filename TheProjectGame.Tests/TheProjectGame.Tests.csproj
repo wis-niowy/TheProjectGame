@@ -17,7 +17,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TheProjectGame\TheProjectGame.csproj" />
+    <ProjectReference Include="..\TheProjectGame\GameArea.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="GameArea\" />
   </ItemGroup>
 
 </Project>

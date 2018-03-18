@@ -1,8 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Messages;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using TheProjectGame.GameArea;
+using GameArea;
 
 namespace TheProjectGame.Tests
 {
@@ -12,9 +13,9 @@ namespace TheProjectGame.Tests
         [TestMethod]
         public void NewTaskField()
         {
-            var field = new TaskField(1, 2);
-            Assert.AreEqual(1, field.X);
-            Assert.AreEqual(2, field.Y);
+            var field = new GameArea.TaskField(1u, 2u);
+            Assert.AreEqual(1u, field.x);
+            Assert.AreEqual(2u, field.y);
             Assert.IsNull(field.GetPiece());
         }
 
@@ -22,7 +23,7 @@ namespace TheProjectGame.Tests
         public void NewTaskFiledWithPiece()
         {
             var piece = new Piece();
-            var fieldWithPiece = new TaskField(1, 2, piece);
+            var fieldWithPiece = new GameArea.TaskField(1, 2, piece);
             Assert.IsNotNull(fieldWithPiece.GetPiece());
         }
 
@@ -30,7 +31,7 @@ namespace TheProjectGame.Tests
         public void NewTaskAddPiece()
         {
             var piece = new Piece();
-            var emptyField = new TaskField(1, 2);
+            var emptyField = new GameArea.TaskField(1, 2);
             emptyField.SetPiece(piece);
             Assert.IsNotNull(emptyField.GetPiece());
         }
@@ -39,7 +40,7 @@ namespace TheProjectGame.Tests
         public void TaskRemovePiece()
         {
             var piece = new Piece();
-            var taskField = new TaskField(1, 2, piece);
+            var taskField = new GameArea.TaskField(1, 2, piece);
             taskField.RemovePiece();
             Assert.IsNull(taskField.GetPiece());
         }
@@ -47,7 +48,7 @@ namespace TheProjectGame.Tests
         [TestMethod]
         public void TaskFieldGetType()
         {
-            var field = new TaskField(1, 1);
+            var field = new GameArea.TaskField(1, 1);
             Assert.AreEqual(FieldType.Task, field.GetFieldType());
         }
     }
@@ -58,31 +59,31 @@ namespace TheProjectGame.Tests
         [TestMethod]
         public void NewGoalField()
         {
-            var field = new GoalField(1, 2,Team.Blue);
-            Assert.AreEqual(1, field.X);
-            Assert.AreEqual(2, field.Y);
-            Assert.AreEqual(Team.Blue, field.Owner);
+            var field = new GameArea.GoalField(1u, 2u,TeamColour.blue);
+            Assert.AreEqual(1u, field.x);
+            Assert.AreEqual(2u, field.y);
+            Assert.AreEqual(TeamColour.blue, field.Owner);
         }
 
         [TestMethod]
         public void GoalFieldGetType()
         {
-            var field = new GoalField(1, 1,Team.Blue);
+            var field = new GameArea.GoalField(1u, 1u,TeamColour.blue);
             Assert.AreEqual(FieldType.Goal, field.GetFieldType());
         }
 
         [TestMethod]
         public void NewGoalType()
         {
-            var field = new GoalField(1, 1,Team.Blue);
-            Assert.AreEqual(GoalType.Unknown, field.GoalType);
+            var field = new GameArea.GoalField(1, 1,TeamColour.blue);
+            Assert.AreEqual(GoalFieldType.unknown, field.GoalType);
         }
 
         [TestMethod]
-        public void NewGoalTypeNotFullfilled()
+        public void NewGoalTypeGoal()
         {
-            var field = new GoalField(1, 1,Team.Blue, GoalType.NotFullfilled);
-            Assert.AreEqual(GoalType.NotFullfilled, field.GoalType);
+            var field = new GameArea.GoalField(1, 1,TeamColour.blue, GoalFieldType.goal);
+            Assert.AreEqual(GoalFieldType.goal, field.GoalType);
         }
     }
 }

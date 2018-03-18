@@ -2,9 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using TheProjectGame.GameArea;
+using GameArea;
+using Messages;
 
-namespace TheProjectGame.Tests
+namespace GameArea.Tests
 {
     [TestClass]
     public class PieceTests
@@ -13,43 +14,43 @@ namespace TheProjectGame.Tests
         public void NewPieceWithoutParams()
         {
             var piece = new Piece();
-            Assert.AreEqual(GameArea.PieceType.Unknown, piece.Type);
+            Assert.AreEqual(PieceType.unknown, piece.type);
         }
 
         [TestMethod]
         public void PieceUnknown()
         {
-            var piece = new Piece(PieceType.Unknown);
-            Assert.AreEqual(PieceType.Unknown, piece.Type);
+            var piece = new Piece(PieceType.unknown);
+            Assert.AreEqual(PieceType.unknown, piece.type);
         }
         [TestMethod]
         public void PieceValid()
         {
-            var piece = new Piece(PieceType.Valid);
-            Assert.AreEqual(PieceType.Valid, piece.Type);
+            var piece = new Piece(PieceType.normal);
+            Assert.AreEqual(PieceType.normal, piece.type);
         }
         [TestMethod]
         public void PieceSham()
         {
-            var piece = new Piece(PieceType.Sham);
-            Assert.AreEqual(PieceType.Sham, piece.Type);
+            var piece = new Piece(PieceType.sham);
+            Assert.AreEqual(PieceType.sham, piece.type);
         }
 
         [TestMethod]
         public void SetShamToValid()
         {
-            var piece = new Piece(PieceType.Sham);
-            Assert.AreEqual(PieceType.Sham, piece.Type, "Invalid object initialization - piece is not Sham");
-            piece.Type = PieceType.Valid;
-            Assert.AreEqual(PieceType.Valid, piece.Type,"Piece.Type not changed to Valid");
+            var piece = new Piece(PieceType.sham);
+            Assert.AreEqual(PieceType.sham, piece.type, "Invalid object initialization - piece is not Sham");
+            piece.type = PieceType.normal;
+            Assert.AreEqual(PieceType.normal, piece.type,"Piece.Type not changed to Valid");
         }
 
         [TestMethod]
         public void SetNewPieceToSham()
         {
             var piece = new Piece();
-            piece.Type = PieceType.Sham;
-            Assert.AreEqual(PieceType.Sham, piece.Type, "Piece created with default constructor did not changed type to Sham");
+            piece.type = PieceType.sham;
+            Assert.AreEqual(PieceType.sham, piece.type, "Piece created with default constructor did not changed type to Sham");
         }
     }
 }

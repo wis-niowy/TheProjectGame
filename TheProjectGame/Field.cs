@@ -1,21 +1,16 @@
-﻿using System;
+﻿using Messages;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace TheProjectGame.GameArea
+namespace GameArea
 {
     public enum FieldType { Goal, Task}
-    public abstract class Field
+    public abstract class Field:Location
     {
-        private int x;
-        private int y;
-        public int X { get { return x; } }
-        public int Y { get { return y; } }
 
-        public Field(int x, int y)
+        public Field(uint x, uint y):base(x,y)
         {
-            this.x = x;
-            this.y = y;
         }
 
         private DateTime timestamp;
