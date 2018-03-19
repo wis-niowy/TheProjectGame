@@ -83,6 +83,38 @@ namespace TheProjectGame.Tests.Serialization
             Assert.IsNull(deserializationResult);
         }
 
+        [TestMethod]
+        public void CanSerializeMethodTestForTestPieceMessageCorrectType()
+        {
+            var serializerTestPiece = new MessageSerializator<TestPiece>();
+            var testPieceMessage = new TestPiece
+            {
+                gameId = 1,
+                playerGuid = "ee4455"
+            };
+            var message = serializerTestPiece.Serialize(testPieceMessage);
+
+            var deserializationResult = serializerTestPiece.CanDeserialize(message);
+
+            Assert.AreEqual(true, deserializationResult);
+        }
+
+        [TestMethod]
+        public void CanSerializeMethodTestForTestPieceMessageIncorrectType()
+        {
+            var serializerTestPiece = new MessageSerializator<GameMessage>();
+            var testPieceMessage = new TestPiece
+            {
+                gameId = 1,
+                playerGuid = "ee4455"
+            };
+            var message = serializerTestPiece.Serialize(testPieceMessage);
+
+            var deserializationResult = serializerTestPiece.CanDeserialize(message);
+
+            Assert.AreEqual(false, deserializationResult);
+        }
+
         //[TestMethod]
         //public void SerializerTest()
         //{

@@ -116,10 +116,23 @@ namespace GameArea.Serialization
             //return null;
         }
 
-        //public bool CanDeserialize(string message)
-        //{
-        //    return null;
-        //}
+        public bool CanDeserialize(string message)
+        {
+            bool returnValue = true;
+            XmlSerializer xs = new XmlSerializer(typeof(T));
+            T deserializedResult = null;
+            try
+            {
+                deserializedResult = xs.Deserialize(new StringReader(message)) as T;
+            }
+            catch (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine("Cannot deserialize string");
+                returnValue = false;
+            }
+
+            return returnValue;
+        }
 
     }
 }
