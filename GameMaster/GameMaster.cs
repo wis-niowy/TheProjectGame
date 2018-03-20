@@ -35,6 +35,14 @@ namespace GameMaster
             }
         }
 
+        public GameMasterSettingsGameDefinition GetSettings
+        {
+            get
+            {
+                return gameSettings;
+            }
+        }
+
 
         public List<Player.Agent> GetAgentsByTeam(Messages.TeamColour team)
         {
@@ -53,7 +61,7 @@ namespace GameMaster
             agents.Add(agent);
         }
 
-        public Board Board
+        public Board GetBoard
         {
             get
             {
@@ -72,9 +80,17 @@ namespace GameMaster
 
         private void InitBoard(GameMasterSettingsGameDefinition settings)
         {
-
             actualBoard = new Board(uint.Parse(settings.BoardWidth), uint.Parse(settings.TaskAreaLength), uint.Parse(settings.GoalAreaLength));
             PlaceInitialPieces(settings.InitialNumberOfPieces);
+            PlaceInitialGoals(settings.Goals);
+        }
+
+        private void PlaceInitialGoals(Messages.GoalField[] goals)
+        {
+            foreach(var goal in goals)
+            {
+                actualBoard.SetGoalField(new GameArea.GoalField(goal.x,goal.y,goal.team,goal.type));
+            }
         }
 
         private void PlaceInitialPieces(uint piecesCount)

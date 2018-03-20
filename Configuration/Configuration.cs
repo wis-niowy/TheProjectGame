@@ -1,4 +1,5 @@
 namespace Configuration {
+    using Messages;
     using System;
     using System.Collections.Generic;
     
@@ -136,7 +137,7 @@ namespace Configuration {
         private string numberOfPlayersPerTeamField;
         
         private string gameNameField;
-        
+
         public GameMasterSettingsGameDefinition() {
             this.shamProbabilityField = 0.1D;
             this.placingNewPiecesFrequencyField = ((uint)(1000));
@@ -145,6 +146,15 @@ namespace Configuration {
             this.taskAreaLengthField = "7";
             this.goalAreaLengthField = "3";
             this.numberOfPlayersPerTeamField = "4";
+            this.goalsField = new GoalField[]
+                {
+                new GoalField() { x = 1, y = 1, type = GoalFieldType.goal, team = TeamColour.blue },
+            new GoalField() { x = 1, y = 2, type = GoalFieldType.goal, team = TeamColour.blue },
+            new GoalField() { x = 1, y = 0, type = GoalFieldType.goal, team = TeamColour.blue },
+            new GoalField() { x = 1, y = 1, type = GoalFieldType.goal, team = TeamColour.red },
+            new GoalField() { x = 11, y = 2, type = GoalFieldType.goal, team = TeamColour.red },
+            new GoalField() { x = 11, y = 0, type = GoalFieldType.goal, team = TeamColour.red }
+            };
         }
         
         /// <remarks/>
@@ -243,70 +253,70 @@ namespace Configuration {
         }
     }
     
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/", IsNullable=true)]
-    public partial class GoalField : Field {
+    ///// <remarks/>
+    //[System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
+    //[System.SerializableAttribute()]
+    //[System.Diagnostics.DebuggerStepThroughAttribute()]
+    //[System.ComponentModel.DesignerCategoryAttribute("code")]
+    //[System.Xml.Serialization.XmlTypeAttribute(Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/")]
+    //[System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/", IsNullable=true)]
+    //public partial class GoalField : Field {
         
-        private GoalFieldType typeField;
+    //    private GoalFieldType typeField;
         
-        private TeamColour teamField;
+    //    private TeamColour teamField;
         
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public GoalFieldType type {
-            get {
-                return this.typeField;
-            }
-            set {
-                this.typeField = value;
-            }
-        }
+    //    /// <remarks/>
+    //    [System.Xml.Serialization.XmlAttributeAttribute()]
+    //    public GoalFieldType type {
+    //        get {
+    //            return this.typeField;
+    //        }
+    //        set {
+    //            this.typeField = value;
+    //        }
+    //    }
         
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public TeamColour team {
-            get {
-                return this.teamField;
-            }
-            set {
-                this.teamField = value;
-            }
-        }
-    }
+    //    /// <remarks/>
+    //    [System.Xml.Serialization.XmlAttributeAttribute()]
+    //    public TeamColour team {
+    //        get {
+    //            return this.teamField;
+    //        }
+    //        set {
+    //            this.teamField = value;
+    //        }
+    //    }
+    //}
     
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/", IsNullable=false)]
-    public enum GoalFieldType {
+    ///// <remarks/>
+    //[System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
+    //[System.SerializableAttribute()]
+    //[System.Xml.Serialization.XmlTypeAttribute(Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/")]
+    //[System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/", IsNullable=false)]
+    //public enum GoalFieldType {
         
-        /// <remarks/>
-        goal,
+    //    /// <remarks/>
+    //    goal,
         
-        /// <remarks/>
-        [System.Xml.Serialization.XmlEnumAttribute("non-goal")]
-        nongoal,
-    }
+    //    /// <remarks/>
+    //    [System.Xml.Serialization.XmlEnumAttribute("non-goal")]
+    //    nongoal,
+    //}
     
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/", IsNullable=false)]
-    public enum TeamColour {
+    ///// <remarks/>
+    //[System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
+    //[System.SerializableAttribute()]
+    //[System.Xml.Serialization.XmlTypeAttribute(Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/")]
+    //[System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/", IsNullable=false)]
+    //public enum TeamColour {
         
-        /// <remarks/>
-        red,
+    //    /// <remarks/>
+    //    red,
         
-        /// <remarks/>
-        blue,
-    }
+    //    /// <remarks/>
+    //    blue,
+    //}
     
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(GoalField))]

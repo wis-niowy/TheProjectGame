@@ -20,6 +20,6 @@ namespace GameArea
             timestamp = newTimeStamp;
         }
 
-        public abstract FieldType GetFieldType();
+        public FieldType GetFieldType;
     }
 }

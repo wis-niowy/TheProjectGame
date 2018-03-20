@@ -14,9 +14,12 @@ namespace GameArea
             this.owner = owner;
         }
 
-        public override FieldType GetFieldType()
+        public new FieldType GetFieldType
         {
-            return FieldType.Goal;
+            get
+            {
+                return FieldType.Goal;
+            }
         }
 
         public GoalFieldType GoalType
@@ -33,7 +36,7 @@ namespace GameArea
 
         private TeamColour owner;
 
-        public TeamColour Owner
+        public TeamColour GetOwner
         {
             get
             {

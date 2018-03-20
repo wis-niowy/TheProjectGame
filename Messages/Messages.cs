@@ -272,6 +272,10 @@ namespace Messages
         }
 
         public GoalField(uint x, uint y) : base(x, y) { }
+
+        public GoalField():base(0,0)
+        {
+        }
     }
     
     /// <remarks/>

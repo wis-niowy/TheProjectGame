@@ -50,7 +50,7 @@ namespace TheProjectGame.Tests
         public void TaskFieldGetType()
         {
             var field = new GameArea.TaskField(1, 1);
-            Assert.AreEqual(FieldType.Task, field.GetFieldType());
+            Assert.AreEqual(FieldType.Task, field.GetFieldType);
         }
     }
 
@@ -63,14 +63,14 @@ namespace TheProjectGame.Tests
             var field = new GameArea.GoalField(1u, 2u, TeamColour.blue);
             Assert.AreEqual(1u, field.x);
             Assert.AreEqual(2u, field.y);
-            Assert.AreEqual(TeamColour.blue, field.Owner);
+            Assert.AreEqual(TeamColour.blue, field.GetOwner);
         }
 
         [TestMethod]
         public void GoalFieldGetType()
         {
             var field = new GameArea.GoalField(1u, 1u, TeamColour.blue);
-            Assert.AreEqual(FieldType.Goal, field.GetFieldType());
+            Assert.AreEqual(FieldType.Goal, field.GetFieldType);
         }
 
         [TestMethod]

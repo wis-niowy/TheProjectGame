@@ -54,6 +54,40 @@ namespace GameArea
             }
         }
 
+        public List<GoalField> GetBlueGoalAreaFields
+        {
+            get
+            {
+                var goalFields = new List<GoalField>();
+                for(int i=0;i<goalAreaHeight;i++)
+                {
+                    for (int j = 0; j < BoardWidth; j++)
+                    {
+                        var field = (GoalField)fields[i, j];
+                        goalFields.Add(field);
+                    }
+                }
+                return goalFields;
+            }
+        }
+
+        public List<GoalField> GetRedGoalAreaFields
+        {
+            get
+            {
+                var goalFields = new List<GoalField>();
+                for (uint i = goalAreaHeight + taskAreaHeight; i < BoardHeight; i++)
+                {
+                    for (uint j = 0; j < BoardWidth; j++)
+                    {
+                        var field = (GoalField)fields[i, j];
+                        goalFields.Add(field);
+                    }
+                }
+                return goalFields;
+            }
+        }
+
         public Field GetField(uint x, uint y)
         {
             if (x >= BoardHeight || y >= BoardWidth)
@@ -61,11 +95,23 @@ namespace GameArea
             return fields[x, y];
         }
 
+        public void SetGoalField(GoalField goalField)
+        {
+            fields[goalField.x, goalField.y] = goalField;
+        }
+
         public TaskField GetTaskField(uint x, uint y)
         {
             if (x < GoalAreaHeight || x >=GoalAreaHeight+TaskAreaHeight || y >= BoardWidth)
                 return null;
             return (TaskField)fields[x, y];
+        }
+
+        public GoalField GetGoalField(uint x, uint y)
+        {
+            if ((x >= GoalAreaHeight && x <GoalAreaHeight + TaskAreaHeight) || y >= BoardWidth)
+                return null;
+            return (GoalField)fields[x, y];
         }
 
         private Field[,] fields;

@@ -31,9 +31,12 @@ namespace GameArea
             piece = null;
         }
 
-        public override FieldType GetFieldType()
+        public new FieldType GetFieldType
         {
-            return FieldType.Task;
+            get
+            {
+                return FieldType.Task;
+            }
         }
     }
 }
