@@ -14,9 +14,10 @@ namespace Player
             {
                 return guid;
             }
+
         }
 
-        public void SetGuid (ulong newGuid)
+        public void SetGuid (ulong newGuid) // setter?
         {
             guid = newGuid;
         }
@@ -30,12 +31,12 @@ namespace Player
             }
         }
 
-        public void SetTeam(TeamColour newTeam)
+        public void SetTeam(TeamColour newTeam) // setter?
         {
             team = newTeam;
         }
 
-        public Agent(TeamColour team,ulong guid = 0 )
+        public Agent(TeamColour team, ulong guid = 0 )
         {
             this.team = team;
             this.guid = guid;
@@ -52,7 +53,7 @@ namespace Player
             }
         }
 
-        public void SetBoard(Board board)
+        public void SetBoard(Board board) // setter?
         {
             agentBoard = board;
         }
@@ -96,6 +97,37 @@ namespace Player
         public void SetLocation(uint x, uint y)
         {
             location = new Location(x,y);
+        }
+
+        // API
+        public void TestPiece(IGameMaster gameMaster)
+        {
+
+        }
+
+        public void PlacePiece(IGameMaster gameMaster)
+        {
+
+        }
+
+        public void PickUpPiece(IGameMaster gameMaster)
+        {
+
+        }
+
+        public void Move(IGameMaster gameMaster, MoveType direction)
+        {
+            
+        }
+
+        public void Discover(IGameMaster gameMaster)
+        {
+
+        }
+
+        public void doStrategy()
+        {
+
         }
     }
 }

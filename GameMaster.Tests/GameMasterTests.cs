@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace GameMaster.Tests
+namespace GameArea.Tests
 {
     [TestClass]
     public class GameMasterTests

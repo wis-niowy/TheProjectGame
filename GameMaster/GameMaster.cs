@@ -7,15 +7,17 @@ using GameArea;
 using Messages;
 using Configuration;
 
-namespace GameMaster
+namespace GameArea
 {
     public enum GameMasterState { AwaitingPlayers, GameInprogress, GameOver};
-    public class GameMaster
+    public class GameMaster: IGameMaster
     {
         private GameMasterState state;
         private ulong nextPieceId = 0;
         private Random random;
         private List<Player.Agent> agents;
+        //private List<Piece> pieces;
+        private Dictionary<ulong, uint> agentIdDictionary;
         private Board actualBoard;
         private GameMasterSettingsGameDefinition gameSettings;
 
@@ -74,6 +76,8 @@ namespace GameMaster
             state = GameMasterState.AwaitingPlayers;
             random = new Random();
             agents = new List<Player.Agent>();
+            //pieces = new List<Piece>();
+            agentIdDictionary = new Dictionary<ulong, uint>();
             gameSettings = settings;
             InitBoard(gameSettings);
         }
@@ -127,5 +131,80 @@ namespace GameMaster
             while (field.GetPiece != null);
             return field;
         }
+
+        // API
+
+        /// <summary>
+        /// Method 
+        /// </summary>
+        /// <param name="playerGuid"></param>
+        /// <param name="gameId"></param>
+        /// <returns></returns>
+        public Data HandleTestPieceRequest(ulong playerGuid, ulong gameId)
+        {
+            Piece pieceToSend = new Piece()
+            {
+                type = agents.Where(q => q.GUID == playerGuid).First().GetPiece.type,
+                id = agents.Where(q => q.GUID == playerGuid).First().GetPiece.id,
+                playerId = agentIdDictionary[playerGuid],
+                timestamp = DateTime.Now
+            };
+            
+            return new Data()
+            {
+                gameFinished = false,
+                playerId = agentIdDictionary[playerGuid],
+                Pieces = new Piece[] { pieceToSend }
+            };
+        }
+
+        /// <summary>
+        /// Player cannot place the piece if the field is already claimed
+        /// </summary>
+        /// <param name="pieceId"></param>
+        /// <param name="playerGuid"></param>
+        /// <param name="gameId"></param>
+        /// <returns></returns>
+        public Data HandlePlacePieceRequest(ulong playerGuid, ulong gameId)
+        {
+            // DODAC PRZYPADEK, GDY POLE JEST ZAJETE
+
+            uint x = agents.Where(q => q.GUID == playerGuid).First().GetLocation.x;
+            uint y = agents.Where(q => q.GUID == playerGuid).First().GetLocation.y;
+            TeamColour teamColour = agents.Where(q => q.GUID == playerGuid).First().GetTeam;
+            GoalFieldType goalFieldType = actualBoard.GetGoalField(x ,y).GoalType;
+            Messages.GoalField goalField = new Messages.GoalField()
+            {
+                x = x,
+                y = y,
+                playerId = agentIdDictionary[playerGuid],
+                timestamp = DateTime.Now,
+                type = goalFieldType
+            };
+
+            return new Data()
+            {
+                gameFinished = false,
+                playerId = agentIdDictionary[playerGuid],
+                GoalFields = new Messages.GoalField[] {}
+            };
+        }
+
+        public Data HandlePickUpPieceRequest(ulong playerGuid, ulong gameId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Data HandleMoveRequest(MoveType direction, ulong playerGuid, ulong gameId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Data HandleDiscoverRequest(ulong playerGuid, ulong gameId)
+        {
+            throw new NotImplementedException();
+        }
+
+
     }
 }
