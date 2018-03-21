@@ -6,18 +6,30 @@ namespace Player
 {
     public class Agent
     {
-        private ulong guid;
+        private ulong id;
+        public ulong ID
+        {
+            get
+            {
+                return id;
+            }
+            set
+            {
+                this.id = value;
+            }
+        }
 
-        public ulong GUID
+        private string guid;
+        public string GUID
         {
             get
             {
                 return guid;
             }
-
         }
+        
 
-        public void SetGuid (ulong newGuid) // setter?
+        public void SetGuid (string newGuid) // setter?
         {
             guid = newGuid;
         }
@@ -36,10 +48,10 @@ namespace Player
             team = newTeam;
         }
 
-        public Agent(TeamColour team, ulong guid = 0 )
+        public Agent(TeamColour team, ulong id = 0 )
         {
             this.team = team;
-            this.guid = guid;
+            this.id = id;
             this.location = new Location(0,0);
         }
 

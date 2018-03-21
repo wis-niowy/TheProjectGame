@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
+
 namespace GameArea
 {
     public enum FieldType { Goal, Task}
@@ -10,6 +11,17 @@ namespace GameArea
     {
         private DateTime timestamp;
         private Agent player;
+        public Agent Player
+        {
+            get
+            {
+                return player;
+            }
+            set
+            {
+                this.player = value;
+            }
+        }
         public Field(uint x, uint y):base(x,y)
         {
         }
@@ -18,6 +30,11 @@ namespace GameArea
         public void UpdateTimeStamp(DateTime newTimeStamp)
         {
             timestamp = newTimeStamp;
+        }
+
+        public bool HasAgent()
+        {
+            return (player != null);
         }
 
         public FieldType GetFieldType;

@@ -47,7 +47,7 @@ namespace GameArea
                 {
                     for(uint j = 0; j<BoardWidth;j++)
                     {
-                        taskFields.Add((TaskField)fields[i, j]);
+                        taskFields.Add((TaskField)fields[j, i]);
                     }
                 }
                 return taskFields;
@@ -63,7 +63,7 @@ namespace GameArea
                 {
                     for (int j = 0; j < BoardWidth; j++)
                     {
-                        var field = (GoalField)fields[i, j];
+                        var field = (GoalField)fields[j, i];
                         goalFields.Add(field);
                     }
                 }
@@ -80,7 +80,7 @@ namespace GameArea
                 {
                     for (uint j = 0; j < BoardWidth; j++)
                     {
-                        var field = (GoalField)fields[i, j];
+                        var field = (GoalField)fields[j, i];
                         goalFields.Add(field);
                     }
                 }
@@ -90,7 +90,7 @@ namespace GameArea
 
         public Field GetField(uint x, uint y)
         {
-            if (x >= BoardHeight || y >= BoardWidth)
+            if (x >= BoardWidth || y >= BoardHeight)
                 return null;
             return fields[x, y];
         }
@@ -102,14 +102,14 @@ namespace GameArea
 
         public TaskField GetTaskField(uint x, uint y)
         {
-            if (x < GoalAreaHeight || x >=GoalAreaHeight+TaskAreaHeight || y >= BoardWidth)
+            if (y < GoalAreaHeight || y >=GoalAreaHeight+TaskAreaHeight || x >= BoardWidth)
                 return null;
             return (TaskField)fields[x, y];
         }
 
         public GoalField GetGoalField(uint x, uint y)
         {
-            if ((x >= GoalAreaHeight && x <GoalAreaHeight + TaskAreaHeight) || y >= BoardWidth)
+            if ((y >= GoalAreaHeight && y <GoalAreaHeight + TaskAreaHeight) || x >= BoardWidth)
                 return null;
             return (GoalField)fields[x, y];
         }
@@ -120,20 +120,20 @@ namespace GameArea
             this.width = width;
             this.taskAreaHeight = pieceAreaHeight;
             this.goalAreaHeight = goalAreaHeight;
-            fields = new Field[pieceAreaHeight + 2 * goalAreaHeight, width];
+            fields = new Field[width,pieceAreaHeight + 2 * goalAreaHeight];
             for (uint i = 0; i < GoalAreaHeight; i++)
             {
                 for (uint j = 0; j < BoardWidth; j++)
                 {
-                    fields[i, j] = new GoalField(i, j, TeamColour.blue, GoalFieldType.nongoal);
-                    fields[i + pieceAreaHeight + goalAreaHeight, j] = new GoalField(i + pieceAreaHeight + goalAreaHeight, j, TeamColour.red, GoalFieldType.nongoal);
+                    fields[j, i] = new GoalField(j, i, TeamColour.blue, GoalFieldType.nongoal);
+                    fields[j, i + pieceAreaHeight + goalAreaHeight] = new GoalField(j, i + pieceAreaHeight + goalAreaHeight, TeamColour.red, GoalFieldType.nongoal);
                 }
             }
             for (uint i = GoalAreaHeight; i < BoardHeight - GoalAreaHeight; i++)
             {
                 for (uint j = 0; j < BoardWidth; j++)
                 {
-                    fields[i, j] = new TaskField(i, j);
+                    fields[j, i] = new TaskField(i, j);
                 }
             }
         }

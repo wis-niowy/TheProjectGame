@@ -4,20 +4,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GameArea;
-using Messages;
 using Configuration;
 
 namespace GameArea
 {
-    public enum GameMasterState { AwaitingPlayers, GameInprogress, GameOver};
-    public class GameMaster: IGameMaster
+    public enum GameMasterState { AwaitingPlayers, GameInprogress, GameOver };
+    public class GameMaster : IGameMaster
     {
         private GameMasterState state;
         private ulong nextPieceId = 0;
         private Random random;
         private List<Player.Agent> agents;
         //private List<Piece> pieces;
-        private Dictionary<ulong, uint> agentIdDictionary;
+        private Dictionary<string, uint> agentIdDictionary;
         private Board actualBoard;
         private GameMasterSettingsGameDefinition gameSettings;
 
@@ -51,7 +50,7 @@ namespace GameArea
             return agents.Where(q => q.GetTeam == team).ToList();
         }
 
-        public Player.Agent GetAgentByGuid(ulong guid)
+        public Player.Agent GetAgentByGuid(string guid)
         {
             return agents.Where(q => q.GUID == guid).FirstOrDefault();
         }
@@ -77,7 +76,7 @@ namespace GameArea
             random = new Random();
             agents = new List<Player.Agent>();
             //pieces = new List<Piece>();
-            agentIdDictionary = new Dictionary<ulong, uint>();
+            agentIdDictionary = new Dictionary<string, uint>();
             gameSettings = settings;
             InitBoard(gameSettings);
         }
@@ -91,9 +90,9 @@ namespace GameArea
 
         private void PlaceInitialGoals(Messages.GoalField[] goals)
         {
-            foreach(var goal in goals)
+            foreach (var goal in goals)
             {
-                actualBoard.SetGoalField(new GameArea.GoalField(goal.x,goal.y,goal.team,goal.type));
+                actualBoard.SetGoalField(new GameArea.GoalField(goal.x, goal.y, goal.team, goal.type));
             }
         }
 
@@ -140,7 +139,7 @@ namespace GameArea
         /// <param name="playerGuid">guid of player requesting an action</param>
         /// <param name="gameId">id of current game</param>
         /// <returns></returns>
-        public Data HandleTestPieceRequest(ulong playerGuid, ulong gameId)
+        public Data HandleTestPieceRequest(string playerGuid, ulong gameId)
         {
             Piece pieceDataToSend = new Piece()
             {
@@ -149,7 +148,7 @@ namespace GameArea
                 playerId = agentIdDictionary[playerGuid],
                 timestamp = DateTime.Now
             };
-            
+
             return new Data()
             {
                 gameFinished = false,
@@ -165,14 +164,14 @@ namespace GameArea
         /// <param name="playerGuid">guid of player requesting an action</param>
         /// <param name="gameId">id of current game</param>
         /// <returns></returns>
-        public Data HandlePlacePieceRequest(ulong playerGuid, ulong gameId)
+        public Data HandlePlacePieceRequest(string playerGuid, ulong gameId)
         {
             // DODAC PRZYPADEK, GDY POLE JEST ZAJETE
 
             uint x = agents.Where(q => q.GUID == playerGuid).First().GetLocation.x;
             uint y = agents.Where(q => q.GUID == playerGuid).First().GetLocation.y;
             TeamColour teamColour = agents.Where(q => q.GUID == playerGuid).First().GetTeam;
-            GoalFieldType goalFieldType = actualBoard.GetGoalField(x ,y).GoalType;
+            GoalFieldType goalFieldType = actualBoard.GetGoalField(x, y).GoalType;
             Messages.GoalField goalField = new Messages.GoalField()
             {
                 x = x,
@@ -181,14 +180,14 @@ namespace GameArea
                 timestamp = DateTime.Now,
                 type = goalFieldType,
                 team = teamColour
-                
+
             };
 
             return new Data()
             {
                 gameFinished = false,
                 playerId = agentIdDictionary[playerGuid],
-                GoalFields = new Messages.GoalField[] {}
+                GoalFields = new Messages.GoalField[] { }
             };
         }
 
@@ -198,7 +197,7 @@ namespace GameArea
         /// <param name="playerGuid">guid of player requesting an action</param>
         /// <param name="gameId">id of current game</param>
         /// <returns></returns>
-        public Data HandlePickUpPieceRequest(ulong playerGuid, ulong gameId)
+        public Data HandlePickUpPieceRequest(string playerGuid, ulong gameId)
         {
             Piece pieceDataToSend = new Piece()
             {
@@ -223,17 +222,64 @@ namespace GameArea
         /// <param name="playerGuid">guid of player requesting an action</param>
         /// <param name="gameId">id of current game</param>
         /// <returns></returns>
-        public Data HandleMoveRequest(MoveType direction, ulong playerGuid, ulong gameId)
+        public Data HandleMoveRequest(MoveType direction, string playerGuid, ulong gameId)
         {
             var currentLocation = agents.Where(a => a.GUID == playerGuid).First().GetLocation;
-            var futureLocation = PerformLocationDelta(direction, currentLocation);
+            var team = agents.Where(a => a.GUID == playerGuid).First().GetTeam;
+            var futureLocation = PerformLocationDelta(direction, currentLocation, team);
 
+            //player tried to step out of the board or enter other team's goal area
+            if (currentLocation == futureLocation)
+                return new Data()
+                {
+                    gameFinished = false,
+                    playerId = agentIdDictionary[playerGuid],
+                    TaskFields = new Messages.TaskField[] { },
+                    PlayerLocation = currentLocation
+                };
+
+
+            GameArea.TaskField fieldFromBoard;
+            Messages.Piece piece;
+            if (actualBoard.GetField(futureLocation.x, futureLocation.y) is GameArea.TaskField)
+            {
+                fieldFromBoard = actualBoard.GetField(futureLocation.x, futureLocation.y) as GameArea.TaskField;
+                piece = fieldFromBoard.GetPiece;
+            }
+            else
+            {
+                piece = null;
+            }
+
+            Messages.TaskField field = new Messages.TaskField(futureLocation.x, futureLocation.y)
+            {
+                distanceToPiece = 0,
+                playerId = actualBoard.GetField(futureLocation.x, futureLocation.y).Player.id,
+                timestamp = DateTime.Now,
+
+            };
+
+            //player tried to step on a field with another agent
+            if (actualBoard.GetField(futureLocation.x, futureLocation.y).HasAgent())
+            {
+                return new Data()
+                {
+                    gameFinished = false,
+                    playerId = agentIdDictionary[playerGuid],
+                    TaskFields = new Messages.TaskField[] { field },
+                    PlayerLocation = currentLocation,
+                    Pieces = new Messages.Piece[] {piece}   // jesli dystans > 0 sekcji pieces nie ma?
+                };
+            }
+
+            
             return new Data()
             {
                 gameFinished = false,
                 playerId = agentIdDictionary[playerGuid],
-                TaskFields = new Messages.TaskField[] {},
-                PlayerLocation = 
+                TaskFields = new Messages.TaskField[] { field },
+                PlayerLocation = futureLocation,
+                Pieces = new Messages.Piece[] { piece }   // jesli dystans > 0 sekcji pieces nie ma?
             };
         }
 
@@ -243,7 +289,7 @@ namespace GameArea
         /// <param name="playerGuid">guid of player requesting an action</param>
         /// <param name="gameId">id of current game</param>
         /// <returns></returns>
-        public Data HandleDiscoverRequest(ulong playerGuid, ulong gameId)
+        public Data HandleDiscoverRequest(string playerGuid, ulong gameId)
         {
             throw new NotImplementedException();
         }
@@ -254,12 +300,12 @@ namespace GameArea
         /// Converts MoveType enum object to Location object
         /// </summary>
         /// <returns></returns>
-        private Messages.Location PerformLocationDelta(MoveType moveType, Messages.Location currentLocation)
+        private Messages.Location PerformLocationDelta(MoveType moveType, Messages.Location currentLocation, TeamColour team)
         {
             // is MoveUp the same for red and blue team? or if for red Up is +1 for blue should be -1 on OY???
             int dx = 0, dy = 0;
-            
-            switch(moveType)
+
+            switch (moveType)
             {
                 case MoveType.right:
                     dx = 1;
@@ -274,7 +320,20 @@ namespace GameArea
                     dy = 1;
                     break;
             }
-            
+            //stepping out of the board
+            if (currentLocation.x + dx < 0 || currentLocation.x + dx >= actualBoard.BoardWidth ||
+                currentLocation.y + dy < 0 || currentLocation.y + dy >= actualBoard.BoardHeight)
+                return currentLocation;
+
+            //red player enters blue goal area
+            if (team == TeamColour.red && currentLocation.y + dy < actualBoard.GoalAreaHeight)
+                return currentLocation;
+
+            //blue player enters red goal area
+            if (team == TeamColour.blue && currentLocation.y + dy >= actualBoard.BoardHeight - actualBoard.GoalAreaHeight)
+                return currentLocation;
+
+            return new Messages.Location((uint)(currentLocation.x + dx), (uint)(currentLocation.y + dy));
         }
     }
 }

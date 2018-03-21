@@ -23,8 +23,8 @@ namespace Player.Tests
         public void GuidSet()
         {
             var agent = new Agent(TeamColour.blue);
-            agent.SetGuid(5u);
-            Assert.AreEqual(5u, agent.GUID);
+            agent.SetGuid("kakao");
+            Assert.AreEqual("kakao", agent.GUID);
         }
 
         [TestMethod]

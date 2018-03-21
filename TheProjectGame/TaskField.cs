@@ -7,7 +7,7 @@ namespace GameArea
 {
     public class TaskField:Field
     {
-        private Piece piece;
+        private Piece piece;    //--------- czy piece ma być tylko na task field, czy na dowolnym field?
         public Piece GetPiece
         {
             get
