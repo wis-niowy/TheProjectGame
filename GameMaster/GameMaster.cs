@@ -135,14 +135,14 @@ namespace GameArea
         // API
 
         /// <summary>
-        /// Method 
+        /// Method to request a Test Piece action
         /// </summary>
-        /// <param name="playerGuid"></param>
-        /// <param name="gameId"></param>
+        /// <param name="playerGuid">guid of player requesting an action</param>
+        /// <param name="gameId">id of current game</param>
         /// <returns></returns>
         public Data HandleTestPieceRequest(ulong playerGuid, ulong gameId)
         {
-            Piece pieceToSend = new Piece()
+            Piece pieceDataToSend = new Piece()
             {
                 type = agents.Where(q => q.GUID == playerGuid).First().GetPiece.type,
                 id = agents.Where(q => q.GUID == playerGuid).First().GetPiece.id,
@@ -154,16 +154,16 @@ namespace GameArea
             {
                 gameFinished = false,
                 playerId = agentIdDictionary[playerGuid],
-                Pieces = new Piece[] { pieceToSend }
+                Pieces = new Piece[] { pieceDataToSend }
             };
         }
 
         /// <summary>
+        /// Method to request a Place Piece action
         /// Player cannot place the piece if the field is already claimed
         /// </summary>
-        /// <param name="pieceId"></param>
-        /// <param name="playerGuid"></param>
-        /// <param name="gameId"></param>
+        /// <param name="playerGuid">guid of player requesting an action</param>
+        /// <param name="gameId">id of current game</param>
         /// <returns></returns>
         public Data HandlePlacePieceRequest(ulong playerGuid, ulong gameId)
         {
@@ -179,7 +179,9 @@ namespace GameArea
                 y = y,
                 playerId = agentIdDictionary[playerGuid],
                 timestamp = DateTime.Now,
-                type = goalFieldType
+                type = goalFieldType,
+                team = teamColour
+                
             };
 
             return new Data()
@@ -190,21 +192,89 @@ namespace GameArea
             };
         }
 
+        /// <summary>
+        /// Method to request a Pick Up Piece action
+        /// </summary>
+        /// <param name="playerGuid">guid of player requesting an action</param>
+        /// <param name="gameId">id of current game</param>
+        /// <returns></returns>
         public Data HandlePickUpPieceRequest(ulong playerGuid, ulong gameId)
         {
-            throw new NotImplementedException();
+            Piece pieceDataToSend = new Piece()
+            {
+                type = PieceType.unknown,
+                id = agents.Where(q => q.GUID == playerGuid).First().GetPiece.id,
+                playerId = agentIdDictionary[playerGuid],
+                timestamp = DateTime.Now
+            };
+
+            return new Data()
+            {
+                gameFinished = false,
+                playerId = agentIdDictionary[playerGuid],
+                Pieces = new Piece[] { pieceDataToSend }
+            };
         }
 
+        /// <summary>
+        /// Method to request a Move action
+        /// </summary>
+        /// <param name="direction">direction requested by a Player</param>
+        /// <param name="playerGuid">guid of player requesting an action</param>
+        /// <param name="gameId">id of current game</param>
+        /// <returns></returns>
         public Data HandleMoveRequest(MoveType direction, ulong playerGuid, ulong gameId)
         {
-            throw new NotImplementedException();
+            var currentLocation = agents.Where(a => a.GUID == playerGuid).First().GetLocation;
+            var futureLocation = PerformLocationDelta(direction, currentLocation);
+
+            return new Data()
+            {
+                gameFinished = false,
+                playerId = agentIdDictionary[playerGuid],
+                TaskFields = new Messages.TaskField[] {},
+                PlayerLocation = 
+            };
         }
 
+        /// <summary>
+        /// Method to request a Discover action
+        /// </summary>
+        /// <param name="playerGuid">guid of player requesting an action</param>
+        /// <param name="gameId">id of current game</param>
+        /// <returns></returns>
         public Data HandleDiscoverRequest(ulong playerGuid, ulong gameId)
         {
             throw new NotImplementedException();
         }
 
+        // additional methods
 
+        /// <summary>
+        /// Converts MoveType enum object to Location object
+        /// </summary>
+        /// <returns></returns>
+        private Messages.Location PerformLocationDelta(MoveType moveType, Messages.Location currentLocation)
+        {
+            // is MoveUp the same for red and blue team? or if for red Up is +1 for blue should be -1 on OY???
+            int dx = 0, dy = 0;
+            
+            switch(moveType)
+            {
+                case MoveType.right:
+                    dx = 1;
+                    break;
+                case MoveType.left:
+                    dx = -1;
+                    break;
+                case MoveType.down:
+                    dy = -1;
+                    break;
+                case MoveType.up:
+                    dy = 1;
+                    break;
+            }
+            
+        }
     }
 }
