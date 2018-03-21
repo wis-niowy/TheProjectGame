@@ -80,7 +80,7 @@ namespace GameMaster
 
         private void InitBoard(GameMasterSettingsGameDefinition settings)
         {
-            actualBoard = new Board(uint.Parse(settings.BoardWidth), uint.Parse(settings.TaskAreaLength), uint.Parse(settings.GoalAreaLength));
+            actualBoard = new Board(settings.BoardWidth, settings.TaskAreaLength, settings.GoalAreaLength);
             PlaceInitialPieces(settings.InitialNumberOfPieces);
             PlaceInitialGoals(settings.Goals);
         }

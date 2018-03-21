@@ -128,13 +128,13 @@ namespace Configuration {
         
         private uint initialNumberOfPiecesField;
         
-        private string boardWidthField;
+        private uint boardWidthField;
         
-        private string taskAreaLengthField;
+        private uint taskAreaLengthField;
         
-        private string goalAreaLengthField;
+        private uint goalAreaLengthField;
         
-        private string numberOfPlayersPerTeamField;
+        private uint numberOfPlayersPerTeamField;
         
         private string gameNameField;
 
@@ -142,10 +142,10 @@ namespace Configuration {
             this.shamProbabilityField = 0.1D;
             this.placingNewPiecesFrequencyField = ((uint)(1000));
             this.initialNumberOfPiecesField = ((uint)(4));
-            this.boardWidthField = "5";
-            this.taskAreaLengthField = "7";
-            this.goalAreaLengthField = "3";
-            this.numberOfPlayersPerTeamField = "4";
+            this.boardWidthField = 5;
+            this.taskAreaLengthField = 7;
+            this.goalAreaLengthField = 3;
+            this.numberOfPlayersPerTeamField = 4;
             this.goalsField = new GoalField[]
                 {
                 new GoalField() { x = 1, y = 1, type = GoalFieldType.goal, team = TeamColour.blue },
@@ -200,7 +200,7 @@ namespace Configuration {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(DataType="nonNegativeInteger")]
-        public string BoardWidth {
+        public uint BoardWidth {
             get {
                 return this.boardWidthField;
             }
@@ -211,7 +211,7 @@ namespace Configuration {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(DataType="nonNegativeInteger")]
-        public string TaskAreaLength {
+        public uint TaskAreaLength {
             get {
                 return this.taskAreaLengthField;
             }
@@ -222,7 +222,7 @@ namespace Configuration {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(DataType="nonNegativeInteger")]
-        public string GoalAreaLength {
+        public uint GoalAreaLength {
             get {
                 return this.goalAreaLengthField;
             }
@@ -233,7 +233,7 @@ namespace Configuration {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(DataType="nonNegativeInteger")]
-        public string NumberOfPlayersPerTeam {
+        public uint NumberOfPlayersPerTeam {
             get {
                 return this.numberOfPlayersPerTeamField;
             }

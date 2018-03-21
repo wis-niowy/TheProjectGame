@@ -181,6 +181,19 @@ namespace Messages
         }
 
         public Field(uint x, uint y) : base(x, y) { }
+
+        public override bool Equals(object obj)
+        {
+            var field = obj as Field;
+            return field != null &&
+                   base.Equals(obj) &&
+                   timestampField == field.timestampField &&
+                   playerIdField == field.playerIdField &&
+                   playerIdFieldSpecified == field.playerIdFieldSpecified &&
+                   timestamp == field.timestamp &&
+                   playerId == field.playerId &&
+                   playerIdSpecified == field.playerIdSpecified;
+        }
     }
     
     /// <remarks/>
@@ -275,6 +288,20 @@ namespace Messages
 
         public GoalField():base(0,0)
         {
+        }
+
+        public override bool Equals(object obj)
+        {
+            GoalField goalToCompare;
+            if (obj.GetType() == typeof(GoalField))
+                goalToCompare = (GoalField)obj;
+            else
+                return false;
+            return goalToCompare.typeField == this.typeField
+                && goalToCompare.teamField == this.teamField
+                && goalToCompare.x == this.x 
+                && goalToCompare.y == this.y
+                && base.Equals(goalToCompare);
         }
     }
     
