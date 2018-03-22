@@ -66,6 +66,20 @@ namespace Player.Tests
 
             };
             var gameMaster = new GameArea.GameMaster(conf);
+            var agentGameMasterVersion = new Player.Agent(TeamColour.red, "testGUID-0000");
+            var agentOriginal = new Player.Agent(TeamColour.red, "testGUID-0000");
+            gameMaster.RegisterAgent(agentGameMasterVersion);
+
+            var testResult = agentOriginal.TestPiece(gameMaster);
+
+            Assert.AreEqual(false, testResult);
+        }
+
+        [TestMethod]
+        public void PlayerWithShamPieceTestsPiece()
+        {
+            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
+            var gameMaster = new GameArea.GameMaster(conf);
             var agent = new Player.Agent(TeamColour.red, "testGUID-0000");
             gameMaster.RegisterAgent(agent);
 

@@ -67,6 +67,13 @@ namespace Player
             this.location = new Location(0,0);
         }
 
+        public Agent(Agent original)
+        {
+            this.team = original.GetTeam;
+            this.guid = original.GUID;
+            this.location = new Location(original.location.x, original.location.y);
+        }
+
         private Board agentBoard;
 
         public Board GetBoard
@@ -134,7 +141,8 @@ namespace Player
             Data responseMessage = gameMaster.HandleTestPieceRequest(this.GUID, this.GameId);
             // if this message was sent to this
             if (responseMessage.playerId == this.ID && !responseMessage.gameFinished &&
-                responseMessage.Pieces != null && responseMessage.Pieces.Length > 0 && responseMessage.Pieces[0].id == this.GetPiece.id)
+                responseMessage.Pieces != null && responseMessage.Pieces.Length > 0 && responseMessage.Pieces[0] != null &&
+                responseMessage.Pieces[0].id == this.GetPiece.id)
             {
                 var receivedPieceData = responseMessage.Pieces[0];
                 if (receivedPieceData != null && this.GetPiece != null && receivedPieceData.id == this.GetPiece.id)
