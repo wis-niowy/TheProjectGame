@@ -73,10 +73,6 @@ namespace Player
             this.guid = original.GUID;
             this.id = original.id;
             this.location = new Location(original.location.x, original.location.y);
-            //this.piece = new Piece(original.piece)
-            //{
-            //    type = PieceType.unknown
-            //};
             if (original.piece != null)
                 this.piece = new Piece(original.piece); // agent can't see original piece (sham or goal info must be hidden)
             //this.agentBoard = original.agentBoard; // it seems it doesn't need to be copied, because GameMaster does not make changes to boards of agents on his list
@@ -163,37 +159,34 @@ namespace Player
             return false;
         }
 
-        public void PlacePiece(IGameMaster gameMaster)
+        public bool PlacePiece(IGameMaster gameMaster)
         {
             // should we check if received location is the same as the actual one?
             Data responseMessage = gameMaster.HandlePlacePieceRequest(this.GUID, this.GameId);
 
             if (responseMessage.playerId == this.ID && !responseMessage.gameFinished)
             {
-                // placing the piece on a task field
+                // placing the piece on an empty task field
                 if (responseMessage.TaskFields != null && responseMessage.TaskFields.Length > 0 && responseMessage.TaskFields[0].pieceId == this.piece.id)
                 {
                     ((GameArea.TaskField)agentBoard.GetField(location.x, location.y)).SetPiece(this.GetPiece); // place the piece on the field
                     this.SetPiece(null); // drop the piece
+                    return true;
                 }
-                // placing the piece on a goal field
-                else if (responseMessage.GoalFields != null && responseMessage.GoalFields.Length > 0)
+                // placing the piece on a goal field of type 'goal'
+                else if (responseMessage.GoalFields != null && responseMessage.GoalFields.Length > 0 &&
+                         responseMessage.GoalFields[0].type == GoalFieldType.goal)
                 {
-                    switch (responseMessage.GoalFields[0].type)
-                    {
-                        case GoalFieldType.goal:
-                            this.SetPiece(null); // drop the piece
-                            break;
-                        case GoalFieldType.nongoal:
-
-                            break;
-                    }
+                    this.SetPiece(null); // drop the piece and score a point
+                    return true;
                 }
+                // placing the piece either on occupied TaskField or non-goal GoalField
                 else
                 {
-                    // do nothing ?
+                    return false;
                 }
             }
+            else return false;
         }
 
         public void PickUpPiece(IGameMaster gameMaster)

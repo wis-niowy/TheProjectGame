@@ -177,14 +177,12 @@ namespace GameArea
             // player posseses a piece
             if (agents.Where(q => q.GUID == playerGuid).First().GetPiece != null)
             {
-                // the task field is not claimed
+                // the TaskField is not claimed
                 if (actualBoard.GetField(location.x, location.y) is GameArea.TaskField && (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).GetPiece == null)
                 {
                     var fieldMessage = new Messages.TaskField(location.x, location.y)
                     {
-                        //x = location.x,
-                        //y = location.y,
-                        playerId = agents.Where(q => q.GUID == playerGuid).First().ID, // EEEEE
+                        playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
                         pieceId = agents.Where(q => q.GUID == playerGuid).First().GetPiece.id,
                         timestamp = DateTime.Now
                     };
@@ -195,12 +193,30 @@ namespace GameArea
                     return new Data()
                     {
                         gameFinished = false,
-                        //playerId = agentIdDictionary[playerGuid],
                         playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
                         TaskFields = new Messages.TaskField[] { fieldMessage }
                     };
                 }
-                // the goal field is a goal
+                // player carries a sham piece and is on a GoalField - he receives no data about a current GoalField and cannot place a piece
+                else if(actualBoard.GetField(location.x, location.y) is GameArea.GoalField && agents.Where(q => q.GUID == playerGuid).First().GetPiece.type == PieceType.sham)
+                {
+                    var teamColour = agents.Where(q => q.GUID == playerGuid).First().GetTeam;
+                    var fieldMessage = new Messages.GoalField()
+                    {
+                        x = location.x,
+                        y = location.y,
+                        playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
+                        timestamp = DateTime.Now,
+                        team = teamColour
+                    };
+                    return new Data()
+                    {
+                        gameFinished = false,
+                        playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
+                        GoalFields = new Messages.GoalField[] { fieldMessage }
+                    };
+                }
+                // the goal field is a goal and player carries a normal piece
                 else if (actualBoard.GetField(location.x, location.y) is GameArea.GoalField && (actualBoard.GetField(location.x, location.y) as GameArea.GoalField).GoalType == GoalFieldType.goal)
                 {
                     var teamColour = agents.Where(q => q.GUID == playerGuid).First().GetTeam;
@@ -214,6 +230,9 @@ namespace GameArea
                         type = goalFieldType,
                         team = teamColour
                     };
+
+                    agents.Where(q => q.GUID == playerGuid).First().SetPiece(null); // the piece is no longer possesed by an agent
+
                     return new Data()
                     {
                         gameFinished = false,

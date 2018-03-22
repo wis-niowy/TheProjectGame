@@ -124,5 +124,7 @@ namespace Player.Tests
             Assert.AreEqual(true, testResult);
             Assert.AreEqual(PieceType.normal, agent.GetPiece.type);
         }
+
+        
     }
 }
