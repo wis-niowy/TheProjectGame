@@ -146,16 +146,19 @@ namespace Configuration {
             this.taskAreaLengthField = "7";
             this.goalAreaLengthField = "3";
             this.numberOfPlayersPerTeamField = "4";
-            List<GoalField> goalsFieldList = new List<GoalField>();
-            for (uint w = 0; w < 5; ++w)
-            {
-                for (uint h = 0; h < 3; ++h)
+
+            this.goalsField = new GoalField[]
                 {
-                    goalsFieldList.Add(new GoalField() { x = w, y = h, type = GoalFieldType.goal, team = TeamColour.blue });
-                    goalsFieldList.Add(new GoalField() { x = w, y = h + 10, type = GoalFieldType.goal, team = TeamColour.blue });
-                }
-            }
-            this.goalsField = goalsFieldList.ToArray();
+                new GoalField() { x = 1, y = 1, type = GoalFieldType.goal, team = TeamColour.blue },
+                new GoalField() { x = 2, y = 2, type = GoalFieldType.goal, team = TeamColour.blue },
+                new GoalField() { x = 3, y = 0, type = GoalFieldType.goal, team = TeamColour.blue },
+                new GoalField() { x = 2, y = 11, type = GoalFieldType.goal, team = TeamColour.red },
+                new GoalField() { x = 3, y = 10, type = GoalFieldType.goal, team = TeamColour.red },
+                new GoalField() { x = 4, y = 12, type = GoalFieldType.goal, team = TeamColour.red }
+
+                };
+
+            //// ORIGINALLY GENERATED PART:
             //this.goalsField = new GoalField[]
             //    {
             //        // set of GoalFields was invalid ...
