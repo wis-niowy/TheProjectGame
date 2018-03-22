@@ -28,10 +28,22 @@ namespace Player
             }
         }
         
-
         public void SetGuid (string newGuid) // setter?
         {
             guid = newGuid;
+        }
+
+        private ulong gameId;
+        public ulong GameId
+        {
+            get
+            {
+                return gameId;
+            }
+            set
+            {
+                gameId = value;
+            }
         }
 
         private TeamColour team;
@@ -112,14 +124,59 @@ namespace Player
         }
 
         // API
-        public void TestPiece(IGameMaster gameMaster)
+        /// <summary>
+        /// Method to send request to test the piece
+        /// </summary>
+        /// <param name="gameMaster">Addressee of the request</param>
+        /// <returns>True - request was valid; False - request was not valid</returns>
+        public bool TestPiece(IGameMaster gameMaster)
         {
-
+            Data responseMessage = gameMaster.HandleTestPieceRequest(this.GUID, this.GameId);
+            // if this message was sent to this
+            if (responseMessage.playerId == this.ID && !responseMessage.gameFinished &&
+                responseMessage.Pieces != null && responseMessage.Pieces.Length > 0 && responseMessage.Pieces[0].id == this.GetPiece.id)
+            {
+                var receivedPieceData = responseMessage.Pieces[0];
+                if (receivedPieceData != null && this.GetPiece != null && receivedPieceData.id == this.GetPiece.id)
+                {
+                    this.piece.type = receivedPieceData.type;
+                    return true;
+                }
+            }
+            return false;
         }
 
         public void PlacePiece(IGameMaster gameMaster)
         {
+            // should we check if received location is the same as the actual one?
+            Data responseMessage = gameMaster.HandlePlacePieceRequest(this.GUID, this.GameId);
 
+            if (responseMessage.playerId == this.ID && !responseMessage.gameFinished)
+            {
+                // placing the piece on a task field
+                if (responseMessage.TaskFields != null && responseMessage.TaskFields.Length > 0 && responseMessage.TaskFields[0].pieceId == this.piece.id)
+                {
+                    ((GameArea.TaskField)agentBoard.GetField(location.x, location.y)).SetPiece(this.GetPiece); // place the piece on the field
+                    this.SetPiece(null); // drop the piece
+                }
+                // placing the piece on a goal field
+                else if (responseMessage.GoalFields != null && responseMessage.GoalFields.Length > 0)
+                {
+                    switch (responseMessage.GoalFields[0].type)
+                    {
+                        case GoalFieldType.goal:
+                            this.SetPiece(null); // drop the piece
+                            break;
+                        case GoalFieldType.nongoal:
+
+                            break;
+                    }
+                }
+                else
+                {
+                    // do nothing ?
+                }
+            }
         }
 
         public void PickUpPiece(IGameMaster gameMaster)

@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Agent\Player.csproj" />
+    <ProjectReference Include="..\GameMaster\GameMaster.csproj" />
     <ProjectReference Include="..\TheProjectGame\GameArea.csproj" />
   </ItemGroup>
 
