@@ -135,6 +135,16 @@ namespace Player
             location = new Location(x,y);
         }
 
+        public Messages.Agent ConvertToMessageAgent()
+        {
+            return new Messages.Agent()
+            {
+                id = this.ID,
+                team = this.team,
+                type = PlayerType.member
+            };
+        }
+
         // API
         /// <summary>
         /// Method to send request to test the piece
@@ -173,14 +183,20 @@ namespace Player
                     this.SetPiece(null); // drop the piece
                     return true;
                 }
-                // placing the piece on a goal field of type 'goal'
+                // placing the sham piece on GoalField of any type - no data about GoalField received and placing a piece failed
+                else if (responseMessage.GoalFields != null && responseMessage.GoalFields.Length > 0 &&
+                         responseMessage.GoalFields[0].type == GoalFieldType.unknown)
+                {
+                    return false;
+                }
+                // placing the normal piece on a GoalField of type 'goal'
                 else if (responseMessage.GoalFields != null && responseMessage.GoalFields.Length > 0 &&
                          responseMessage.GoalFields[0].type == GoalFieldType.goal)
                 {
                     this.SetPiece(null); // drop the piece and score a point
                     return true;
                 }
-                // placing the piece either on occupied TaskField or non-goal GoalField
+                // placing any piece either on occupied TaskField or a noraml piece on a non-goal GoalField
                 else
                 {
                     return false;

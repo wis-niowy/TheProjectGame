@@ -59,6 +59,7 @@ namespace GameArea
         {
             var newId = agents.Count > 0 ? agents.Max(q => q.ID) + 1 : 1;
             agent.ID = newId;
+            agent.SetBoard(new Board(uint.Parse(gameSettings.BoardWidth), uint.Parse(gameSettings.TaskAreaLength), uint.Parse(gameSettings.GoalAreaLength)));
             agents.Add(new Player.Agent(agent));
         }
 
@@ -461,6 +462,27 @@ namespace GameArea
                 return false;
 
             else return true;
+        }
+
+
+        /// <summary>
+        /// FOR UNIT TESTING
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="guid"></param>
+        /// <returns></returns>
+        public bool SetAbsoluteAgentLocation(uint x, uint y, string guid)
+        {
+            var team = agents.Where(q => q.GUID == guid).First().GetTeam;
+            if (ValidateFieldPosition((int)x, (int)y, team))
+            {
+                agents.Where(q => q.GUID == guid).First().SetLocation(x, y);
+                actualBoard.GetField(x, y).Player = agents.Where(q => q.GUID == guid).First().ConvertToMessageAgent();
+                // rzutowanie wymuszone lekkim balaganem: w fieldzie jest typ Message.Agent, na liscie Player.Agent - laczymy ich po ID w razie potrzeby
+                return true;
+            }
+            return false;
         }
     }
 }

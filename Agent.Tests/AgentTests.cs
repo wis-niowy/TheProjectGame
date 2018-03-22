@@ -81,6 +81,7 @@ namespace Player.Tests
             Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
             var gameMaster = new GameArea.GameMaster(conf);
             var agent = new Player.Agent(TeamColour.red, "testGUID-0001");
+            // equip an agent with a sham piece
             agent.SetPiece(new Piece(PieceType.sham, 100)
             {
                 timestamp = DateTime.Now,
@@ -106,6 +107,7 @@ namespace Player.Tests
             Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
             var gameMaster = new GameArea.GameMaster(conf);
             var agent = new Player.Agent(TeamColour.blue, "testGUID-0002");
+            // equip an agent with a normal piece
             agent.SetPiece(new Piece(PieceType.normal, 90)
             {
                 timestamp = DateTime.Now,
@@ -125,6 +127,38 @@ namespace Player.Tests
             Assert.AreEqual(PieceType.normal, agent.GetPiece.type);
         }
 
-        
+
+        [TestMethod]
+        public void PlayerPlacesShamPieceOnNotOccupiedTaskField()
+        {
+            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
+            var gameMaster = new GameArea.GameMaster(conf);
+            var agent = new Player.Agent(TeamColour.blue, "testGUID-0003");
+            // equip an agent with a sham piece
+            agent.SetPiece(new Piece(PieceType.sham, 90)
+            {
+                timestamp = DateTime.Now,
+
+            });
+            gameMaster.RegisterAgent(agent);
+            agent.SetPiece(new Piece(PieceType.unknown, 90)
+            {
+                timestamp = DateTime.Now,
+            });
+            agent.SetLocation(1, 5); // we change a location of an original object
+
+            // set an agent on a TaskField
+            var setPositionResult = gameMaster.SetAbsoluteAgentLocation(1, 5, "testGUID-0003"); // we change a location of GM's copy
+
+            // action: agent places a piece
+            var actionResult = agent.PlacePiece(gameMaster);
+
+            Assert.AreEqual(true, setPositionResult);
+            Assert.AreEqual(true, actionResult);
+            Assert.IsNull(agent.GetPiece);
+            Assert.IsNotNull((gameMaster.GetBoard.GetField(1, 5) as GameArea.TaskField).GetPiece);
+            Assert.AreEqual(90ul, (gameMaster.GetBoard.GetField(1, 5) as GameArea.TaskField).GetPiece.id);
+        }
+
     }
 }

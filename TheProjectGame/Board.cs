@@ -133,7 +133,7 @@ namespace GameArea
             {
                 for (uint j = 0; j < BoardWidth; j++)
                 {
-                    fields[j, i] = new TaskField(i, j);
+                    fields[j, i] = new TaskField(j, i);
                 }
             }
         }
