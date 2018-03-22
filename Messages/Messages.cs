@@ -340,6 +340,14 @@ namespace Messages
             typeField = PieceType.unknown;
         }
 
+        public Piece(Piece original)
+        {
+            idField = original.idField;
+            typeField = original.typeField;
+            timestampField = original.timestampField;
+            playerIdSpecified = original.playerIdFieldSpecified;
+        }
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public ulong id {
