@@ -1,5 +1,6 @@
 using Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Messages;
 
 namespace MainApp.Tests
 {
@@ -193,8 +194,8 @@ namespace MainApp.Tests
         [TestMethod]
         public void GoalEqual()
         {
-            Messages.GoalField goalField1 = new Messages.GoalField(1, 3) { type = Messages.GoalFieldType.goal };
-            Messages.GoalField goalField2 = new Messages.GoalField(1, 3) { type = Messages.GoalFieldType.goal };
+            GoalField goalField1 = new GoalField(1, 3,TeamColour.red) { type = Messages.GoalFieldType.goal };
+            GoalField goalField2 = new GoalField(1, 3,TeamColour.red) { type = Messages.GoalFieldType.goal };
             Assert.AreEqual(goalField1, goalField2);
 
             goalField1.playerId = 10;
@@ -203,7 +204,112 @@ namespace MainApp.Tests
             goalField2.playerId = 10;
             Assert.AreEqual(goalField1, goalField2);
             //TODO: more tests for equal
+
         }
         //TODO: tests for goalfields validation
+        [TestMethod]
+        public void GoalFieldsArrayIsNull()
+        {
+            defaultSettings.GameDefinition.Goals = null;
+            var message = Validator.ValidateGoals(defaultSettings.GameDefinition.Goals, 
+                defaultSettings.GameDefinition.GoalAreaLength, 
+                defaultSettings.GameDefinition.TaskAreaLength, 
+                defaultSettings.GameDefinition.BoardWidth);
+
+            Assert.IsFalse(string.IsNullOrEmpty(message));
+            Assert.AreEqual(ValidatorMessages.NULL_GOALFIELD_ARRAY, message);
+        }
+
+        [TestMethod]
+        public void GoalFieldsArrayContainsNullGoal()
+        {
+            defaultSettings.GameDefinition.Goals = new GoalField[]{ new GoalField(1, 2, TeamColour.red), null};
+            var message = Validator.ValidateGoals(defaultSettings.GameDefinition.Goals,
+                defaultSettings.GameDefinition.GoalAreaLength,
+                defaultSettings.GameDefinition.TaskAreaLength,
+                defaultSettings.GameDefinition.BoardWidth);
+
+            Assert.IsFalse(string.IsNullOrEmpty(message));
+            Assert.AreEqual(ValidatorMessages.NULL_GOALFIELD, message);
+        }
+
+        [TestMethod]
+        public void GoalFieldsNotDistinct()
+        {
+            defaultSettings.GameDefinition.Goals = new GoalField[] { new GoalField(10,2,TeamColour.red), new GoalField(1, 2,TeamColour.blue), new GoalField(1,2,TeamColour.blue)};
+            var message = Validator.ValidateGoals(defaultSettings.GameDefinition.Goals,
+                defaultSettings.GameDefinition.GoalAreaLength,
+                defaultSettings.GameDefinition.TaskAreaLength,
+                defaultSettings.GameDefinition.BoardWidth);
+
+            Assert.IsFalse(string.IsNullOrEmpty(message));
+            Assert.AreEqual(ValidatorMessages.GOALS_ARE_NOT_UNIQUE, message);
+        }
+        [TestMethod]
+        public void GoalFieldsRedTeamNoGoals()
+        {
+            defaultSettings.GameDefinition.Goals = new GoalField[] { new GoalField(1, 3, TeamColour.blue), new GoalField(1, 2, TeamColour.blue), new GoalField(0, 3, TeamColour.blue) };
+            var message = Validator.ValidateGoals(defaultSettings.GameDefinition.Goals,
+                defaultSettings.GameDefinition.GoalAreaLength,
+                defaultSettings.GameDefinition.TaskAreaLength,
+                defaultSettings.GameDefinition.BoardWidth);
+
+            Assert.IsFalse(string.IsNullOrEmpty(message));
+            Assert.AreEqual(ValidatorMessages.RED_TEAM_HAS_NO_GOAL, message);
+        }
+
+        [TestMethod]
+        public void GoalFieldsBlueTeamNoGoals()
+        {
+            defaultSettings.GameDefinition.Goals = new GoalField[] { new GoalField(11, 2, TeamColour.red), new GoalField(10, 2, TeamColour.red), new GoalField(10, 3, TeamColour.red) };
+            var message = Validator.ValidateGoals(defaultSettings.GameDefinition.Goals,
+                defaultSettings.GameDefinition.GoalAreaLength,
+                defaultSettings.GameDefinition.TaskAreaLength,
+                defaultSettings.GameDefinition.BoardWidth);
+
+            Assert.IsFalse(string.IsNullOrEmpty(message));
+            Assert.AreEqual(ValidatorMessages.BLUE_TEAM_HAS_NO_GOAL, message);
+        }
+
+        [TestMethod]
+        public void GoalInTaskArea()
+        {
+            defaultSettings.GameDefinition.Goals = new GoalField[] { new GoalField(6, 2, TeamColour.red), new GoalField(10, 2, TeamColour.blue) };
+            var message = Validator.ValidateGoals(defaultSettings.GameDefinition.Goals,
+                defaultSettings.GameDefinition.GoalAreaLength,
+                defaultSettings.GameDefinition.TaskAreaLength,
+                defaultSettings.GameDefinition.BoardWidth);
+
+            Assert.IsFalse(string.IsNullOrEmpty(message));
+            Assert.AreEqual(ValidatorMessages.GOALS_OUTSIDE_GOAL_AREA, message);
+        }
+
+        [TestMethod]
+        public void RedGoalInBlueGoalArea()
+        {
+            defaultSettings.GameDefinition.Goals = new GoalField[] { new GoalField(1, 2, TeamColour.red), new GoalField(1,3,TeamColour.blue), new GoalField(10, 2, TeamColour.red) };
+            var message = Validator.ValidateGoals(defaultSettings.GameDefinition.Goals,
+                defaultSettings.GameDefinition.GoalAreaLength,
+                defaultSettings.GameDefinition.TaskAreaLength,
+                defaultSettings.GameDefinition.BoardWidth);
+
+            Assert.IsFalse(string.IsNullOrEmpty(message));
+            Assert.AreEqual(ValidatorMessages.RED_GOAL_IN_BLUE_GOAL_AREA, message);
+        }
+
+        [TestMethod]
+        public void BlueGoalInRedGoalArea()
+        {
+            defaultSettings.GameDefinition.Goals = new GoalField[] { new GoalField(1, 2, TeamColour.blue), new GoalField(10, 3, TeamColour.blue), new GoalField(10, 2, TeamColour.red) };
+            var message = Validator.ValidateGoals(defaultSettings.GameDefinition.Goals,
+                defaultSettings.GameDefinition.GoalAreaLength,
+                defaultSettings.GameDefinition.TaskAreaLength,
+                defaultSettings.GameDefinition.BoardWidth);
+
+            Assert.IsFalse(string.IsNullOrEmpty(message));
+            Assert.AreEqual(ValidatorMessages.BLUE_GOAL_IN_RED_GOAL_AREA, message);
+        }
+
+
     }
 }

@@ -17,7 +17,7 @@ namespace GameMaster
         private Random random;
         private List<Player.Agent> agents;
         private Board actualBoard;
-        private GameMasterSettingsGameDefinition gameSettings;
+        private GameMasterSettings gameSettings;
 
         public List<Player.Agent> GetAgents
         {
@@ -35,11 +35,11 @@ namespace GameMaster
             }
         }
 
-        public GameMasterSettingsGameDefinition GetSettings
+        public GameMasterSettingsGameDefinition GetGameDefinition
         {
             get
             {
-                return gameSettings;
+                return gameSettings.GameDefinition;
             }
         }
 
@@ -69,13 +69,13 @@ namespace GameMaster
             }
         }
 
-        public GameMaster(GameMasterSettingsGameDefinition settings)
+        public GameMaster(GameMasterSettings settings)
         {
             state = GameMasterState.AwaitingPlayers;
             random = new Random();
             agents = new List<Player.Agent>();
             gameSettings = settings;
-            InitBoard(gameSettings);
+            InitBoard(gameSettings.GameDefinition);
         }
 
         private void InitBoard(GameMasterSettingsGameDefinition settings)
@@ -106,7 +106,7 @@ namespace GameMaster
         private Piece CreatePiece()
         {
             var possibleSham = random.NextDouble();
-            if (possibleSham <= gameSettings.ShamProbability)
+            if (possibleSham <= gameSettings.GameDefinition.ShamProbability)
                 return new Piece(PieceType.sham, nextPieceId++);
             else
                 return new Piece(PieceType.normal, nextPieceId++);

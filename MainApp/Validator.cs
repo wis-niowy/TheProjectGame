@@ -13,7 +13,6 @@ namespace MainApp
         public static string ValidateSettings(GameMasterSettings settings)
         {
             throw new NotImplementedException();
-            return "";
         }
 
         public static string ValidateShamProbability(double shamProbability)
@@ -70,7 +69,7 @@ namespace MainApp
         // game name
         public static string ValidateGameName(string name)
         {
-            if(string.IsNullOrWhiteSpace(name) || name.Length != (name.Trim().Length))
+            if (string.IsNullOrWhiteSpace(name) || name.Length != (name.Trim().Length))
                 return ValidatorMessages.INVALID_GAMENAME;
             return "";
         }
@@ -78,7 +77,14 @@ namespace MainApp
         // goals
         public static string ValidateGoals(GoalField[] goals, uint goalAreaLength, uint taskAreaLength, uint boardWidth)
         {
-            if (goals.Distinct().Count() != goals.Count()) // override equals()
+            if (goals == null)
+                return ValidatorMessages.NULL_GOALFIELD_ARRAY;
+            foreach (var g in goals)
+            {
+                if (g == null)
+                    return ValidatorMessages.NULL_GOALFIELD;
+            }
+            if (goals.Select(q=> new { x = q.x, y = q.y }).Distinct().Count() != goals.Count()) // override equals()
                 return ValidatorMessages.GOALS_ARE_NOT_UNIQUE;
             if (!goals.Where(q => q.team == TeamColour.blue).Any())
                 return ValidatorMessages.BLUE_TEAM_HAS_NO_GOAL;
@@ -94,11 +100,6 @@ namespace MainApp
                 if (g.team == TeamColour.red && g.x < goalAreaLength)
                     return ValidatorMessages.RED_GOAL_IN_BLUE_GOAL_AREA;
             }
-
-            if (goals.Where(q => q.team == TeamColour.blue).Distinct().Count() > (int)(goalAreaLength * boardWidth))
-                return ValidatorMessages.TOO_MANY_BLUE_GOALS;
-            if (goals.Where(q => q.team == TeamColour.red).Distinct().Count() > (int)(goalAreaLength * boardWidth))
-                return ValidatorMessages.TOO_MANY_RED_GOALS;
 
             return "";
         }

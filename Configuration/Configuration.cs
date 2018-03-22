@@ -77,6 +77,7 @@ namespace Configuration {
         
         public GameMasterSettings() {
             this.retryRegisterGameIntervalField = ((uint)(5000));
+            gameDefinitionField = new GameMasterSettingsGameDefinition();
         }
         
         /// <remarks/>
