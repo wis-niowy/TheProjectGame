@@ -146,15 +146,28 @@ namespace Configuration {
             this.taskAreaLengthField = "7";
             this.goalAreaLengthField = "3";
             this.numberOfPlayersPerTeamField = "4";
-            this.goalsField = new GoalField[]
+            List<GoalField> goalsFieldList = new List<GoalField>();
+            for (uint w = 0; w < 5; ++w)
+            {
+                for (uint h = 0; h < 3; ++h)
                 {
-                new GoalField() { x = 1, y = 1, type = GoalFieldType.goal, team = TeamColour.blue },
-            new GoalField() { x = 1, y = 2, type = GoalFieldType.goal, team = TeamColour.blue },
-            new GoalField() { x = 1, y = 0, type = GoalFieldType.goal, team = TeamColour.blue },
-            new GoalField() { x = 1, y = 1, type = GoalFieldType.goal, team = TeamColour.red },
-            new GoalField() { x = 11, y = 2, type = GoalFieldType.goal, team = TeamColour.red },
-            new GoalField() { x = 11, y = 0, type = GoalFieldType.goal, team = TeamColour.red }
-            };
+                    goalsFieldList.Add(new GoalField() { x = w, y = h, type = GoalFieldType.goal, team = TeamColour.blue });
+                    goalsFieldList.Add(new GoalField() { x = w, y = h + 10, type = GoalFieldType.goal, team = TeamColour.blue });
+                }
+            }
+            this.goalsField = goalsFieldList.ToArray();
+            //this.goalsField = new GoalField[]
+            //    {
+            //        // set of GoalFields was invalid ...
+            //        // corrected
+            //    new GoalField() { x = 1, y = 1, type = GoalFieldType.goal, team = TeamColour.blue },
+            //    new GoalField() { x = 1, y = 2, type = GoalFieldType.goal, team = TeamColour.blue },
+            //    new GoalField() { x = 1, y = 0, type = GoalFieldType.goal, team = TeamColour.blue },
+            //    new GoalField() { x = 1, y = 1, type = GoalFieldType.goal, team = TeamColour.red },
+            //    new GoalField() { x = 11, y = 2, type = GoalFieldType.goal, team = TeamColour.red },
+            //    new GoalField() { x = 11, y = 0, type = GoalFieldType.goal, team = TeamColour.red }
+
+            //    };
         }
         
         /// <remarks/>

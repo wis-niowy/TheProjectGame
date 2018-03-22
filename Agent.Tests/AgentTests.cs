@@ -47,5 +47,31 @@ namespace Player.Tests
             Assert.AreEqual(newLocation.x, agent.GetLocation.x);
             Assert.AreEqual(newLocation.y, agent.GetLocation.y);
         }
+
+        // actions tests
+
+        [TestMethod]
+        public void PlayerWithoutPieceTestsPiece()
+        {
+            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition()
+            {
+                //BoardWidth = "5",
+                //GoalAreaLength = "2",
+                //TaskAreaLength = "4",
+                //ShamProbability = 0.5,
+                //InitialNumberOfPieces = 5,
+                //NumberOfPlayersPerTeam = "4",
+                //GameName = "Test Game",
+                //PlacingNewPiecesFrequency = 4
+
+            };
+            var gameMaster = new GameArea.GameMaster(conf);
+            var agent = new Player.Agent(TeamColour.red, "testGUID-0000");
+            gameMaster.RegisterAgent(agent);
+
+            var testResult = agent.TestPiece(gameMaster);
+
+            Assert.AreEqual(false, testResult);
+        }
     }
 }

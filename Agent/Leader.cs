@@ -8,7 +8,7 @@ namespace Player
 {
     public class Leader : Agent
     {
-        public Leader(TeamColour team, ulong guid = 0) : base(team, guid)
+        public Leader(TeamColour team, string guid ) : base(team, guid)
         {
         }
     }

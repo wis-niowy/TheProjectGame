@@ -60,10 +60,10 @@ namespace Player
             team = newTeam;
         }
 
-        public Agent(TeamColour team, ulong id = 0 )
+        public Agent(TeamColour team, string _guid = "TEST_GUID")
         {
             this.team = team;
-            this.id = id;
+            this.SetGuid(_guid);
             this.location = new Location(0,0);
         }
 

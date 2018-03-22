@@ -57,8 +57,8 @@ namespace GameArea
 
         public void RegisterAgent(Player.Agent agent)
         {
-            var newGuid = agents.Max(q => q.GUID) + 1;
-            agent.SetGuid(newGuid);
+            var newId = agents.Max(q => q.ID) + 1;
+            agent.ID = newId;
             agents.Add(agent);
         }
 
