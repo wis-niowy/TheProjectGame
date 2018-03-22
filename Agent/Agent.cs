@@ -71,7 +71,16 @@ namespace Player
         {
             this.team = original.GetTeam;
             this.guid = original.GUID;
+            this.id = original.id;
             this.location = new Location(original.location.x, original.location.y);
+            //this.piece = new Piece(original.piece)
+            //{
+            //    type = PieceType.unknown
+            //};
+            if (original.piece != null)
+                this.piece = new Piece(original.piece); // agent can't see original piece (sham or goal info must be hidden)
+            //this.agentBoard = original.agentBoard; // it seems it doesn't need to be copied, because GameMaster does not make changes to boards of agents on his list
+
         }
 
         private Board agentBoard;

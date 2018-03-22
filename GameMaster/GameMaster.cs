@@ -149,7 +149,7 @@ namespace GameArea
                 {
                     type = agents.Where(q => q.GUID == playerGuid).First().GetPiece.type,
                     id = agents.Where(q => q.GUID == playerGuid).First().GetPiece.id,
-                    playerId = agentIdDictionary[playerGuid],
+                    playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
                     timestamp = DateTime.Now
                 };
             }
@@ -184,7 +184,7 @@ namespace GameArea
                     {
                         //x = location.x,
                         //y = location.y,
-                        playerId = agentIdDictionary[playerGuid],
+                        playerId = agents.Where(q => q.GUID == playerGuid).First().ID, // EEEEE
                         pieceId = agents.Where(q => q.GUID == playerGuid).First().GetPiece.id,
                         timestamp = DateTime.Now
                     };
@@ -195,7 +195,8 @@ namespace GameArea
                     return new Data()
                     {
                         gameFinished = false,
-                        playerId = agentIdDictionary[playerGuid],
+                        //playerId = agentIdDictionary[playerGuid],
+                        playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
                         TaskFields = new Messages.TaskField[] { fieldMessage }
                     };
                 }
@@ -208,7 +209,7 @@ namespace GameArea
                     {
                         x = location.x,
                         y = location.y,
-                        playerId = agentIdDictionary[playerGuid],
+                        playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
                         timestamp = DateTime.Now,
                         type = goalFieldType,
                         team = teamColour
@@ -216,7 +217,7 @@ namespace GameArea
                     return new Data()
                     {
                         gameFinished = false,
-                        playerId = agentIdDictionary[playerGuid],
+                        playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
                         GoalFields = new Messages.GoalField[] { fieldMessage }
                     };
                 }
@@ -229,7 +230,7 @@ namespace GameArea
             return new Data()
             {
                 gameFinished = false,
-                playerId = agentIdDictionary[playerGuid],
+                playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
                 //GoalFields = new Messages.GoalField[] { null }
             };
 
@@ -253,7 +254,7 @@ namespace GameArea
                 {
                     type = PieceType.unknown,
                     id = (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).GetPiece.id,
-                    playerId = agentIdDictionary[playerGuid],
+                    playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
                     timestamp = DateTime.Now
                 };
 
@@ -264,7 +265,7 @@ namespace GameArea
             return new Data()
             {
                 gameFinished = false,
-                playerId = agentIdDictionary[playerGuid],
+                playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
                 Pieces = new Piece[] { pieceDataToSend }
             };
         }
@@ -287,7 +288,7 @@ namespace GameArea
                 return new Data()
                 {
                     gameFinished = false,
-                    playerId = agentIdDictionary[playerGuid],
+                    playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
                     TaskFields = new Messages.TaskField[] { },
                     PlayerLocation = currentLocation
                 };
@@ -319,7 +320,7 @@ namespace GameArea
                 return new Data()
                 {
                     gameFinished = false,
-                    playerId = agentIdDictionary[playerGuid],
+                    playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
                     TaskFields = new Messages.TaskField[] { field },
                     PlayerLocation = currentLocation,
                     Pieces = new Messages.Piece[] {piece}   // jesli dystans > 0 sekcji pieces nie ma?
@@ -330,7 +331,7 @@ namespace GameArea
             return new Data()
             {
                 gameFinished = false,
-                playerId = agentIdDictionary[playerGuid],
+                playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
                 TaskFields = new Messages.TaskField[] { field },
                 PlayerLocation = futureLocation,
                 Pieces = new Messages.Piece[] { piece }   // jesli dystans > 0 sekcji pieces nie ma?
@@ -380,7 +381,7 @@ namespace GameArea
             return new Data()
             {
                 gameFinished = false,
-                playerId = agentIdDictionary[playerGuid],
+                playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
                 TaskFields = TaskFieldList.ToArray(),
                 GoalFields = GoalFieldList.ToArray()
             };

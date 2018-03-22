@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using GameArea;
 using Messages;
+using System;
 
 namespace Player.Tests
 {
@@ -16,7 +17,7 @@ namespace Player.Tests
             Assert.AreEqual(0u, agent.GetLocation.x);
             Assert.AreEqual(0u, agent.GetLocation.y);
             Assert.AreEqual(TeamColour.blue, agent.GetTeam);
-            Assert.AreEqual(0ul, agent.GUID);
+            Assert.AreEqual("TEST_GUID", agent.GUID);
         }
 
         [TestMethod]
@@ -79,12 +80,49 @@ namespace Player.Tests
         {
             Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
             var gameMaster = new GameArea.GameMaster(conf);
-            var agent = new Player.Agent(TeamColour.red, "testGUID-0000");
+            var agent = new Player.Agent(TeamColour.red, "testGUID-0001");
+            agent.SetPiece(new Piece(PieceType.sham, 100)
+            {
+                timestamp = DateTime.Now,
+                
+            });
             gameMaster.RegisterAgent(agent);
+            agent.SetPiece(new Piece(PieceType.unknown, 100)
+            {
+                timestamp = DateTime.Now,
+
+            });
+            
 
             var testResult = agent.TestPiece(gameMaster);
 
-            Assert.AreEqual(false, testResult);
+            Assert.AreEqual(true, testResult);
+            Assert.AreEqual(PieceType.sham, agent.GetPiece.type);
+        }
+
+        [TestMethod]
+        public void PlayerWithGoalPieceTestsPiece()
+        {
+            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
+            var gameMaster = new GameArea.GameMaster(conf);
+            var agent = new Player.Agent(TeamColour.blue, "testGUID-0002");
+            agent.SetPiece(new Piece(PieceType.normal, 90)
+            {
+                timestamp = DateTime.Now,
+
+            });
+            gameMaster.RegisterAgent(agent);
+            agent.SetPiece(new Piece(PieceType.unknown, 90)
+            {
+                timestamp = DateTime.Now,
+
+            });
+
+
+            var testResult = agent.TestPiece(gameMaster);
+
+            Assert.AreEqual(true, testResult);
+            Assert.AreEqual(PieceType.normal, agent.GetPiece.type);
         }
     }
 }
