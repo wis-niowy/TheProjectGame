@@ -160,5 +160,67 @@ namespace Player.Tests
             Assert.AreEqual(90ul, (gameMaster.GetBoard.GetField(1, 5) as GameArea.TaskField).GetPiece.id);
         }
 
+        [TestMethod]
+        public void PlayerPlacesNormalPieceOnNotOccupiedTaskField()
+        {
+            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
+            var gameMaster = new GameArea.GameMaster(conf);
+            var agent = new Player.Agent(TeamColour.blue, "testGUID-0004");
+            // equip an agent with a sham piece
+            agent.SetPiece(new Piece(PieceType.normal, 90)
+            {
+                timestamp = DateTime.Now,
+
+            });
+            gameMaster.RegisterAgent(agent);
+            agent.SetPiece(new Piece(PieceType.unknown, 90)
+            {
+                timestamp = DateTime.Now,
+            });
+            agent.SetLocation(1, 5); // we change a location of an original object
+
+            // set an agent on a TaskField
+            var setPositionResult = gameMaster.SetAbsoluteAgentLocation(1, 5, "testGUID-0004"); // we change a location of GM's copy
+
+            // action: agent places a piece
+            var actionResult = agent.PlacePiece(gameMaster);
+
+            Assert.AreEqual(true, setPositionResult);
+            Assert.AreEqual(true, actionResult);
+            Assert.IsNull(agent.GetPiece);
+            Assert.IsNotNull((gameMaster.GetBoard.GetField(1, 5) as GameArea.TaskField).GetPiece);
+            Assert.AreEqual(90ul, (gameMaster.GetBoard.GetField(1, 5) as GameArea.TaskField).GetPiece.id);
+        }
+
+        [TestMethod]
+        public void PlayerPlacesShamPieceOnGoalField()
+        {
+            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
+            var gameMaster = new GameArea.GameMaster(conf);
+            var agent = new Player.Agent(TeamColour.blue, "testGUID-0005");
+            // equip an agent with a sham piece
+            agent.SetPiece(new Piece(PieceType.sham, 70)
+            {
+                timestamp = DateTime.Now,
+
+            });
+            gameMaster.RegisterAgent(agent);
+            agent.SetPiece(new Piece(PieceType.unknown, 70)
+            {
+                timestamp = DateTime.Now,
+            });
+            agent.SetLocation(1, 2); // we change a location of an original object
+
+            // set an agent on a TaskField
+            var setPositionResult = gameMaster.SetAbsoluteAgentLocation(1, 2, "testGUID-0005"); // we change a location of GM's copy
+
+            // action: agent places a piece
+            var actionResult = agent.PlacePiece(gameMaster);
+
+            Assert.AreEqual(true, setPositionResult);
+            Assert.AreEqual(false, actionResult);
+            Assert.IsNotNull(agent.GetPiece);
+        }
+
     }
 }
