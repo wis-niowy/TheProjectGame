@@ -248,7 +248,7 @@ namespace Player
                 else if (responseMessage.TaskFields != null && responseMessage.TaskFields.Length > 0)
                 {
                     // an agent attempted to enter an occupied TaskField
-                    if (this.location == responseMessage.PlayerLocation)
+                    if (this.location.Equals(responseMessage.PlayerLocation))
                     {
                         // add encountered stranger agent to this agent's view
                         var stranger = new Messages.Agent()
@@ -267,15 +267,15 @@ namespace Player
                     }
                 }
                 // future position is a GoalField
-                else if (responseMessage.TaskFields != null && responseMessage.GoalFields.Length > 0)
+                else if (responseMessage.GoalFields != null && responseMessage.GoalFields.Length > 0)
                 {
                     // an agent attempted to enter an occupied GoalField
-                    if (this.location == responseMessage.PlayerLocation)
+                    if (this.location.Equals(responseMessage.PlayerLocation))
                     {
                         // add encountered stranger agent to this agent's view
                         var stranger = new Messages.Agent()
                         {
-                            id = responseMessage.TaskFields[0].playerId,
+                            id = responseMessage.GoalFields[0].playerId,
                         };
                         agentBoard.GetField(futureLocation.x, futureLocation.y).Player = stranger;
 
