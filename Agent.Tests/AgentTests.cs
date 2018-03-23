@@ -414,7 +414,7 @@ namespace Player.Tests
             // action: agent places a piece
             var actionResult = agent.PickUpPiece(gameMaster);
 
-            Assert.AreEqual(false, setPositionResult);
+            Assert.AreEqual(true, setPositionResult);
             Assert.AreEqual(false, actionResult);
             Assert.IsNull(agent.GetPiece);
         }
@@ -434,7 +434,7 @@ namespace Player.Tests
             // action: agent places a piece
             var actionResult = agent.PickUpPiece(gameMaster);
 
-            Assert.AreEqual(false, setPositionResult);
+            Assert.AreEqual(true, setPositionResult);
             Assert.AreEqual(false, actionResult);
             Assert.IsNull(agent.GetPiece);
         }

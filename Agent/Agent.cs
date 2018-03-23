@@ -231,7 +231,7 @@ namespace Player
             return false;
         }
 
-        public void Move(IGameMaster gameMaster, MoveType direction)
+        public bool Move(IGameMaster gameMaster, MoveType direction)
         {
             Data responseMessage = gameMaster.HandleMoveRequest(direction, this.GUID, this.GameId);
 
@@ -240,9 +240,39 @@ namespace Player
                 // an attempt to exceed board's boundaries or to enter an opponent's GoalArea
                 if (responseMessage.TaskFields != null && responseMessage.TaskFields.Length == 0)
                 {
-
+                    this.location = responseMessage.PlayerLocation;
+                    return false;
+                }
+                // future position is a TaskField
+                else if (responseMessage.TaskFields != null && responseMessage.TaskFields.Length > 0)
+                {
+                    // an agent attempted to enter an occupied TaskField
+                    if (this.location == responseMessage.PlayerLocation)
+                    {
+                        return false;
+                    }
+                    // an action was valid
+                    else
+                    {
+                        return true;
+                    }
+                }
+                // future position is a GoalField
+                else if (responseMessage.TaskFields != null && responseMessage.GoalFields.Length > 0)
+                {
+                    // an agent attempted to enter an occupied GoalField
+                    if (this.location == responseMessage.PlayerLocation)
+                    {
+                        return false;
+                    }
+                    // an action was valid
+                    else
+                    {
+                        return true;
+                    }
                 }
             }
+            return false;
         }
 
         public void Discover(IGameMaster gameMaster)
