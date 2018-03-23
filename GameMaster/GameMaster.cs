@@ -326,7 +326,7 @@ namespace GameArea
             if (actualBoard.GetField(futureLocation.x, futureLocation.y) is GameArea.TaskField)
             {
                 fieldFromBoard = actualBoard.GetField(futureLocation.x, futureLocation.y) as GameArea.TaskField;
-                piece = fieldFromBoard.GetPiece;
+                piece = fieldFromBoard.GetPiece; // may be null!
             }
             else
             {

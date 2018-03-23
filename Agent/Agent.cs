@@ -233,7 +233,16 @@ namespace Player
 
         public void Move(IGameMaster gameMaster, MoveType direction)
         {
-            
+            Data responseMessage = gameMaster.HandleMoveRequest(direction, this.GUID, this.GameId);
+
+            if (responseMessage.playerId == this.ID && !responseMessage.gameFinished)
+            {
+                // an attempt to exceed board's boundaries or to enter an opponent's GoalArea
+                if (responseMessage.TaskFields != null && responseMessage.TaskFields.Length == 0)
+                {
+
+                }
+            }
         }
 
         public void Discover(IGameMaster gameMaster)
