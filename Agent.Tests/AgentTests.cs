@@ -763,5 +763,41 @@ namespace Player.Tests
             Assert.IsNotNull(gameMaster.GetBoard.GetField(0, 3).Player);
             Assert.AreEqual(agent.ID, gameMaster.GetBoard.GetField(0, 3).Player.id);
         }
+
+        [TestMethod]
+        public void PlayerDiscoveryCorner()
+        {
+            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
+            var gameMaster = new GameArea.GameMaster(conf);
+            var agent1 = new Player.Agent(TeamColour.blue, "testGUID-0027");
+            var agent2 = new Player.Agent(TeamColour.red, "testGUID-0028");
+            agent1.SetLocation(0, 0);
+            agent2.SetLocation(4, 9);
+
+            gameMaster.RegisterAgent(agent1);
+            gameMaster.RegisterAgent(agent2);
+
+            // set an agent on a TaskField
+            var setPositionResult1 = gameMaster.SetAbsoluteAgentLocation(0, 0, "testGUID-0027"); // we change a location of GM's copy
+            var setPositionResult2 = gameMaster.SetAbsoluteAgentLocation(4, 9, "testGUID-0028"); // we change a location of GM's copy
+            Assert.IsNotNull(gameMaster.GetBoard.GetField(0, 0).Player);
+            Assert.IsNotNull(gameMaster.GetBoard.GetField(4, 9).Player);
+
+
+            // action: agent discovers area
+            agent1.Discover(gameMaster);
+
+            Assert.AreEqual(true, setPositionResult1);
+            Assert.AreEqual(new Location(0, 0), agent1.GetLocation);
+            Assert.IsNull(gameMaster.GetBoard.GetField(2, 5).Player);
+            Assert.IsNull(agent1.GetBoard.GetField(2, 5).Player);
+            Assert.IsNotNull(gameMaster.GetBoard.GetField(0, 0).Player);
+            Assert.AreEqual(agent1.ID, gameMaster.GetBoard.GetField(0, 0).Player.id);
+
+            Assert.AreEqual(true, setPositionResult2);
+            Assert.AreEqual(new Location(4,9), agent2.GetLocation);
+            Assert.IsNotNull(gameMaster.GetBoard.GetField(4,9).Player);
+            Assert.AreEqual(agent2.ID, gameMaster.GetBoard.GetField(4,9).Player.id);
+        }
     }
 }
