@@ -154,6 +154,7 @@ namespace Player
         public bool TestPiece(IGameMaster gameMaster)
         {
             Data responseMessage = gameMaster.HandleTestPieceRequest(this.GUID, this.GameId);
+
             // if this message was sent to this
             if (responseMessage.playerId == this.ID && !responseMessage.gameFinished &&
                 responseMessage.Pieces != null && responseMessage.Pieces.Length > 0 && responseMessage.Pieces[0] != null &&
@@ -169,10 +170,16 @@ namespace Player
             return false;
         }
 
+        /// <summary>
+        /// Method to send a request to place the piece
+        /// </summary>
+        /// <param name="gameMaster"></param>
+        /// <returns></returns>
         public bool PlacePiece(IGameMaster gameMaster)
         {
             // should we check if received location is the same as the actual one?
             Data responseMessage = gameMaster.HandlePlacePieceRequest(this.GUID, this.GameId);
+            var receivedLocation = responseMessage.PlayerLocation;
 
             if (responseMessage.playerId == this.ID && !responseMessage.gameFinished)
             {
@@ -205,9 +212,23 @@ namespace Player
             else return false;
         }
 
-        public void PickUpPiece(IGameMaster gameMaster)
+        public bool PickUpPiece(IGameMaster gameMaster)
         {
+            Data responseMessage = gameMaster.HandlePickUpPieceRequest(this.GUID, this.GameId);
 
+            if (responseMessage.playerId == this.ID && !responseMessage.gameFinished)
+            {
+                // player is on a TaskField that contains a piece
+                if (responseMessage.Pieces != null && responseMessage.Pieces.Length > 0 &&
+                    responseMessage.Pieces[0] != null)
+                {
+                    var receivedPieceData = responseMessage.Pieces[0];
+                    this.piece = receivedPieceData;
+                    return true;
+                }
+            }
+            // player is either on empty TaskField or on GoalField
+            return false;
         }
 
         public void Move(IGameMaster gameMaster, MoveType direction)

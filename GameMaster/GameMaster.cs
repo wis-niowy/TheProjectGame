@@ -97,6 +97,11 @@ namespace GameArea
             }
         }
 
+
+        /// <summary>
+        /// Places a piece in TaskArea in a random way
+        /// </summary>
+        /// <param name="piecesCount"></param>
         private void PlaceInitialPieces(uint piecesCount)
         {
             for (uint i = 0; i < piecesCount; i++)
@@ -251,6 +256,7 @@ namespace GameArea
             {
                 gameFinished = false,
                 playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
+                PlayerLocation = agents.Where(q => q.GUID == playerGuid).First().GetLocation
                 //GoalFields = new Messages.GoalField[] { null }
             };
 
@@ -267,7 +273,7 @@ namespace GameArea
             var location = agents.Where(a => a.GUID == playerGuid).First().GetLocation;
             Piece pieceDataToSend = null;
 
-            // the field contains a piece
+            // the TaskField contains a piece
             if (actualBoard.GetField(location.x, location.y) is GameArea.TaskField && (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).GetPiece != null)
             {
                 pieceDataToSend = new Piece()
@@ -278,10 +284,11 @@ namespace GameArea
                     timestamp = DateTime.Now
                 };
 
-                agents.Where(q => q.GUID == playerGuid).First().SetPiece((actualBoard.GetField(location.x, location.y) as GameArea.TaskField).GetPiece);
+                var piece = (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).GetPiece;
+                agents.Where(q => q.GUID == playerGuid).First().SetPiece(piece); // agent picks up a piece
                 (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).SetPiece(null); // the piece is no longer on the field  
             }
-
+            // player is either on an empty TaskField or on a GoalField
             return new Data()
             {
                 gameFinished = false,
@@ -465,8 +472,9 @@ namespace GameArea
         }
 
 
+
         /// <summary>
-        /// FOR UNIT TESTING
+        /// FOR UNIT TESTING - set player in a given board location
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
@@ -483,6 +491,25 @@ namespace GameArea
                 return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// FOR UNIT TESTING - set a piece of a given type in a given location
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="type"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public bool SetPieceInLocation(uint x, uint y, TeamColour team, PieceType type, ulong id)
+        {
+            var piece = new Piece(type, id);
+            if (ValidateFieldPosition((int)x, (int)y, team) && actualBoard.GetField(x, y) is TaskField)
+            {
+                (actualBoard.GetField(x, y) as TaskField).SetPiece(piece);
+                return true;
+            }
+            else return false;
         }
     }
 }

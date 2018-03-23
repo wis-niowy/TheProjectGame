@@ -102,7 +102,7 @@ namespace Player.Tests
         }
 
         [TestMethod]
-        public void PlayerWithGoalPieceTestsPiece()
+        public void PlayerWithNormalPieceTestsPiece()
         {
             Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
             var gameMaster = new GameArea.GameMaster(conf);
@@ -222,5 +222,221 @@ namespace Player.Tests
             Assert.IsNotNull(agent.GetPiece);
         }
 
+        [TestMethod]
+        public void PlayerPlacesNormalPieceOnGoalFieldOfTypeGoal()
+        {
+            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
+            var gameMaster = new GameArea.GameMaster(conf);
+            var agent = new Player.Agent(TeamColour.blue, "testGUID-0006");
+            // equip an agent with a sham piece
+            agent.SetPiece(new Piece(PieceType.normal, 23)
+            {
+                timestamp = DateTime.Now,
+
+            });
+            gameMaster.RegisterAgent(agent);
+            agent.SetPiece(new Piece(PieceType.unknown, 23)
+            {
+                timestamp = DateTime.Now,
+            });
+            agent.SetLocation(1, 1); // we change a location of an original object | (1,1) is GoalField of type 'goal' by default in GameMasterSettingsGameDefinition constructor
+
+            // set an agent on a TaskField
+            var setPositionResult = gameMaster.SetAbsoluteAgentLocation(1, 1, "testGUID-0006"); // we change a location of GM's copy
+
+            // action: agent places a piece
+            var actionResult = agent.PlacePiece(gameMaster);
+
+            Assert.AreEqual(true, setPositionResult);
+            Assert.AreEqual(true, actionResult);
+            Assert.IsNull(agent.GetPiece);
+        }
+
+        [TestMethod]
+        public void PlayerPlacesNormalPieceOnGoalFieldOfTypeNonGoal()
+        {
+            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
+            var gameMaster = new GameArea.GameMaster(conf);
+            var agent = new Player.Agent(TeamColour.blue, "testGUID-0007");
+            // equip an agent with a sham piece
+            agent.SetPiece(new Piece(PieceType.normal, 23)
+            {
+                timestamp = DateTime.Now,
+
+            });
+            gameMaster.RegisterAgent(agent);
+            agent.SetPiece(new Piece(PieceType.unknown, 23)
+            {
+                timestamp = DateTime.Now,
+            });
+            agent.SetLocation(4, 1);
+
+            // set an agent on a TaskField
+            var setPositionResult = gameMaster.SetAbsoluteAgentLocation(4, 1, "testGUID-0007"); // we change a location of GM's copy
+
+            // action: agent places a piece
+            var actionResult = agent.PlacePiece(gameMaster);
+
+            //Assert.AreEqual(true, setPositionResult);
+            Assert.AreEqual(false, actionResult);
+            Assert.IsNotNull(agent.GetPiece);
+        }
+
+        [TestMethod]
+        public void PlayerPicksUpNormalPieceFromTaskField()
+        {
+            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
+            var gameMaster = new GameArea.GameMaster(conf);
+            var agent = new Player.Agent(TeamColour.blue, "testGUID-0008");
+
+            // place a piece on a TaskField
+            gameMaster.SetPieceInLocation(2, 5, TeamColour.blue, PieceType.normal, 99);
+
+            Assert.IsNotNull((gameMaster.GetBoard.GetField(2, 5) as GameArea.TaskField).GetPiece);
+
+            gameMaster.RegisterAgent(agent);
+
+            // set an agent on a TaskField
+            var setPositionResult = gameMaster.SetAbsoluteAgentLocation(2, 5, "testGUID-0008"); // we change a location of GM's copy
+
+            // action: agent places a piece
+            var actionResult = agent.PickUpPiece(gameMaster);
+
+            Assert.AreEqual(true, setPositionResult);
+            Assert.AreEqual(true, actionResult);
+            Assert.IsNotNull(agent.GetPiece);
+            Assert.AreEqual(99ul, agent.GetPiece.id);
+            Assert.IsNull((gameMaster.GetBoard.GetField(2, 5) as GameArea.TaskField).GetPiece);
+            Assert.AreEqual(PieceType.unknown, agent.GetPiece.type);
+        }
+
+        [TestMethod]
+        public void PlayerPicksUpShamPieceFromTaskField()
+        {
+            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
+            var gameMaster = new GameArea.GameMaster(conf);
+            var agent = new Player.Agent(TeamColour.blue, "testGUID-0009");
+
+            // place a piece on a TaskField
+            gameMaster.SetPieceInLocation(2, 5, TeamColour.blue, PieceType.sham, 98);
+
+            Assert.IsNotNull((gameMaster.GetBoard.GetField(2, 5) as GameArea.TaskField).GetPiece);
+
+            gameMaster.RegisterAgent(agent);
+
+            // set an agent on a TaskField
+            var setPositionResult = gameMaster.SetAbsoluteAgentLocation(2, 5, "testGUID-0009"); // we change a location of GM's copy
+
+            // action: agent places a piece
+            var actionResult = agent.PickUpPiece(gameMaster);
+
+            Assert.AreEqual(true, setPositionResult);
+            Assert.AreEqual(true, actionResult);
+            Assert.IsNotNull(agent.GetPiece);
+            Assert.AreEqual(98ul, agent.GetPiece.id);
+            Assert.IsNull((gameMaster.GetBoard.GetField(2, 5) as GameArea.TaskField).GetPiece);
+            Assert.AreEqual(PieceType.unknown, agent.GetPiece.type);
+        }
+
+        [TestMethod]
+        public void PlayerPicksUpFromEmptyTaskField()
+        {
+            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
+            var gameMaster = new GameArea.GameMaster(conf);
+            var agent = new Player.Agent(TeamColour.blue, "testGUID-0010");
+
+            gameMaster.RegisterAgent(agent);
+
+            // set an agent on a TaskField
+            var setPositionResult = gameMaster.SetAbsoluteAgentLocation(2, 5, "testGUID-0010"); // we change a location of GM's copy
+
+            // action: agent places a piece
+            var actionResult = agent.PickUpPiece(gameMaster);
+
+            Assert.AreEqual(true, setPositionResult);
+            Assert.AreEqual(false, actionResult);
+            Assert.IsNull(agent.GetPiece);
+            Assert.IsNull((gameMaster.GetBoard.GetField(2, 5) as GameArea.TaskField).GetPiece);
+        }
+
+        [TestMethod]
+        public void BluePlayerPicksUpFromRedGoalFieldOfTypeGoal()
+        {
+            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
+            var gameMaster = new GameArea.GameMaster(conf);
+            var agent = new Player.Agent(TeamColour.blue, "testGUID-0011");
+
+            gameMaster.RegisterAgent(agent);
+
+            // set an agent on a TaskField
+            var setPositionResult = gameMaster.SetAbsoluteAgentLocation(2, 11, "testGUID-0011"); // we change a location of GM's copy
+
+            // action: agent places a piece
+            var actionResult = agent.PickUpPiece(gameMaster);
+
+            Assert.AreEqual(false, setPositionResult);
+            Assert.AreEqual(false, actionResult);
+            Assert.IsNull(agent.GetPiece);
+        }
+
+        [TestMethod]
+        public void BluePlayerPicksUpFromRedGoalFieldOfTypeNonGoal()
+        {
+            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
+            var gameMaster = new GameArea.GameMaster(conf);
+            var agent = new Player.Agent(TeamColour.blue, "testGUID-0012");
+
+            gameMaster.RegisterAgent(agent);
+
+            // set an agent on a TaskField
+            var setPositionResult = gameMaster.SetAbsoluteAgentLocation(2, 12, "testGUID-0012"); // we change a location of GM's copy
+
+            // action: agent places a piece
+            var actionResult = agent.PickUpPiece(gameMaster);
+
+            Assert.AreEqual(false, setPositionResult);
+            Assert.AreEqual(false, actionResult);
+            Assert.IsNull(agent.GetPiece);
+        }
+
+        [TestMethod]
+        public void BluePlayerPicksUpFromBlueGoalFieldOfTypeGoal()
+        {
+            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
+            var gameMaster = new GameArea.GameMaster(conf);
+            var agent = new Player.Agent(TeamColour.blue, "testGUID-0011");
+
+            gameMaster.RegisterAgent(agent);
+
+            // set an agent on a TaskField
+            var setPositionResult = gameMaster.SetAbsoluteAgentLocation(2, 2, "testGUID-0011"); // we change a location of GM's copy
+
+            // action: agent places a piece
+            var actionResult = agent.PickUpPiece(gameMaster);
+
+            Assert.AreEqual(false, setPositionResult);
+            Assert.AreEqual(false, actionResult);
+            Assert.IsNull(agent.GetPiece);
+        }
+
+        [TestMethod]
+        public void BluePlayerPicksUpFromBlueGoalFieldOfTypeNonGoal()
+        {
+            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
+            var gameMaster = new GameArea.GameMaster(conf);
+            var agent = new Player.Agent(TeamColour.blue, "testGUID-0012");
+
+            gameMaster.RegisterAgent(agent);
+
+            // set an agent on a TaskField
+            var setPositionResult = gameMaster.SetAbsoluteAgentLocation(2, 1, "testGUID-0012"); // we change a location of GM's copy
+
+            // action: agent places a piece
+            var actionResult = agent.PickUpPiece(gameMaster);
+
+            Assert.AreEqual(false, setPositionResult);
+            Assert.AreEqual(false, actionResult);
+            Assert.IsNull(agent.GetPiece);
+        }
     }
 }
