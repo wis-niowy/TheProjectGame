@@ -3,18 +3,18 @@
                     KeepAliveInterval="500"
                     RetryRegisterGameInterval="60000">
   <GameDefinition>
-    <Goals team="red" x="4" y ="15" type="goal" />
-    <Goals team="red" x="5" y ="15" type="goal" />
-    <Goals team="red" x="6" y ="15" type="goal" />
-    <Goals team="red" x="4" y ="14" type="goal" />
-    <Goals team="red" x="5" y ="14" type="goal" />
-    <Goals team="red" x="6" y ="14" type="goal" />
-    <Goals team="blue" x="4" y="0" type="goal" />
-    <Goals team="blue" x="5" y="0" type="goal" />
-    <Goals team="blue" x="6" y="0" type="goal" />
-    <Goals team="blue" x="4" y="1" type="goal" />
-    <Goals team="blue" x="5" y="1" type="goal" />
-    <Goals team="blue" x="6" y="1" type="goal" />
+    <Goals team="red" y="4" x ="15" type="goal" />
+    <Goals team="red" y="5" x ="15" type="goal" />
+    <Goals team="red" y="6" x ="15" type="goal" />
+    <Goals team="red" y="4" x ="14" type="goal" />
+    <Goals team="red" y="5" x ="14" type="goal" />
+    <Goals team="red" y="6" x ="14" type="goal" />
+    <Goals team="blue" y="4" x="0" type="goal" />
+    <Goals team="blue" y="5" x="0" type="goal" />
+    <Goals team="blue" y="6" x="0" type="goal" />
+    <Goals team="blue" y="4" x="1" type="goal" />
+    <Goals team="blue" y="5" x="1" type="goal" />
+    <Goals team="blue" y="6" x="1" type="goal" />
     <ShamProbability>0.33</ShamProbability>
     <PlacingNewPiecesFrequency>200</PlacingNewPiecesFrequency>
     <InitialNumberOfPieces>10</InitialNumberOfPieces>

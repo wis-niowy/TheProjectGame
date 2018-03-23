@@ -9,8 +9,8 @@ namespace GameMaster.Tests
     [TestClass]
     public class GameMasterTests
     {
-        GameMasterSettingsGameDefinition defaultSettings = new GameMasterSettingsGameDefinition();
-        GameMaster defaultGameMaster = new GameMaster(new GameMasterSettings());
+        GameMasterSettingsGameDefinition defaultSettings = GameMasterSettingsGameDefinition.GetDefaultGameDefinition();
+        GameMaster defaultGameMaster = new GameMaster(GameMasterSettings.GetDefaultGameMasterSettings());
         [TestMethod]
         public void InitBoard()
         {

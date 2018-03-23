@@ -74,12 +74,19 @@ namespace Configuration {
         private GameMasterSettingsActionCosts actionCostsField;
         
         private uint retryRegisterGameIntervalField;
+
+        public GameMasterSettings() { }
         
-        public GameMasterSettings() {
-            this.retryRegisterGameIntervalField = ((uint)(5000));
-            gameDefinitionField = new GameMasterSettingsGameDefinition();
+
+        public static GameMasterSettings GetDefaultGameMasterSettings()
+        {
+            return new GameMasterSettings()
+            {
+                retryRegisterGameIntervalField = ((uint)(5000)),
+                gameDefinitionField = GameMasterSettingsGameDefinition.GetDefaultGameDefinition()
+            };
         }
-        
+
         /// <remarks/>
         public GameMasterSettingsGameDefinition GameDefinition {
             get {
@@ -139,22 +146,28 @@ namespace Configuration {
         
         private string gameNameField;
 
-        public GameMasterSettingsGameDefinition() {
-            this.shamProbabilityField = 0.1D;
-            this.placingNewPiecesFrequencyField = ((uint)(1000));
-            this.initialNumberOfPiecesField = ((uint)(4));
-            this.boardWidthField = 5;
-            this.taskAreaLengthField = 7;
-            this.goalAreaLengthField = 3;
-            this.numberOfPlayersPerTeamField = 4;
-            this.goalsField = new GoalField[]
+        public GameMasterSettingsGameDefinition() {}
+
+        public static GameMasterSettingsGameDefinition GetDefaultGameDefinition()
+        {
+            return new GameMasterSettingsGameDefinition()
+            {
+                shamProbabilityField = 0.1D,
+                placingNewPiecesFrequencyField = ((uint)(1000)),
+                initialNumberOfPiecesField = ((uint)(4)),
+                boardWidthField = 5,
+                taskAreaLengthField = 7,
+                goalAreaLengthField = 3,
+                numberOfPlayersPerTeamField = 4,
+                goalsField = new GoalField[]
                 {
-                new GoalField() { x = 1, y = 1, type = GoalFieldType.goal, team = TeamColour.blue },
-            new GoalField() { x = 1, y = 2, type = GoalFieldType.goal, team = TeamColour.blue },
-            new GoalField() { x = 1, y = 0, type = GoalFieldType.goal, team = TeamColour.blue },
-            new GoalField() { x = 1, y = 1, type = GoalFieldType.goal, team = TeamColour.red },
-            new GoalField() { x = 11, y = 2, type = GoalFieldType.goal, team = TeamColour.red },
-            new GoalField() { x = 11, y = 0, type = GoalFieldType.goal, team = TeamColour.red }
+                    new GoalField() { x = 1, y = 1, type = GoalFieldType.goal, team = TeamColour.blue },
+                    new GoalField() { x = 1, y = 2, type = GoalFieldType.goal, team = TeamColour.blue },
+                    new GoalField() { x = 1, y = 0, type = GoalFieldType.goal, team = TeamColour.blue },
+                    new GoalField() { x = 1, y = 1, type = GoalFieldType.goal, team = TeamColour.red },
+                    new GoalField() { x = 11, y = 2, type = GoalFieldType.goal, team = TeamColour.red },
+                    new GoalField() { x = 11, y = 0, type = GoalFieldType.goal, team = TeamColour.red }
+                }
             };
         }
         
@@ -200,7 +213,7 @@ namespace Configuration {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(DataType="nonNegativeInteger")]
+        //[System.Xml.Serialization.XmlElementAttribute(DataType="nonNegativeInteger")]
         public uint BoardWidth {
             get {
                 return this.boardWidthField;
@@ -211,7 +224,7 @@ namespace Configuration {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(DataType="nonNegativeInteger")]
+        //[System.Xml.Serialization.XmlElementAttribute(DataType="nonNegativeInteger")]
         public uint TaskAreaLength {
             get {
                 return this.taskAreaLengthField;
@@ -222,7 +235,7 @@ namespace Configuration {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(DataType="nonNegativeInteger")]
+        //[System.Xml.Serialization.XmlElementAttribute(DataType="nonNegativeInteger")]
         public uint GoalAreaLength {
             get {
                 return this.goalAreaLengthField;
@@ -233,7 +246,7 @@ namespace Configuration {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(DataType="nonNegativeInteger")]
+        //[System.Xml.Serialization.XmlElementAttribute(DataType="nonNegativeInteger")]
         public uint NumberOfPlayersPerTeam {
             get {
                 return this.numberOfPlayersPerTeamField;
@@ -389,12 +402,20 @@ namespace Configuration {
         private uint knowledgeExchangeDelayField;
         
         public GameMasterSettingsActionCosts() {
-            this.moveDelayField = ((uint)(100));
-            this.discoverDelayField = ((uint)(450));
-            this.testDelayField = ((uint)(500));
-            this.pickUpDelayField = ((uint)(100));
-            this.placingDelayField = ((uint)(100));
-            this.knowledgeExchangeDelayField = ((uint)(1200));
+           
+        }
+
+        public static GameMasterSettingsActionCosts GetDefaultCosts()
+        {
+            return new GameMasterSettingsActionCosts()
+            {
+                moveDelayField = ((uint)(100)),
+                discoverDelayField = ((uint)(450)),
+                testDelayField = ((uint)(500)),
+                pickUpDelayField = ((uint)(100)),
+                placingDelayField = ((uint)(100)),
+                knowledgeExchangeDelayField = ((uint)(1200))
+            };
         }
         
         /// <remarks/>

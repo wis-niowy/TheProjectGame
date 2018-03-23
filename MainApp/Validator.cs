@@ -12,7 +12,49 @@ namespace MainApp
 
         public static string ValidateSettings(GameMasterSettings settings)
         {
-            throw new NotImplementedException();
+            var gameDefinitions = settings.GameDefinition;
+            var errors = new StringBuilder();
+            var message = ValidateShamProbability(gameDefinitions.ShamProbability);
+            if (!string.IsNullOrEmpty(message))
+                errors.AppendLine(message);
+
+            message = ValidatePiecesFrequency(gameDefinitions.PlacingNewPiecesFrequency);
+            if (!string.IsNullOrEmpty(message))
+                errors.AppendLine(message);
+
+            message = ValidateInitialNumberOfPieces(gameDefinitions.InitialNumberOfPieces, gameDefinitions.TaskAreaLength, gameDefinitions.BoardWidth);
+            if (!string.IsNullOrEmpty(message))
+                errors.AppendLine(message);
+
+            message = ValidateBoardWidth(gameDefinitions.BoardWidth,gameDefinitions.TaskAreaLength, gameDefinitions.NumberOfPlayersPerTeam);
+            if (!string.IsNullOrEmpty(message))
+                errors.AppendLine(message);
+
+            message = ValidateTaskAreaLength(gameDefinitions.TaskAreaLength);
+            if (!string.IsNullOrEmpty(message))
+                errors.AppendLine(message);
+
+            message = ValidateGoalAreaLength(gameDefinitions.GoalAreaLength);
+            if (!string.IsNullOrEmpty(message))
+                errors.AppendLine(message);
+
+            message = ValidatePlayers(gameDefinitions.NumberOfPlayersPerTeam, gameDefinitions.TaskAreaLength, gameDefinitions.BoardWidth);
+            if (!string.IsNullOrEmpty(message))
+                errors.AppendLine(message);
+
+            message = ValidateGameName(gameDefinitions.GameName);
+            if (!string.IsNullOrEmpty(message))
+                errors.AppendLine(message);
+
+            message = ValidateGoals(gameDefinitions.Goals,gameDefinitions.GoalAreaLength,gameDefinitions.TaskAreaLength,gameDefinitions.BoardWidth);
+            if (!string.IsNullOrEmpty(message))
+                errors.AppendLine(message);
+
+            message = ValidateGameName(gameDefinitions.GameName);
+            if (!string.IsNullOrEmpty(message))
+                errors.AppendLine(message);
+
+            return errors.ToString();
         }
 
         public static string ValidateShamProbability(double shamProbability)

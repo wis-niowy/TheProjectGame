@@ -9,8 +9,8 @@ namespace MainApp.Tests
     {
         GameMasterSettings defaultSettings = new GameMasterSettings()
         {
-            ActionCosts = new GameMasterSettingsActionCosts(),
-            GameDefinition = new GameMasterSettingsGameDefinition()
+            ActionCosts = GameMasterSettingsActionCosts.GetDefaultCosts(),
+            GameDefinition =  GameMasterSettingsGameDefinition.GetDefaultGameDefinition()
         };
 
         [TestMethod]

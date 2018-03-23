@@ -1,4 +1,5 @@
 ﻿using Configuration;
+using GameArea.Texts;
 using GameMaster;
 using System;
 using System.IO;
@@ -11,40 +12,52 @@ namespace MainApp
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Show(Constants.MAIN_APP_START);
             if (args.Length == 0)
             {
-                Console.WriteLine("No file specified for loading game settings");
-                return;
+                Warning(Constants.NO_FILE_SPECIFIED);
             }
             var settings = LoadSettingsFromFile("Championship.xml");
             if (settings != null)
             {
+                Show(Constants.SETTINGS_LOADED_SUCCES);
                 DoGame(settings);
             }
+            else
+            {
+                Show(Constants.SETTINGS_LOADED_FAIL);
+            }
 
-            Console.WriteLine("Closing main app");
-            //TODO: solve exceptions issues while reading XML
+            Show(Constants.MAIN_APP_CLOSE);
         }
 
 
         public static GameMasterSettings LoadSettingsFromFile(string path)
         {
             GameMasterSettings settings = null;
-            using (StreamReader reader = new StreamReader(path))
+            try
             {
-                var xmlReader = XmlReader.Create(reader);
-                var serializer = new XmlSerializer(typeof(GameMasterSettings));
-                if (serializer.CanDeserialize(xmlReader))
+                using (StreamReader reader = new StreamReader(path))
                 {
-                    settings = (GameMasterSettings)serializer.Deserialize(xmlReader);
-                    var errors = Validator.ValidateSettings(settings);
-                    if (!string.IsNullOrEmpty(errors))
+                    var xmlReader = XmlReader.Create(reader);
+                    var serializer = new XmlSerializer(typeof(GameMasterSettings));
+                    if (serializer.CanDeserialize(xmlReader))
                     {
-                        Console.WriteLine(errors);
-                        return null;
+                        settings = (GameMasterSettings)serializer.Deserialize(xmlReader);
+                        var errors = Validator.ValidateSettings(settings);
+                        if (!string.IsNullOrEmpty(errors))
+                        {
+                            Error(Constants.ERRORS_WHILE_PARSING_XML);
+                            Show(errors);
+                            return null;
+                        }
                     }
                 }
+            }
+            catch(Exception e)
+            {
+                Error(Constants.UNEXPECTED_ERROR + e.Message);
+                Show(e.StackTrace);
             }
             return settings;
         }
@@ -52,6 +65,20 @@ namespace MainApp
         public static void DoGame(GameMasterSettings settings)
         {
 
+        }
+
+        public static void Warning(string message)
+        {
+            Console.WriteLine(DateTime.Now.ToString() + " " + Constants.WARNING + message);
+        }
+        public static void Error(string error)
+        {
+            Console.WriteLine(DateTime.Now.ToString() + " " + Constants.ERROR + error);
+        }
+
+        public static void Show(string message)
+        {
+            Console.WriteLine(DateTime.Now.ToString() + " " + message);
         }
     }
 }
