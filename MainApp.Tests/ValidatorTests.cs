@@ -1,6 +1,7 @@
 using Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Messages;
+using System;
 
 namespace MainApp.Tests
 {
@@ -206,7 +207,46 @@ namespace MainApp.Tests
             //TODO: more tests for equal
 
         }
-        //TODO: tests for goalfields validation
+
+        [TestMethod]
+        public void GoalFieldEqual()
+        {
+            GoalField goalField1 = new GoalField(1, 3, TeamColour.red) { type = Messages.GoalFieldType.goal };
+            GoalField goalField2 = new GoalField(1, 3, TeamColour.red) { type = Messages.GoalFieldType.goal };
+            var dt = DateTime.Now;
+            goalField2.timestamp = dt;
+            goalField1.timestamp = dt;
+
+            Assert.AreEqual(goalField1, goalField2);
+        }
+
+        [TestMethod]
+        public void GoalFieldLocationEqual()
+        {
+            GoalField goalField1 = new GoalField(1, 3, TeamColour.red) { type = Messages.GoalFieldType.goal };
+            GoalField goalField2 = new GoalField(1, 3, TeamColour.red) { type = Messages.GoalFieldType.goal };
+            goalField2.x = 0;
+            goalField2.y = 1;
+            goalField1.x = 0;
+            goalField1.y = 1;
+
+            Assert.AreEqual(goalField1, goalField2);
+        }
+
+        [TestMethod]
+        public void GoalFieldLocationUnequal()
+        {
+            GoalField goalField1 = new GoalField(1, 3, TeamColour.red) { type = Messages.GoalFieldType.goal };
+            GoalField goalField2 = new GoalField(1, 3, TeamColour.red) { type = Messages.GoalFieldType.goal };
+            goalField2.x = 0;
+            goalField2.y = 1;
+            goalField1.x = 0;
+            goalField1.y = 2;
+
+            Assert.AreNotEqual(goalField1, goalField2);
+        }
+
+
         [TestMethod]
         public void GoalFieldsArrayIsNull()
         {
@@ -310,6 +350,15 @@ namespace MainApp.Tests
             Assert.AreEqual(ValidatorMessages.BLUE_GOAL_IN_RED_GOAL_AREA, message);
         }
 
+        [TestMethod]
+        public void ActionCostsNull()
+        {
+            defaultSettings.ActionCosts = null;
+            var message = Validator.ValidateActionCosts(defaultSettings.ActionCosts);
+            Assert.IsFalse(string.IsNullOrEmpty(message));
+            Assert.AreEqual(ValidatorMessages.ACTION_COSTS_NULL, message);
+        }
 
     }
 }
+

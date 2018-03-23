@@ -15,6 +15,7 @@ namespace MainApp
             var gameDefinitions = settings.GameDefinition;
             var errors = new StringBuilder();
             var message = ValidateShamProbability(gameDefinitions.ShamProbability);
+
             if (!string.IsNullOrEmpty(message))
                 errors.AppendLine(message);
 
@@ -143,6 +144,13 @@ namespace MainApp
                     return ValidatorMessages.RED_GOAL_IN_BLUE_GOAL_AREA;
             }
 
+            return "";
+        }
+
+        public static string ValidateActionCosts(GameMasterSettingsActionCosts settings)
+        {
+            if (settings == null)
+                return ValidatorMessages.ACTION_COSTS_NULL;
             return "";
         }
     }

@@ -23,6 +23,6 @@ namespace MainApp
         public const string BLUE_GOAL_IN_RED_GOAL_AREA = "Blue goal in red goal area";
         public const string NULL_GOALFIELD_ARRAY = "Array is null";
         public const string NULL_GOALFIELD = "Goalfields array has null element";
-
+        public const string ACTION_COSTS_NULL = "Action costs are null";
     }
 }
