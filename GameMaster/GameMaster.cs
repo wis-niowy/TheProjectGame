@@ -204,7 +204,7 @@ namespace GameArea
                     };
                 }
                 // player carries a sham piece and is on a GoalField - he receives no data about a current GoalField and cannot place a piece
-                else if(actualBoard.GetField(location.x, location.y) is GameArea.GoalField && agents.Where(q => q.GUID == playerGuid).First().GetPiece.type == PieceType.sham)
+                else if (actualBoard.GetField(location.x, location.y) is GameArea.GoalField && agents.Where(q => q.GUID == playerGuid).First().GetPiece.type == PieceType.sham)
                 {
                     var teamColour = agents.Where(q => q.GUID == playerGuid).First().GetTeam;
                     var fieldMessage = new Messages.GoalField()
@@ -246,8 +246,8 @@ namespace GameArea
                         GoalFields = new Messages.GoalField[] { fieldMessage }
                     };
                 }
-                
-                
+
+
 
             }
             // the field is task field and is claimed OR the field is goal field and is non-goal - action rejected
@@ -458,7 +458,7 @@ namespace GameArea
                         Pieces = new Messages.Piece[] { piece }   // jesli dystans > 0 sekcji pieces nie ma?
                     };
                 }
-            } 
+            }
         }
 
         /// <summary>
@@ -480,24 +480,41 @@ namespace GameArea
                     if (dx == 0 && dy == 0) continue;
                     if (ValidateFieldPosition((int)(location.x + dx), (int)(location.y + dy), team))
                     {
-                        if (actualBoard.GetField(location.x, location.y) is TaskField)
+                        Field field = actualBoard.GetField((uint)(location.x + dx), (uint)(location.y + dy));
+                        if (field is TaskField)
                         {
-                            TaskFieldList.Add(new Messages.TaskField(location.x, location.y)
+                            //basic information
+                            Messages.TaskField responseField = new Messages.TaskField(location.x, location.y)
                             {
                                 x = (uint)(location.x + dx),
                                 y = (uint)(location.y + dy),
                                 timestamp = DateTime.Now,
-                                distanceToPiece = 1                                
-                            });
+                                distanceToPiece = 1
+                            };
+
+                            //anoter agent on the field
+                            if (field.HasAgent())
+                                responseField.playerId = field.Player.id;
+
+                            //piece on the field
+                            Messages.Piece piece = (field as TaskField).GetPiece;
+                            if (piece != null)
+                                responseField.pieceId = piece.id;
+                            TaskFieldList.Add(responseField);
                         }
-                        else if (actualBoard.GetField(location.x, location.y) is GoalField)
+                        else if (field is GoalField)
                         {
-                            GoalFieldList.Add(new Messages.GoalField(location.x, location.y)
+                            Messages.GoalField responseField = new Messages.GoalField(location.x, location.y)
                             {
                                 x = (uint)(location.x + dx),
                                 y = (uint)(location.y + dy),
                                 timestamp = DateTime.Now
-                            });
+                            };
+
+                            if (field.HasAgent())
+                                responseField.playerId = field.Player.id;
+
+                            GoalFieldList.Add(responseField);
                         }
                     }
                 }
@@ -558,7 +575,7 @@ namespace GameArea
                 return false;
             else return true;
         }
-        
+
         private bool CheckIfNotOutOfBorad(int x, int y)
         {
             //stepping out of the board
