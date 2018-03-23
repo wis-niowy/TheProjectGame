@@ -234,6 +234,7 @@ namespace Player
         public bool Move(IGameMaster gameMaster, MoveType direction)
         {
             Data responseMessage = gameMaster.HandleMoveRequest(direction, this.GUID, this.GameId);
+            var futureLocation = CalcualteFutureLoaction(this.location, direction);
 
             if (responseMessage.playerId == this.ID && !responseMessage.gameFinished)
             {
@@ -249,11 +250,19 @@ namespace Player
                     // an agent attempted to enter an occupied TaskField
                     if (this.location == responseMessage.PlayerLocation)
                     {
+                        // add encountered stranger agent to this agent's view
+                        var stranger = new Messages.Agent()
+                        {
+                            id = responseMessage.TaskFields[0].playerId,
+                        };
+                        agentBoard.GetField(futureLocation.x, futureLocation.y).Player = stranger;
+
                         return false;
                     }
                     // an action was valid
                     else
                     {
+                        this.location = responseMessage.PlayerLocation;
                         return true;
                     }
                 }
@@ -263,17 +272,26 @@ namespace Player
                     // an agent attempted to enter an occupied GoalField
                     if (this.location == responseMessage.PlayerLocation)
                     {
+                        // add encountered stranger agent to this agent's view
+                        var stranger = new Messages.Agent()
+                        {
+                            id = responseMessage.TaskFields[0].playerId,
+                        };
+                        agentBoard.GetField(futureLocation.x, futureLocation.y).Player = stranger;
+
                         return false;
                     }
                     // an action was valid
                     else
                     {
+                        this.location = responseMessage.PlayerLocation;
                         return true;
                     }
                 }
             }
             return false;
         }
+    
 
         public void Discover(IGameMaster gameMaster)
         {
@@ -283,6 +301,28 @@ namespace Player
         public void doStrategy()
         {
 
+        }
+
+        // additional methods
+        private Location CalcualteFutureLoaction(Location oldLocation, MoveType direction)
+        {
+            Location newLocation = null;
+            switch(direction)
+            {
+                case MoveType.up:
+                    newLocation = new Location(oldLocation.x, oldLocation.y + 1);
+                    break;
+                case MoveType.down:
+                    newLocation = new Location(oldLocation.x, oldLocation.y - 1);
+                    break;
+                case MoveType.left:
+                    newLocation = new Location(oldLocation.x - 1, oldLocation.y);
+                    break;
+                case MoveType.right:
+                    newLocation = new Location(oldLocation.x + 1, oldLocation.y);
+                    break;
+            }
+            return newLocation;
         }
     }
 }

@@ -330,23 +330,24 @@ namespace GameArea
             Messages.TaskField taskField = null;
             Messages.GoalField goalField = null;
 
-            // future positiomn is a TaskField
+            // future position is a TaskField
             if (currentBoardField is GameArea.TaskField)
             {
                 fieldFromBoard = actualBoard.GetField(futureLocation.x, futureLocation.y) as GameArea.TaskField;
                 piece = fieldFromBoard.GetPiece; // may be null!
 
-                taskField = new Messages.TaskField(futureLocation.x, futureLocation.y)
-                {
-                    distanceToPiece = 0,
-                    playerId = actualBoard.GetField(futureLocation.x, futureLocation.y).Player.id,
-                    timestamp = DateTime.Now,
-
-                };
-
                 //player tried to step on a field with another agent
                 if (actualBoard.GetField(futureLocation.x, futureLocation.y).HasAgent())
                 {
+                    taskField = new Messages.TaskField(futureLocation.x, futureLocation.y)
+                    {
+                        distanceToPiece = 0,
+                        // we feedback with encountered stranger agent's id
+                        playerId = actualBoard.GetField(futureLocation.x, futureLocation.y).Player.id,
+                        timestamp = DateTime.Now,
+
+                    };
+
                     return new Data()
                     {
                         gameFinished = false,
@@ -356,8 +357,23 @@ namespace GameArea
                         Pieces = new Messages.Piece[] { piece }   // jesli dystans > 0 sekcji pieces nie ma?
                     };
                 }
+                // move action is valid
                 else
                 {
+                    taskField = new Messages.TaskField(futureLocation.x, futureLocation.y)
+                    {
+                        distanceToPiece = 0,
+                        // action was correct so we feedback with his own id
+                        playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
+                        timestamp = DateTime.Now,
+
+                    };
+
+                    // perform move action
+                    var agent = actualBoard.GetField(currentLocation.x, currentLocation.y).Player;
+                    actualBoard.GetField(currentLocation.x, currentLocation.y).Player = null;
+                    actualBoard.GetField(futureLocation.x, futureLocation.y).Player = agent;
+
                     return new Data()
                     {
                         gameFinished = false,
@@ -374,15 +390,16 @@ namespace GameArea
             {
                 piece = null;
 
-                goalField = new Messages.GoalField(futureLocation.x, futureLocation.y)
-                {
-                    playerId = actualBoard.GetField(futureLocation.x, futureLocation.y).Player.id,
-                    timestamp = DateTime.Now,
-                };
-
                 //player tried to step on a field with another agent
                 if (actualBoard.GetField(futureLocation.x, futureLocation.y).HasAgent())
                 {
+                    goalField = new Messages.GoalField(futureLocation.x, futureLocation.y)
+                    {
+                        // we feedback with encountered stranger agent's id
+                        playerId = actualBoard.GetField(futureLocation.x, futureLocation.y).Player.id,
+                        timestamp = DateTime.Now,
+                    };
+
                     return new Data()
                     {
                         gameFinished = false,
@@ -392,8 +409,21 @@ namespace GameArea
                         Pieces = new Messages.Piece[] { piece }   // jesli dystans > 0 sekcji pieces nie ma?
                     };
                 }
+                // move action is valid
                 else
                 {
+                    goalField = new Messages.GoalField(futureLocation.x, futureLocation.y)
+                    {
+                        // action was correct so we feedback with his own id
+                        playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
+                        timestamp = DateTime.Now,
+                    };
+
+                    // perform move action
+                    var agent = actualBoard.GetField(currentLocation.x, currentLocation.y).Player;
+                    actualBoard.GetField(currentLocation.x, currentLocation.y).Player = null;
+                    actualBoard.GetField(futureLocation.x, futureLocation.y).Player = agent;
+
                     return new Data()
                     {
                         gameFinished = false,
