@@ -14,7 +14,7 @@ namespace GameArea
             this.owner = owner;
         }
 
-        public new FieldType GetFieldType
+        public override FieldType GetFieldType
         {
             get
             {

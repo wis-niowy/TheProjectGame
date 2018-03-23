@@ -31,7 +31,7 @@ namespace GameArea
             piece = null;
         }
 
-        public new FieldType GetFieldType
+        public override FieldType GetFieldType
         {
             get
             {

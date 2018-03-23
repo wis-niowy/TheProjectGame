@@ -37,6 +37,6 @@ namespace GameArea
             return (player != null);
         }
 
-        public FieldType GetFieldType;
+        public abstract FieldType GetFieldType { get; }
     }
 }
