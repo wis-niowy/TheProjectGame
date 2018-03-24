@@ -128,6 +128,7 @@ namespace Messages
         }
 
         public TaskField(uint x, uint y) : base(x, y) { }
+        public TaskField() : base() { }
     }
     
     /// <remarks/>
@@ -181,6 +182,21 @@ namespace Messages
         }
 
         public Field(uint x, uint y) : base(x, y) { }
+
+        public override bool Equals(object obj)
+        {
+            var field = obj as Field;
+            return field != null &&
+                   base.Equals(obj) &&
+                   timestampField == field.timestampField &&
+                   playerIdField == field.playerIdField &&
+                   playerIdFieldSpecified == field.playerIdFieldSpecified &&
+                   timestamp == field.timestamp &&
+                   playerId == field.playerId &&
+                   playerIdSpecified == field.playerIdSpecified;
+        }
+
+        public Field():base() { }
     }
     
     /// <remarks/>
@@ -227,6 +243,8 @@ namespace Messages
             yField = y;
         }
 
+        public Location() { }
+
         public override bool Equals(object obj)
         {
             if (obj == null)
@@ -243,7 +261,8 @@ namespace Messages
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/")]
     [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=true)]
-    public partial class GoalField : Field {
+    public partial class GoalField : Field, IEqualityComparer<GoalField>
+    {
         
         private GoalFieldType typeField;
         
@@ -271,10 +290,42 @@ namespace Messages
             }
         }
 
-        public GoalField(uint x, uint y) : base(x, y) { }
+        public GoalField(uint x, uint y, TeamColour team, GoalFieldType type = GoalFieldType.goal) : base(x, y)
+        {
+            teamField = team;
+            typeField = type;
+        }
 
         public GoalField():base(0,0)
         {
+        }
+        public override bool Equals(object obj)
+        {
+            GoalField goalToCompare;
+            if (obj.GetType() == typeof(GoalField))
+                goalToCompare = (GoalField)obj;
+            else
+                return false;
+            return goalToCompare.typeField == this.typeField
+                && goalToCompare.teamField == this.teamField
+                && goalToCompare.x == this.x 
+                && goalToCompare.y == this.y
+                && base.Equals(goalToCompare);
+        }
+
+        public bool Equals(GoalField other)
+        {
+            return this.Equals(other);
+        }
+
+        public bool Equals(GoalField x, GoalField y)
+        {
+            return x.Equals(y);
+        }
+
+        public int GetHashCode(GoalField obj)
+        {
+            return 0;
         }
     }
     

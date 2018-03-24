@@ -9,8 +9,8 @@ namespace GameArea.Tests
     [TestClass]
     public class GameMasterTests
     {
-        GameMasterSettingsGameDefinition defaultSettings = new GameMasterSettingsGameDefinition();
-        GameMaster defaultGameMaster = new GameMaster(new GameMasterSettingsGameDefinition());
+        GameMasterSettingsGameDefinition defaultSettings = GameMasterSettingsGameDefinition.GetDefaultGameDefinition();
+        GameMaster defaultGameMaster = new GameMaster(GameMasterSettings.GetDefaultGameMasterSettings());
         [TestMethod]
         public void InitBoard()
         {
@@ -41,7 +41,7 @@ namespace GameArea.Tests
         public void GameMasterInitialGoals()
         {
             var blueGoalFields = defaultGameMaster.GetBoard.GetBlueGoalAreaFields.Where(q => q.GoalType == GoalFieldType.goal).ToList();
-            var blueGoals = defaultGameMaster.GetSettings.Goals.Where(q => q.team == TeamColour.blue).ToList();
+            var blueGoals = defaultGameMaster.GetGameDefinition.Goals.Where(q => q.team == TeamColour.blue).ToList();
             Assert.AreEqual(blueGoals.Count, blueGoalFields.Count);
             foreach(var blueGoal in blueGoalFields)
             {
@@ -50,7 +50,7 @@ namespace GameArea.Tests
 
 
             var redGoalFields = defaultGameMaster.GetBoard.GetRedGoalAreaFields.Where(q => q.GoalType == GoalFieldType.goal).ToList();
-            var redGoals = defaultGameMaster.GetSettings.Goals.Where(q => q.team == TeamColour.red).ToList();
+            var redGoals = defaultGameMaster.GetGameDefinition.Goals.Where(q => q.team == TeamColour.red).ToList();
             Assert.AreEqual(redGoals.Count, redGoals.Count);
             foreach (var redGoal in redGoalFields)
             {

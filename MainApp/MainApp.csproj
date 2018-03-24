@@ -1,19 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <ApplicationIcon />
-    <StartupObject />
+    <StartupObject>MainApp.MainApp</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Codaxy.Xsd2" Version="0.9.9" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Configuration\Configuration.csproj" />
-    <ProjectReference Include="..\Messages\Messages.csproj" />
+    <ProjectReference Include="..\GameMaster\GameMaster.csproj" />
   </ItemGroup>
 
 </Project>

@@ -18,7 +18,7 @@ namespace GameArea
         //private List<Piece> pieces;
         private Dictionary<string, uint> agentIdDictionary;
         private Board actualBoard;
-        private GameMasterSettingsGameDefinition gameSettings;
+        private GameMasterSettings gameSettings;
 
         public List<Player.Agent> GetAgents
         {
@@ -36,11 +36,11 @@ namespace GameArea
             }
         }
 
-        public GameMasterSettingsGameDefinition GetSettings
+        public GameMasterSettingsGameDefinition GetGameDefinition
         {
             get
             {
-                return gameSettings;
+                return gameSettings.GameDefinition;
             }
         }
 
@@ -71,7 +71,7 @@ namespace GameArea
             }
         }
 
-        public GameMaster(GameMasterSettingsGameDefinition settings)
+        public GameMaster(GameMasterSettings settings)
         {
             state = GameMasterState.AwaitingPlayers;
             random = new Random();
@@ -79,12 +79,12 @@ namespace GameArea
             //pieces = new List<Piece>();
             agentIdDictionary = new Dictionary<string, uint>();
             gameSettings = settings;
-            InitBoard(gameSettings);
+            InitBoard(gameSettings.GameDefinition);
         }
 
         private void InitBoard(GameMasterSettingsGameDefinition settings)
         {
-            actualBoard = new Board(uint.Parse(settings.BoardWidth), uint.Parse(settings.TaskAreaLength), uint.Parse(settings.GoalAreaLength));
+            actualBoard = new Board((uint)settings.BoardWidth, settings.TaskAreaLength, settings.GoalAreaLength);
             PlaceInitialPieces(settings.InitialNumberOfPieces);
             PlaceInitialGoals(settings.Goals);
         }
@@ -115,7 +115,7 @@ namespace GameArea
         private Piece CreatePiece()
         {
             var possibleSham = random.NextDouble();
-            if (possibleSham <= gameSettings.ShamProbability)
+            if (possibleSham <= gameSettings.GameDefinition.ShamProbability)
                 return new Piece(PieceType.sham, nextPieceId++);
             else
                 return new Piece(PieceType.normal, nextPieceId++);
