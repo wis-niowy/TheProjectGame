@@ -147,6 +147,8 @@ namespace Configuration {
 
         private string gameNameField;
 
+        private uint numberOfGoalsPerGame;
+
         public GameMasterSettingsGameDefinition() { }
 
         public static GameMasterSettingsGameDefinition GetDefaultGameDefinition()
@@ -160,6 +162,7 @@ namespace Configuration {
                 taskAreaLengthField = 7,
                 goalAreaLengthField = 3,
                 numberOfPlayersPerTeamField = 4,
+                numberOfGoalsPerGame = 10,
                 goalsField = new GoalField[]
                 {
                     new GoalField() { x = 1, y = 1, type = GoalFieldType.goal, team = TeamColour.blue },
@@ -294,6 +297,18 @@ namespace Configuration {
             set
             {
                 this.numberOfPlayersPerTeamField = value;
+            }
+        }
+
+        public uint NumberOfGoalsPerGame
+        {
+            get
+            {
+                return this.numberOfGoalsPerGame;
+            }
+            set
+            {
+                this.numberOfGoalsPerGame = value;
             }
         }
 

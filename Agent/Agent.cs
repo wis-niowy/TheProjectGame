@@ -1,6 +1,7 @@
 ﻿using Messages;
 using System;
 using GameArea;
+using System.Collections.Generic;
 
 namespace Player
 {
@@ -34,6 +35,10 @@ namespace Player
         }
 
         private ulong gameId;
+
+        public List<Messages.Agent> myTeam;
+        public List<Messages.Agent> otherTeam;
+
         public ulong GameId
         {
             get

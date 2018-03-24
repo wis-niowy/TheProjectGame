@@ -13,6 +13,7 @@ namespace GameArea
     {
         private GameMasterState state;
         private ulong nextPieceId = 0;
+        private ulong goalsLeft;
         private Random random;
         private List<Player.Agent> agents;
         //private List<Piece> pieces;
@@ -76,7 +77,7 @@ namespace GameArea
             state = GameMasterState.AwaitingPlayers;
             random = new Random();
             agents = new List<Player.Agent>();
-            //pieces = new List<Piece>();
+            goalsLeft = settings.GameDefinition.NumberOfGoalsPerGame;
             agentIdDictionary = new Dictionary<string, uint>();
             gameSettings = settings;
             InitBoard(gameSettings.GameDefinition);
@@ -137,7 +138,28 @@ namespace GameArea
             return field;
         }
 
-        // API
+        /// <summary>
+        /// method provides agent with lists myTeam and otherTeam
+        /// </summary>
+        /// <param name="agent"></param>
+        private void SetGameInfo(Player.Agent agent)
+        {
+            foreach (var otherAgent in agents)
+            {
+                agent.myTeam = new List<Messages.Agent>();
+                agent.otherTeam = new List<Messages.Agent>();
+                //player from another team
+                if (otherAgent.GetTeam != agent.GetTeam)
+                    agent.otherTeam.Add(otherAgent.ConvertToMessageAgent());
+                //player from the same team
+                else
+                    agent.myTeam.Add(otherAgent.ConvertToMessageAgent());
+            }
+        }
+
+
+
+        // --------------------------------------    API
 
         /// <summary>
         /// Method to request a Test Piece action
@@ -189,7 +211,9 @@ namespace GameArea
                     var fieldMessage = new Messages.TaskField(location.x, location.y)
                     {
                         playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
+                        playerIdSpecified = true,
                         pieceId = agents.Where(q => q.GUID == playerGuid).First().GetPiece.id,
+                        pieceIdSpecified = true,
                         timestamp = DateTime.Now
                     };
 
@@ -212,6 +236,7 @@ namespace GameArea
                         x = location.x,
                         y = location.y,
                         playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
+                        playerIdSpecified = true,
                         timestamp = DateTime.Now,
                         team = teamColour
                     };
@@ -232,11 +257,12 @@ namespace GameArea
                         x = location.x,
                         y = location.y,
                         playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
+                        playerIdSpecified = true,
                         timestamp = DateTime.Now,
                         type = goalFieldType,
                         team = teamColour
                     };
-
+                    goalsLeft--;    // one goal less before the game is over
                     agents.Where(q => q.GUID == playerGuid).First().SetPiece(null); // the piece is no longer possesed by an agent
 
                     return new Data()
@@ -313,126 +339,74 @@ namespace GameArea
             var futureLocation = PerformLocationDelta(direction, currentLocation, team);
             var futureBoardField = actualBoard.GetField(futureLocation.x, futureLocation.y);
 
+            //basic info for response
+            Data response = new Data()
+            {
+                gameFinished = false,
+                playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
+                TaskFields = new Messages.TaskField[] { },
+                GoalFields = null,
+                PlayerLocation = currentLocation
+            };
 
             //player tried to step out of the board or enetr wrong GoalArea
             if (!ValidateFieldPosition((int)futureLocation.x, (int)futureLocation.y, team))
-                return new Data()
-                {
-                    gameFinished = false,
-                    playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
-                    //TaskFields = new Messages.TaskField[] { },
-                    PlayerLocation = currentLocation
-                };
-
-            GameArea.TaskField fieldFromBoard;
+                return response;
+            
+                        
             Messages.Piece piece;
-            Messages.TaskField taskField = null;
-            Messages.GoalField goalField = null;
-
-            // future position is a TaskField
+            Messages.Field field;
+            
+            // what type of field are we trying to enter - Task or Goal?
             if (futureBoardField is GameArea.TaskField)
             {
+                GameArea.TaskField fieldFromBoard = actualBoard.GetField(futureLocation.x, futureLocation.y) as GameArea.TaskField;
+                field = new Messages.TaskField(futureLocation.x, futureLocation.y)
+                {
+                    distanceToPiece = 0,
+                    timestamp = DateTime.Now,
+                };
+
+                // check if there is a piece on the filed
                 fieldFromBoard = actualBoard.GetField(futureLocation.x, futureLocation.y) as GameArea.TaskField;
-                piece = fieldFromBoard.GetPiece; // may be null!
-
-                //player tried to step on a field with another agent
-                if (actualBoard.GetField(futureLocation.x, futureLocation.y).HasAgent())
+                piece = (fieldFromBoard as GameArea.TaskField).GetPiece;
+                if(piece != null)
                 {
-                    taskField = new Messages.TaskField(futureLocation.x, futureLocation.y)
-                    {
-                        distanceToPiece = 0,
-                        // we feedback with encountered stranger agent's id
-                        playerId = actualBoard.GetField(futureLocation.x, futureLocation.y).Player.id,
-                        timestamp = DateTime.Now,
-                        
-                    };
-
-                    return new Data()
-                    {
-                        gameFinished = false,
-                        playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
-                        TaskFields = new Messages.TaskField[] { taskField },
-                        PlayerLocation = currentLocation,
-                        //Pieces = new Messages.Piece[] { piece }   // jesli dystans > 0 sekcji pieces nie ma?
-                    };
+                    response.Pieces = new Messages.Piece[] { piece };
+                    (field as Messages.TaskField).pieceId = piece.id;
+                    (field as Messages.TaskField).pieceIdSpecified = true;
                 }
-                // move action is valid
-                else
-                {
-                    taskField = new Messages.TaskField(futureLocation.x, futureLocation.y)
-                    {
-                        distanceToPiece = 0,
-                        // action was correct so we feedback with his own id
-                        playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
-                        timestamp = DateTime.Now,
-
-                    };
-
-                    // perform move action
-                    var agent = actualBoard.GetField(currentLocation.x, currentLocation.y).Player;
-                    actualBoard.GetField(currentLocation.x, currentLocation.y).Player = null;
-                    actualBoard.GetField(futureLocation.x, futureLocation.y).Player = agent;
-
-                    return new Data()
-                    {
-                        gameFinished = false,
-                        playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
-                        TaskFields = new Messages.TaskField[] { taskField },
-                        PlayerLocation = futureLocation,
-                        //Pieces = new Messages.Piece[] { piece }   // jesli dystans > 0 sekcji pieces nie ma?
-                    };
-                }
+                response.TaskFields = new Messages.TaskField[] { (field as Messages.TaskField) };
 
             }
-            // future position is a GoalField
-            else
+            else //if (futureBoardField is GameArea.GoalField)
             {
-                piece = null;
-                var futureGoalField = actualBoard.GetGoalField(futureLocation.x, futureLocation.y);
-                //player tried to step on a field with another agent
-                if (futureGoalField.HasAgent())
+                GameArea.GoalField fieldFromBoard = actualBoard.GetField(futureLocation.x, futureLocation.y) as GameArea.GoalField;
+                field = new Messages.GoalField(futureLocation.x, futureLocation.y, fieldFromBoard.GetOwner)
                 {
-                    goalField = new Messages.GoalField(futureLocation.x, futureLocation.y, futureGoalField.GetOwner)
-                    {
-                        // we feedback with encountered stranger agent's id
-                        playerId = actualBoard.GetField(futureLocation.x, futureLocation.y).Player.id,
-                        timestamp = DateTime.Now,
-                    };
-
-                    return new Data()
-                    {
-                        gameFinished = false,
-                        playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
-                        GoalFields = new Messages.GoalField[] { goalField },
-                        PlayerLocation = currentLocation,
-                        //Pieces = new Messages.Piece[] { piece }   // jesli dystans > 0 sekcji pieces nie ma?
-                    };
-                }
-                // move action is valid
-                else
-                {
-                    goalField = new Messages.GoalField(futureLocation.x, futureLocation.y, futureGoalField.GetOwner)
-                    {
-                        // action was correct so we feedback with his own id
-                        playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
-                        timestamp = DateTime.Now,
-                    };
-
-                    // perform move action
-                    var agent = actualBoard.GetField(currentLocation.x, currentLocation.y).Player;
-                    actualBoard.GetField(currentLocation.x, currentLocation.y).Player = null;
-                    actualBoard.GetField(futureLocation.x, futureLocation.y).Player = agent;
-
-                    return new Data()
-                    {
-                        gameFinished = false,
-                        playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
-                        GoalFields = new Messages.GoalField[] { goalField },
-                        PlayerLocation = futureLocation,
-                        //Pieces = new Messages.Piece[] { piece }   // jesli dystans > 0 sekcji pieces nie ma?
-                    };
-                }
+                    timestamp = DateTime.Now,
+                };
+                response.GoalFields = new Messages.GoalField[] { (field as Messages.GoalField) };
+                response.TaskFields = null;
             }
+
+            // check if there is another agent on the field we're trying to enter - if so, wedon't actually move, just get an update on the field
+            if (futureBoardField.HasAgent())
+            {
+                field.playerId = futureBoardField.Player.id;
+                field.playerIdSpecified = true;
+            }
+            else    //there is no player, we can move
+            {
+                // perform move action
+                var agent = actualBoard.GetField(currentLocation.x, currentLocation.y).Player;
+                actualBoard.GetField(currentLocation.x, currentLocation.y).Player = null;
+                actualBoard.GetField(futureLocation.x, futureLocation.y).Player = agent;
+                response.PlayerLocation = futureLocation;
+            }
+
+            return response;
+            
         }
 
         /// <summary>
@@ -455,6 +429,7 @@ namespace GameArea
                     if (ValidateFieldPosition((int)(location.x + dx), (int)(location.y + dy), team))
                     {
                         Field field = actualBoard.GetField((uint)(location.x + dx), (uint)(location.y + dy));
+                        // discovered field is a TaskField - can contain players and pieces
                         if (field is TaskField)
                         {
                             //basic information
@@ -468,17 +443,30 @@ namespace GameArea
 
                             //anoter agent on the field
                             if (field.HasAgent())
+                            {
                                 responseField.playerId = field.Player.id;
+                                responseField.playerIdSpecified = true;
+                            }
+                            else
+                                responseField.playerIdSpecified = false;
 
                             //piece on the field
                             Messages.Piece piece = (field as TaskField).GetPiece;
                             if (piece != null)
+                            {
                                 responseField.pieceId = piece.id;
+                                responseField.pieceIdSpecified = true;
+                            }
+                            else
+                                responseField.pieceIdSpecified = false;
+
                             TaskFieldList.Add(responseField);
                         }
+
+                        // discovered field is a GoalField - can contain players
                         else if (field is GoalField)
                         {
-                            Messages.GoalField responseField = new Messages.GoalField(location.x, location.y,(field as GoalField).GetOwner)
+                            Messages.GoalField responseField = new Messages.GoalField(location.x, location.y, (field as GoalField).GetOwner)
                             {
                                 x = (uint)(location.x + dx),
                                 y = (uint)(location.y + dy),
@@ -486,7 +474,12 @@ namespace GameArea
                             };
 
                             if (field.HasAgent())
+                            {
                                 responseField.playerId = field.Player.id;
+                                responseField.playerIdSpecified = true;
+                            }
+                            else
+                                responseField.playerIdSpecified = false;
 
                             GoalFieldList.Add(responseField);
                         }
