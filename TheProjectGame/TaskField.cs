@@ -31,11 +31,13 @@ namespace GameArea
         public void SetPiece(Piece value)
         {
             piece = value;
+            distance = 0;
         }
 
         public TaskField(uint x, uint y, Piece piece = null) : base(x, y)
         {
             this.piece = piece;
+            distance = int.MaxValue;
         }
 
         public void RemovePiece()

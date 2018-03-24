@@ -57,5 +57,51 @@ namespace GameArea.Tests
                 Assert.IsTrue(redGoals.Where(q => q.x == redGoal.x && q.y == redGoal.y && q.type == GoalFieldType.goal && q.team == TeamColour.red).Any());
             }
         }
+
+        [TestMethod]
+        public void ManhattanDistance()
+        {
+            GameMasterSettingsGameDefinition settings = GameMasterSettingsGameDefinition.GetDefaultGameDefinition();
+            settings.InitialNumberOfPieces = 0;
+            GameMaster defaultGameMaster = new GameMaster(GameMasterSettings.GetGameMasterSettings(settings));
+
+            //first piece
+            defaultGameMaster.SetPieceInLocation(2, 5, TeamColour.blue, PieceType.sham, 97);
+            defaultGameMaster.UpdateDistancesFromAllPieces();
+            Assert.IsNotNull((defaultGameMaster.GetBoard.GetField(2, 5) as GameArea.TaskField).GetPiece);
+            Assert.AreEqual(0, (defaultGameMaster.GetBoard.GetField(2, 5) as GameArea.TaskField).Distance);
+            Assert.AreEqual(1, (defaultGameMaster.GetBoard.GetField(1, 5) as GameArea.TaskField).Distance);
+            Assert.AreEqual(1, (defaultGameMaster.GetBoard.GetField(3, 5) as GameArea.TaskField).Distance);
+            Assert.AreEqual(1, (defaultGameMaster.GetBoard.GetField(2, 4) as GameArea.TaskField).Distance);
+            Assert.AreEqual(1, (defaultGameMaster.GetBoard.GetField(2, 6) as GameArea.TaskField).Distance);
+            Assert.AreEqual(3, (defaultGameMaster.GetBoard.GetField(4, 6) as GameArea.TaskField).Distance);
+            Assert.AreEqual(4, (defaultGameMaster.GetBoard.GetField(4, 3) as GameArea.TaskField).Distance);
+            Assert.AreEqual(2, (defaultGameMaster.GetBoard.GetField(0, 5) as GameArea.TaskField).Distance);
+
+            //second piece
+            defaultGameMaster.SetPieceInLocation(4, 5, TeamColour.blue, PieceType.sham, 98);
+            defaultGameMaster.UpdateDistancesFromAllPieces();
+            Assert.IsNotNull((defaultGameMaster.GetBoard.GetField(2, 5) as GameArea.TaskField).GetPiece);
+            Assert.IsNotNull((defaultGameMaster.GetBoard.GetField(4, 5) as GameArea.TaskField).GetPiece);
+            Assert.AreEqual(0, (defaultGameMaster.GetBoard.GetField(2, 5) as GameArea.TaskField).Distance);
+            Assert.AreEqual(0, (defaultGameMaster.GetBoard.GetField(4, 5) as GameArea.TaskField).Distance);
+            Assert.AreEqual(1, (defaultGameMaster.GetBoard.GetField(3, 5) as GameArea.TaskField).Distance);
+            Assert.AreEqual(1, (defaultGameMaster.GetBoard.GetField(4, 6) as GameArea.TaskField).Distance);
+            Assert.AreEqual(2, (defaultGameMaster.GetBoard.GetField(4, 3) as GameArea.TaskField).Distance);
+            Assert.AreEqual(2, (defaultGameMaster.GetBoard.GetField(0, 5) as GameArea.TaskField).Distance);
+
+            //third piece
+            defaultGameMaster.SetPieceInLocation(1, 8, TeamColour.blue, PieceType.sham, 99);
+            Assert.IsNotNull((defaultGameMaster.GetBoard.GetField(2, 5) as GameArea.TaskField).GetPiece);
+            Assert.IsNotNull((defaultGameMaster.GetBoard.GetField(4, 5) as GameArea.TaskField).GetPiece);
+            Assert.IsNotNull((defaultGameMaster.GetBoard.GetField(1, 8) as GameArea.TaskField).GetPiece);
+            Assert.AreEqual(0, (defaultGameMaster.GetBoard.GetField(4, 5) as GameArea.TaskField).Distance);
+            Assert.AreEqual(1, (defaultGameMaster.GetBoard.GetField(3, 5) as GameArea.TaskField).Distance);
+            Assert.AreEqual(1, (defaultGameMaster.GetBoard.GetField(4, 6) as GameArea.TaskField).Distance);
+            Assert.AreEqual(2, (defaultGameMaster.GetBoard.GetField(4, 3) as GameArea.TaskField).Distance);
+            Assert.AreEqual(2, (defaultGameMaster.GetBoard.GetField(0, 5) as GameArea.TaskField).Distance);
+            Assert.AreEqual(1, (defaultGameMaster.GetBoard.GetField(1, 7) as GameArea.TaskField).Distance);
+            Assert.AreEqual(2, (defaultGameMaster.GetBoard.GetField(3, 8) as GameArea.TaskField).Distance);
+        }
     }
 }
