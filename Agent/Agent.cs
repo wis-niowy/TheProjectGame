@@ -318,39 +318,42 @@ namespace Player
         public void Discover(IGameMaster gameMaster)
         {
             Data responseMessage = gameMaster.HandleDiscoverRequest(this.GUID, this.GameId);
-            if (responseMessage.playerId == this.ID && !responseMessage.gameFinished)
-            {
-                foreach (var respField in responseMessage.TaskFields)
-                {
-                    GameArea.TaskField updatedField = agentBoard.GetField(respField.x, respField.y) as GameArea.TaskField;
-                    updatedField.UpdateTimeStamp(respField.timestamp);
-                    updatedField.Distance = respField.distanceToPiece;
 
-                    Type t = respField.GetType();
-                    System.Reflection.PropertyInfo p = t.GetProperty("pieceId");
-                    if (p != null)
-                        updatedField.SetPiece(new Piece(PieceType.unknown, respField.pieceId.Value));
-                    p = t.GetProperty("playerId");
-                    if (p != null)
-                    {
-                        updatedField.Player = new Messages.Agent();
-                        updatedField.Player.id = (ulong)respField.playerId;
-                    }
-                }
+            UpdateLocalBoard(responseMessage, ActionType.Discover);
 
-                foreach (var respField in responseMessage.GoalFields)
-                {
-                    GameArea.GoalField updatedField = agentBoard.GetField(respField.x, respField.y) as GameArea.GoalField;
-                    updatedField.UpdateTimeStamp(respField.timestamp);
-                    Type t = respField.GetType();
-                    System.Reflection.PropertyInfo p = t.GetProperty("playerId");
-                    if (p != null)
-                    {
-                        updatedField.Player = new Messages.Agent();
-                        updatedField.Player.id = (ulong)respField.playerId;
-                    }
-                }
-            }
+            //if (responseMessage.playerId == this.ID && !responseMessage.gameFinished)
+            //{
+            //    foreach (var respField in responseMessage.TaskFields)
+            //    {
+            //        GameArea.TaskField updatedField = agentBoard.GetField(respField.x, respField.y) as GameArea.TaskField;
+            //        updatedField.UpdateTimeStamp(respField.timestamp);
+            //        updatedField.Distance = respField.distanceToPiece;
+
+            //        Type t = respField.GetType();
+            //        System.Reflection.PropertyInfo p = t.GetProperty("pieceId");
+            //        if (p != null)
+            //            updatedField.SetPiece(new Piece(PieceType.unknown, respField.pieceId.Value));
+            //        p = t.GetProperty("playerId");
+            //        if (p != null)
+            //        {
+            //            updatedField.Player = new Messages.Agent();
+            //            updatedField.Player.id = (ulong)respField.playerId;
+            //        }
+            //    }
+
+            //    foreach (var respField in responseMessage.GoalFields)
+            //    {
+            //        GameArea.GoalField updatedField = agentBoard.GetField(respField.x, respField.y) as GameArea.GoalField;
+            //        updatedField.UpdateTimeStamp(respField.timestamp);
+            //        Type t = respField.GetType();
+            //        System.Reflection.PropertyInfo p = t.GetProperty("playerId");
+            //        if (p != null)
+            //        {
+            //            updatedField.Player = new Messages.Agent();
+            //            updatedField.Player.id = (ulong)respField.playerId;
+            //        }
+            //    }
+            //}
         }
 
         public void doStrategy()
@@ -499,37 +502,39 @@ namespace Player
                         updatedField.UpdateTimeStamp(respField.timestamp);
                         updatedField.Distance = respField.distanceToPiece;
 
-                        Type t = respField.GetType();
-                        System.Reflection.PropertyInfo p = t.GetProperty("pieceId");
-                        if (p != null)
+                        if (respField.playerIdSpecified)
+                            updatedField.Player = new Messages.Agent()
+                            {
+                                id = respField.playerId.Value,
+                                team = myTeam.Union(otherTeam).First(p => p.id == respField.playerId.Value).team,
+                                type = myTeam.Union(otherTeam).First(p => p.id == respField.playerId.Value).type,
+                            };
+
+                        if (respField.pieceIdSpecified)
                             updatedField.SetPiece(new Piece(PieceType.unknown, respField.pieceId.Value));
-                        p = t.GetProperty("playerId");
-                        if (p != null)
-                        {
-                            updatedField.Player = new Messages.Agent();
-                            updatedField.Player.id = (ulong)respField.playerId;
-                        }
                     }
                 }
             }
-
-            if (goalFieldsArray != null && taskFieldsArray.Length > 0)
+            if (goalFieldsArray != null && goalFieldsArray.Length > 0)
             {
                 foreach (var respField in goalFieldsArray)
                 {
                     if (respField != null)
                     {
+                        var coordX = respField.x;
+                        var coordY = respField.y;
+
                         GameArea.GoalField updatedField = agentBoard.GetField(respField.x, respField.y) as GameArea.GoalField;
                         updatedField.UpdateTimeStamp(respField.timestamp);
-                        Type t = respField.GetType();
-                        System.Reflection.PropertyInfo p = t.GetProperty("playerId");
-                        if (p != null)
-                        {
-                            updatedField.Player = new Messages.Agent();
-                            updatedField.Player.id = (ulong)respField.playerId;
-                        }
+
+                        if (respField.playerIdSpecified)
+                            updatedField.Player = new Messages.Agent()
+                            {
+                                id = respField.playerId.Value,
+                                team = myTeam.Union(otherTeam).First(p => p.id == respField.playerId.Value).team,
+                                type = myTeam.Union(otherTeam).First(p => p.id == respField.playerId.Value).type,
+                            };
                     }
-                    
                 }
             }
             
@@ -537,63 +542,63 @@ namespace Player
 
         // // //
 
-        private void UpdateLocalBoard2(Data responseMessage)
-        {
-            var gameFinished = responseMessage.gameFinished;
-            var currentLocation = responseMessage.PlayerLocation;
-            var playerId = responseMessage.playerId;
+        //private void UpdateLocalBoard2(Data responseMessage)
+        //{
+        //    var gameFinished = responseMessage.gameFinished;
+        //    var currentLocation = responseMessage.PlayerLocation;
+        //    var playerId = responseMessage.playerId;
 
-            var taskFieldsArray = responseMessage.TaskFields;
-            var goalFieldsArray = responseMessage.GoalFields;
-            var piecesArray = responseMessage.Pieces;
+        //    var taskFieldsArray = responseMessage.TaskFields;
+        //    var goalFieldsArray = responseMessage.GoalFields;
+        //    var piecesArray = responseMessage.Pieces;
 
-            if (playerId == this.ID && !gameFinished)
-            {
-                if (piecesArray != null && piecesArray.Length > 0 && piecesArray[0] == null) // otzymano informacje o kawalku
-                    // element != null oznacza, ze akcja byla poprawna
-                {
-                    var receivedPiece = piecesArray[0];
-                    if (receivedPiece.type == PieceType.unknown) // podniesiono kawalek (testowanie zawsze da normal/sham)
-                    {
-                        this.SetPiece(receivedPiece); // podnosimy kawalek
-                        this.agentBoard.GetTaskField(currentLocation.x, currentLocation.y).SetPiece(null); // zabieramy kawalek z planszy
-                    }
-                    else // testowano kawalek -- wynik normal lub sham
-                    {
-                        if (this.GetPiece.id == receivedPiece.id) // agent posiada ten sam kawalek, o ktorym dostal info
-                        {
-                            this.piece = receivedPiece; // aktualizacja lokalnego kawalka
-                        }
-                    }
-                }
+        //    if (playerId == this.ID && !gameFinished)
+        //    {
+        //        if (piecesArray != null && piecesArray.Length > 0 && piecesArray[0] == null) // otzymano informacje o kawalku
+        //            // element != null oznacza, ze akcja byla poprawna
+        //        {
+        //            var receivedPiece = piecesArray[0];
+        //            if (receivedPiece.type == PieceType.unknown) // podniesiono kawalek (testowanie zawsze da normal/sham)
+        //            {
+        //                this.SetPiece(receivedPiece); // podnosimy kawalek
+        //                this.agentBoard.GetTaskField(currentLocation.x, currentLocation.y).SetPiece(null); // zabieramy kawalek z planszy
+        //            }
+        //            else // testowano kawalek -- wynik normal lub sham
+        //            {
+        //                if (this.GetPiece.id == receivedPiece.id) // agent posiada ten sam kawalek, o ktorym dostal info
+        //                {
+        //                    this.piece = receivedPiece; // aktualizacja lokalnego kawalka
+        //                }
+        //            }
+        //        }
 
-                if (taskFieldsArray != null && taskFieldsArray.Length > 0 && taskFieldsArray[0] != null) // otzymano informacje o TaskField
-                    // jezeli taskFieldsArray.Length == 0 to probowal wyjsc poza plansze - zadnych zmian na planszy
-                {
-                    var receivedField = taskFieldsArray[0];
-                    if (responseMessage.PlayerLocation == null) // wiadomosc zwrotna z akcji PlacePiece
-                    {
-                        this.agentBoard.GetTaskField(currentLocation.x, currentLocation.y).SetPiece(this.GetPiece); // odkladamy kawalek
-                        this.SetPiece(null);
-                    }
-                    else // PlayerLocation ustawione, a wiec wiadomosc zwrotna z akcji Move
-                    {
-                        var futureX = receivedField.x;
-                        var futureY = receivedField.y;
-                        if (receivedField.playerId != this.ID) // ruch sie nie udal bo napotkano innego gracza
-                        {
-                            var stranger = myTeam.Union(otherTeam).First(p => p.id == receivedField.playerId);
-                            agentBoard.GetField(futureX, futureY).Player = stranger;
-                        }
-                        else // wraz z danymi TaskField otrzymalismy nasze id, wiec ruch sie udal
-                        {
-                            this.location = new Location(futureX, futureY);
-                        }
-                    }
-                }
+        //        if (taskFieldsArray != null && taskFieldsArray.Length > 0 && taskFieldsArray[0] != null) // otzymano informacje o TaskField
+        //            // jezeli taskFieldsArray.Length == 0 to probowal wyjsc poza plansze - zadnych zmian na planszy
+        //        {
+        //            var receivedField = taskFieldsArray[0];
+        //            if (responseMessage.PlayerLocation == null) // wiadomosc zwrotna z akcji PlacePiece
+        //            {
+        //                this.agentBoard.GetTaskField(currentLocation.x, currentLocation.y).SetPiece(this.GetPiece); // odkladamy kawalek
+        //                this.SetPiece(null);
+        //            }
+        //            else // PlayerLocation ustawione, a wiec wiadomosc zwrotna z akcji Move
+        //            {
+        //                var futureX = receivedField.x;
+        //                var futureY = receivedField.y;
+        //                if (receivedField.playerId != this.ID) // ruch sie nie udal bo napotkano innego gracza
+        //                {
+        //                    var stranger = myTeam.Union(otherTeam).First(p => p.id == receivedField.playerId);
+        //                    agentBoard.GetField(futureX, futureY).Player = stranger;
+        //                }
+        //                else // wraz z danymi TaskField otrzymalismy nasze id, wiec ruch sie udal
+        //                {
+        //                    this.location = new Location(futureX, futureY);
+        //                }
+        //            }
+        //        }
 
-            }
-        }
+        //    }
+        //}
 
 
 
