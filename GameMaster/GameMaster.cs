@@ -157,10 +157,68 @@ namespace GameArea
             }
         }
 
+        public void UpdateDistancesFromAllPieces()
+        {
+            List<GameArea.TaskField> taskFields = actualBoard.TaskFields;
+            foreach (var field in taskFields)
+            {
+                //if there is a piece on this field - distance = 0
+                if (field.GetPiece != null)
+                {
+                    field.Distance = 0;
+                    continue;
+                }
+                else    //no piece -> check if there is a piece 1, 2, 3... fields away
+                {
+                    uint currentDist = 1;
+                    uint x, y;
+                    while (currentDist < field.Distance && currentDist<taskFields.Count)
+                    {
+                        for (x = 0; x <= currentDist; x++)
+                        {
+                            y = currentDist - x;
+
+                            
+                            if (CheckIfNotOutOfTaskArea(field.x + x, field.y + y) && ((actualBoard.GetField(field.x + x, field.y + y)) as TaskField).GetPiece != null)
+                            {
+                                field.Distance = (int)currentDist;
+                                break;
+                            }//first quarter
+                            if (CheckIfNotOutOfTaskArea(field.x - x, field.y + y) && ((actualBoard.GetField(field.x - x, field.y + y)) as TaskField).GetPiece != null)
+                            {
+                                field.Distance = (int)currentDist;
+                                break;
+                            }//second quarter
+                            if (CheckIfNotOutOfTaskArea(field.x + x, field.y - y) && ((actualBoard.GetField(field.x + x, field.y - y)) as TaskField).GetPiece != null)
+                            {
+                                field.Distance = (int)currentDist;
+                                break;
+                            }
+                            if (CheckIfNotOutOfTaskArea(field.x - x, field.y - y) && ((actualBoard.GetField(field.x - x, field.y - y)) as TaskField).GetPiece != null)
+                            {
+                                field.Distance = (int)currentDist;
+                                break;
+                            }//fourth quarter
+
+                        }
+                        currentDist++;
+                    }
+
+                }
+            }
+        }
+
+        private bool CheckIfNotOutOfTaskArea(uint x, uint y)
+        {
+            if (x < 0 || x >= actualBoard.BoardWidth ||
+                y < actualBoard.GoalAreaHeight || y >= actualBoard.GoalAreaHeight + actualBoard.TaskAreaHeight)
+                return false;
+            return true;
+        }
 
 
         // --------------------------------------    API
-
+        #region API
         /// <summary>
         /// Method to request a Test Piece action
         /// </summary>
@@ -224,8 +282,8 @@ namespace GameArea
 
                         (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).SetPiece(agents.Where(q => q.GUID == playerGuid).First().GetPiece); // the piece is put on the field
                         agents.Where(q => q.GUID == playerGuid).First().SetPiece(null); // the piece is no longer possesed by an agent
+                    	UpdateDistancesFromAllPieces();
                     }
-                    
 
                     return new Data()
                     {
@@ -325,6 +383,7 @@ namespace GameArea
                 var piece = (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).GetPiece;
                 agents.Where(q => q.GUID == playerGuid).First().SetPiece(piece); // agent picks up a piece
                 (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).SetPiece(null); // the piece is no longer on the field  
+                UpdateDistancesFromAllPieces();
             }
             // player is either on an empty TaskField or on a GoalField
             return new Data()
@@ -364,25 +423,25 @@ namespace GameArea
             //player tried to step out of the board or enetr wrong GoalArea
             if (!ValidateFieldPosition((int)futureLocation.x, (int)futureLocation.y, team))
                 return response;
-            
+
                         
             Messages.Piece piece;
             Messages.Field field;
-            
+
             // what type of field are we trying to enter - Task or Goal?
             if (futureBoardField is GameArea.TaskField)
             {
                 GameArea.TaskField fieldFromBoard = actualBoard.GetField(futureLocation.x, futureLocation.y) as GameArea.TaskField;
                 field = new Messages.TaskField(futureLocation.x, futureLocation.y)
                 {
-                    distanceToPiece = 0,
+                    distanceToPiece = fieldFromBoard.Distance,
                     timestamp = DateTime.Now,
                 };
 
                 // check if there is a piece on the filed
                 fieldFromBoard = actualBoard.GetField(futureLocation.x, futureLocation.y) as GameArea.TaskField;
                 piece = (fieldFromBoard as GameArea.TaskField).GetPiece;
-                if(piece != null)
+                if (piece != null)
                 {
                     response.Pieces = new Messages.Piece[] { piece };
                     (field as Messages.TaskField).pieceId = piece.id;
@@ -418,7 +477,7 @@ namespace GameArea
             }
 
             return response;
-            
+
         }
 
         /// <summary>
@@ -450,7 +509,7 @@ namespace GameArea
                                 x = (uint)(location.x + dx),
                                 y = (uint)(location.y + dy),
                                 timestamp = DateTime.Now,
-                                distanceToPiece = 1
+                                distanceToPiece = (field as TaskField).Distance
                             };
 
                             //anoter agent on the field
@@ -506,8 +565,10 @@ namespace GameArea
             };
         }
 
-        // additional methods
+        #endregion
 
+        // ------------ additional methods
+        #region addition api methods
         /// <summary>
         /// Converts MoveType enum object to Location object
         /// </summary>
@@ -606,9 +667,12 @@ namespace GameArea
             if (ValidateFieldPosition((int)x, (int)y, team) && actualBoard.GetField(x, y) is TaskField)
             {
                 (actualBoard.GetField(x, y) as TaskField).SetPiece(piece);
+                UpdateDistancesFromAllPieces();
                 return true;
             }
             else return false;
         }
+
+        #endregion
     }
 }

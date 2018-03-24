@@ -87,6 +87,15 @@ namespace Configuration {
             };
         }
 
+        public static GameMasterSettings GetGameMasterSettings(GameMasterSettingsGameDefinition settings)
+        {
+            return new GameMasterSettings()
+            {
+                retryRegisterGameIntervalField = ((uint)(5000)),
+                gameDefinitionField = settings
+            };
+        }
+
         /// <remarks/>
         public GameMasterSettingsGameDefinition GameDefinition {
             get {
@@ -174,6 +183,11 @@ namespace Configuration {
 
                 }
             };
+        }
+
+        public void SetInitialPiecesNumber(uint number)
+        {
+            initialNumberOfPiecesField = number;
         }
 
         //// ORIGINALLY GENERATED PART:
