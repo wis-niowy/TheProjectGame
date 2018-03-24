@@ -2,9 +2,20 @@
 using System;
 using GameArea;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Player
 {
+    enum ActionType
+    {
+        none,
+        TestPiece,
+        PlacePiece,
+        PickUpPiece,
+        Move,
+        Discover
+    }
+
     public class Agent
     {
         private ulong id;
@@ -158,19 +169,21 @@ namespace Player
         {
             Data responseMessage = gameMaster.HandleTestPieceRequest(this.GUID, this.GameId);
 
-            // if this message was sent to this
-            if (responseMessage.playerId == this.ID && !responseMessage.gameFinished &&
-                responseMessage.Pieces != null && responseMessage.Pieces.Length > 0 && responseMessage.Pieces[0] != null &&
-                responseMessage.Pieces[0].id == this.GetPiece.id)
-            {
-                var receivedPieceData = responseMessage.Pieces[0];
-                if (receivedPieceData != null && this.GetPiece != null && receivedPieceData.id == this.GetPiece.id)
-                {
-                    this.piece.type = receivedPieceData.type;
-                    return true;
-                }
-            }
-            return false;
+            return UpdateLocalBoard(responseMessage, ActionType.TestPiece);
+
+            //// if this message was sent to this
+            //if (responseMessage.playerId == this.ID && !responseMessage.gameFinished &&
+            //    responseMessage.Pieces != null && responseMessage.Pieces.Length > 0 && responseMessage.Pieces[0] != null &&
+            //    responseMessage.Pieces[0].id == this.GetPiece.id)
+            //{
+            //    var receivedPieceData = responseMessage.Pieces[0];
+            //    if (receivedPieceData != null && this.GetPiece != null && receivedPieceData.id == this.GetPiece.id)
+            //    {
+            //        this.piece.type = receivedPieceData.type;
+            //        return true;
+            //    }
+            //}
+            //return false;
         }
 
         /// <summary>
@@ -184,55 +197,60 @@ namespace Player
             Data responseMessage = gameMaster.HandlePlacePieceRequest(this.GUID, this.GameId);
             var receivedLocation = responseMessage.PlayerLocation;
 
-            if (responseMessage.playerId == this.ID && !responseMessage.gameFinished)
-            {
-                // placing the piece on an empty task field
-                if (responseMessage.TaskFields != null && responseMessage.TaskFields.Length > 0 && responseMessage.TaskFields[0].pieceId == this.piece.id)
-                {
-                    ((GameArea.TaskField)agentBoard.GetField(location.x, location.y)).SetPiece(this.GetPiece); // place the piece on the field
-                    this.SetPiece(null); // drop the piece
-                    return true;
-                }
-                // placing the sham piece on GoalField of any type - no data about GoalField received and placing a piece failed
-                else if (responseMessage.GoalFields != null && responseMessage.GoalFields.Length > 0 &&
-                         responseMessage.GoalFields[0].type == GoalFieldType.unknown)
-                {
-                    return false;
-                }
-                // placing the normal piece on a GoalField of type 'goal'
-                else if (responseMessage.GoalFields != null && responseMessage.GoalFields.Length > 0 &&
-                         responseMessage.GoalFields[0].type == GoalFieldType.goal)
-                {
-                    this.SetPiece(null); // drop the piece and score a point
-                    return true;
-                }
-                // placing any piece either on occupied TaskField or a noraml piece on a non-goal GoalField
-                else
-                {
-                    return false;
-                }
-            }
-            else return false;
+            return UpdateLocalBoard(responseMessage, ActionType.PlacePiece);
+
+            //if (responseMessage.playerId == this.ID && !responseMessage.gameFinished)
+            //{
+            //    // placing the piece on an empty task field
+            //    if (responseMessage.TaskFields != null && responseMessage.TaskFields.Length > 0 && responseMessage.TaskFields[0].pieceId == this.piece.id)
+            //    {
+            //        ((GameArea.TaskField)agentBoard.GetField(location.x, location.y)).SetPiece(this.GetPiece); // place the piece on the field
+            //        this.SetPiece(null); // drop the piece
+            //        return true;
+            //    }
+            //    // placing the sham piece on GoalField of any type - no data about GoalField received and placing a piece failed
+            //    else if (responseMessage.GoalFields != null && responseMessage.GoalFields.Length > 0 &&
+            //             responseMessage.GoalFields[0].type == GoalFieldType.unknown)
+            //    {
+            //        return false;
+            //    }
+            //    // placing the normal piece on a GoalField of type 'goal'
+            //    else if (responseMessage.GoalFields != null && responseMessage.GoalFields.Length > 0 &&
+            //             responseMessage.GoalFields[0].type == GoalFieldType.goal)
+            //    {
+            //        this.SetPiece(null); // drop the piece and score a point
+            //        return true;
+            //    }
+            //    // placing any piece either on occupied TaskField or a noraml piece on a non-goal GoalField
+            //    else
+            //    {
+            //        return false;
+            //    }
+            //}
+            //else return false;
         }
 
         public bool PickUpPiece(IGameMaster gameMaster)
         {
             Data responseMessage = gameMaster.HandlePickUpPieceRequest(this.GUID, this.GameId);
-            //UpdateAgentState(responseMessage);
-            // jeżeli Agent.Piece != null ---> return true;
-            if (responseMessage.playerId == this.ID && !responseMessage.gameFinished)
-            {
-                // player is on a TaskField that contains a piece
-                if (responseMessage.Pieces != null && responseMessage.Pieces.Length > 0 &&
-                    responseMessage.Pieces[0] != null)
-                {
-                    var receivedPieceData = responseMessage.Pieces[0];
-                    this.piece = receivedPieceData;
-                    return true;
-                }
-            }
-            // player is either on empty TaskField or on GoalField
-            return false;
+
+            return UpdateLocalBoard(responseMessage, ActionType.PickUpPiece);
+
+            ////UpdateAgentState(responseMessage);
+            //// jeżeli Agent.Piece != null ---> return true;
+            //if (responseMessage.playerId == this.ID && !responseMessage.gameFinished)
+            //{
+            //    // player is on a TaskField that contains a piece
+            //    if (responseMessage.Pieces != null && responseMessage.Pieces.Length > 0 &&
+            //        responseMessage.Pieces[0] != null)
+            //    {
+            //        var receivedPieceData = responseMessage.Pieces[0];
+            //        this.piece = receivedPieceData;
+            //        return true;
+            //    }
+            //}
+            //// player is either on empty TaskField or on GoalField
+            //return false;
         }
 
         public bool Move(IGameMaster gameMaster, MoveType direction)
@@ -342,7 +360,184 @@ namespace Player
 
         // additional methods
 
-        private void UpdateLocalBoard(Data responseMessage)
+        private bool UpdateLocalBoard(Data responseMessage, ActionType action)
+        {
+            bool result = false;
+
+            var gameFinished = responseMessage.gameFinished;
+            var playerId = responseMessage.playerId;
+
+            if (playerId == this.ID && !gameFinished)
+            {
+                switch (action)
+                {
+                    case ActionType.TestPiece:
+                        result = TestPieceUpdate(responseMessage);
+                        break;
+                    case ActionType.PlacePiece:
+                        result = PlacePieceUpdate(responseMessage);
+                        break;
+                    case ActionType.PickUpPiece:
+                        result = PickUpPieceUpdate(responseMessage);
+                        break;
+                    case ActionType.Move:
+                        MoveUpdate(responseMessage);
+                        break;
+                    case ActionType.Discover:
+                        DiscoverUpdate(responseMessage);
+                        break;
+                }
+            }
+
+            return result;
+        }
+
+        private bool TestPieceUpdate(Data responseMessage)
+        {
+            bool resultValue = false;
+
+            var taskFieldsArray = responseMessage.TaskFields;
+            var goalFieldsArray = responseMessage.GoalFields;
+            var piecesArray = responseMessage.Pieces;
+
+            if (piecesArray != null && piecesArray.Length > 0 && piecesArray[0] != null) // otzymano informacje o kawalku
+                                                                                         // piecesArray[0] != null oznacza, ze akcja byla poprawna
+            {
+                var receivedPiece = piecesArray[0];
+                if (receivedPiece.type != PieceType.unknown && this.GetPiece.id == receivedPiece.id)  // testowano kawalek -- wynik normal lub sham
+                {
+                    this.piece = receivedPiece; // aktualizacja lokalnego kawalka
+                    resultValue = true;
+                }
+            }
+
+            return resultValue;
+        }
+        private bool PlacePieceUpdate(Data responseMessage)
+        {
+            bool resultValue = false;
+
+            var taskFieldsArray = responseMessage.TaskFields;
+            var goalFieldsArray = responseMessage.GoalFields;
+            var piecesArray = responseMessage.Pieces;
+
+            if (taskFieldsArray != null && taskFieldsArray.Length > 0 && taskFieldsArray[0] != null) // agent kladzie kawalek na wolne pole
+                                                                                                     // jezeli taskFieldsArray[0] == null to probowano polozyc na zajetym TaskField
+            {
+                var receivedField = taskFieldsArray[0];
+                this.agentBoard.GetTaskField(location.x, location.y).SetPiece(this.GetPiece); // odkladamy kawalek
+                this.SetPiece(null);
+                resultValue = true;
+            }
+            else if (goalFieldsArray != null && goalFieldsArray.Length > 0 && goalFieldsArray[0] != null) // agent kladzie kawalek na GoalField                                                                                              
+            {
+                var receivedField = goalFieldsArray[0];
+                if (receivedField.type == GoalFieldType.goal) // agent trafil gola - puszcza kawalek
+                {
+                    this.SetPiece(null);
+                    resultValue = true;
+                }
+                else if (receivedField.type == GoalFieldType.nongoal) // agent chybil probujac kawalkiem 'normal'
+                {
+                    agentBoard.GetGoalField(location.x, location.y).GoalType = GoalFieldType.nongoal;
+                    resultValue = false;
+                }
+                else // (receivedField.type == GoalFieldType.unknown) -- polozono sham na GoalField - zadnych info o polu, wiec wiemy ze agent ma typ sham
+                {
+                    this.GetPiece.type = PieceType.sham;
+                    resultValue = false;
+                }
+            }
+
+            return resultValue;
+        }
+        private bool PickUpPieceUpdate(Data responseMessage)
+        {
+            bool resultValue = false;
+
+            var taskFieldsArray = responseMessage.TaskFields;
+            var goalFieldsArray = responseMessage.GoalFields;
+            var piecesArray = responseMessage.Pieces;
+
+            if (piecesArray != null && piecesArray.Length > 0 && piecesArray[0] != null)
+            {
+                var receivedPiece = piecesArray[0];
+                this.SetPiece(receivedPiece);
+                agentBoard.GetTaskField(location.x, location.y).SetPiece(null);
+                resultValue = true;
+            }
+
+            return resultValue;
+        }
+        private void MoveUpdate(Data responseMessage)
+        {
+            bool resultValue = false;
+
+            var currentLocation = responseMessage.PlayerLocation;
+            var taskFieldsArray = responseMessage.TaskFields;
+            var goalFieldsArray = responseMessage.GoalFields;
+            var piecesArray = responseMessage.Pieces;
+
+
+        }
+        private void DiscoverUpdate(Data responseMessage)
+        {
+            var taskFieldsArray = responseMessage.TaskFields;
+            var goalFieldsArray = responseMessage.GoalFields;
+            var piecesArray = responseMessage.Pieces;
+
+            if (taskFieldsArray != null && taskFieldsArray.Length > 0)
+            {
+                foreach (var respField in taskFieldsArray)
+                {
+                    if (respField != null)
+                    {
+                        var coordX = respField.x;
+                        var coordY = respField.y;
+
+                        GameArea.TaskField updatedField = agentBoard.GetField(respField.x, respField.y) as GameArea.TaskField;
+                        updatedField.UpdateTimeStamp(respField.timestamp);
+                        updatedField.Distance = respField.distanceToPiece;
+
+                        Type t = respField.GetType();
+                        System.Reflection.PropertyInfo p = t.GetProperty("pieceId");
+                        if (p != null)
+                            updatedField.SetPiece(new Piece(PieceType.unknown, respField.pieceId.Value));
+                        p = t.GetProperty("playerId");
+                        if (p != null)
+                        {
+                            updatedField.Player = new Messages.Agent();
+                            updatedField.Player.id = (ulong)respField.playerId;
+                        }
+                    }
+                }
+            }
+
+            if (goalFieldsArray != null && taskFieldsArray.Length > 0)
+            {
+                foreach (var respField in goalFieldsArray)
+                {
+                    if (respField != null)
+                    {
+                        GameArea.GoalField updatedField = agentBoard.GetField(respField.x, respField.y) as GameArea.GoalField;
+                        updatedField.UpdateTimeStamp(respField.timestamp);
+                        Type t = respField.GetType();
+                        System.Reflection.PropertyInfo p = t.GetProperty("playerId");
+                        if (p != null)
+                        {
+                            updatedField.Player = new Messages.Agent();
+                            updatedField.Player.id = (ulong)respField.playerId;
+                        }
+                    }
+                    
+                }
+            }
+            
+        }
+
+        // // //
+
+        private void UpdateLocalBoard2(Data responseMessage)
         {
             var gameFinished = responseMessage.gameFinished;
             var currentLocation = responseMessage.PlayerLocation;
@@ -373,6 +568,7 @@ namespace Player
                 }
 
                 if (taskFieldsArray != null && taskFieldsArray.Length > 0 && taskFieldsArray[0] != null) // otzymano informacje o TaskField
+                    // jezeli taskFieldsArray.Length == 0 to probowal wyjsc poza plansze - zadnych zmian na planszy
                 {
                     var receivedField = taskFieldsArray[0];
                     if (responseMessage.PlayerLocation == null) // wiadomosc zwrotna z akcji PlacePiece
@@ -382,20 +578,36 @@ namespace Player
                     }
                     else // PlayerLocation ustawione, a wiec wiadomosc zwrotna z akcji Move
                     {
+                        var futureX = receivedField.x;
+                        var futureY = receivedField.y;
                         if (receivedField.playerId != this.ID) // ruch sie nie udal bo napotkano innego gracza
                         {
-
+                            var stranger = myTeam.Union(otherTeam).First(p => p.id == receivedField.playerId);
+                            agentBoard.GetField(futureX, futureY).Player = stranger;
                         }
-                        else // otrzymalismy nasze id wraz z danymi TaskField, wiec ruch sie udal
+                        else // wraz z danymi TaskField otrzymalismy nasze id, wiec ruch sie udal
                         {
-
+                            this.location = new Location(futureX, futureY);
                         }
                     }
                 }
 
             }
         }
-        
+
+
+
+        //private void GrabPieceFromLocalBoard(uint x, uint y)
+        //{
+            
+        //}
+
+        //private void PutPieceOnLocalBoard(uint x, uint y)
+        //{
+        //    this.agentBoard.GetTaskField(x, y).SetPiece(this.GetPiece); // odkladamy kawalek
+        //    this.SetPiece(null);
+        //}
+
         private Location CalcualteFutureLoaction(Location oldLocation, MoveType direction)
         {
             Location newLocation = null;

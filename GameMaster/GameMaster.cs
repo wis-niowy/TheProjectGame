@@ -205,20 +205,27 @@ namespace GameArea
             // player posseses a piece
             if (agents.Where(q => q.GUID == playerGuid).First().GetPiece != null)
             {
-                // the TaskField is not claimed
-                if (actualBoard.GetField(location.x, location.y) is GameArea.TaskField && (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).GetPiece == null)
+                // player is on the TaskField
+                if (actualBoard.GetField(location.x, location.y) is GameArea.TaskField)
                 {
-                    var fieldMessage = new Messages.TaskField(location.x, location.y)
-                    {
-                        playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
-                        playerIdSpecified = true,
-                        pieceId = agents.Where(q => q.GUID == playerGuid).First().GetPiece.id,
-                        pieceIdSpecified = true,
-                        timestamp = DateTime.Now
-                    };
+                    Messages.TaskField fieldMessage = null; 
 
-                    (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).SetPiece(agents.Where(q => q.GUID == playerGuid).First().GetPiece); // the piece is put on the field
-                    agents.Where(q => q.GUID == playerGuid).First().SetPiece(null); // the piece is no longer possesed by an agent
+                    // if Task field is not occupied
+                    if ((actualBoard.GetField(location.x, location.y) as GameArea.TaskField).GetPiece == null)
+                    {
+                        fieldMessage = new Messages.TaskField(location.x, location.y)
+                        {
+                            playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
+                            playerIdSpecified = true,
+                            pieceId = agents.Where(q => q.GUID == playerGuid).First().GetPiece.id,
+                            pieceIdSpecified = true,
+                            timestamp = DateTime.Now
+                        };
+
+                        (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).SetPiece(agents.Where(q => q.GUID == playerGuid).First().GetPiece); // the piece is put on the field
+                        agents.Where(q => q.GUID == playerGuid).First().SetPiece(null); // the piece is no longer possesed by an agent
+                    }
+                    
 
                     return new Data()
                     {
@@ -247,8 +254,8 @@ namespace GameArea
                         GoalFields = new Messages.GoalField[] { fieldMessage }
                     };
                 }
-                // the goal field is a goal and player carries a normal piece
-                else if (actualBoard.GetField(location.x, location.y) is GameArea.GoalField && (actualBoard.GetField(location.x, location.y) as GameArea.GoalField).GoalType == GoalFieldType.goal)
+                // the goal field is a goal or nongoal and player carries a normal piece
+                else if (actualBoard.GetField(location.x, location.y) is GameArea.GoalField)
                 {
                     var teamColour = agents.Where(q => q.GUID == playerGuid).First().GetTeam;
                     var goalFieldType = actualBoard.GetGoalField(location.x, location.y).GoalType;
@@ -262,8 +269,13 @@ namespace GameArea
                         type = goalFieldType,
                         team = teamColour
                     };
-                    goalsLeft--;    // one goal less before the game is over
-                    agents.Where(q => q.GUID == playerGuid).First().SetPiece(null); // the piece is no longer possesed by an agent
+
+                    // if GoalField is of type 'goal'
+                    if ((actualBoard.GetField(location.x, location.y) as GameArea.GoalField).GoalType == GoalFieldType.goal)
+                    {
+                        goalsLeft--;    // one goal less before the game is over
+                        agents.Where(q => q.GUID == playerGuid).First().SetPiece(null); // the piece is no longer possesed by an agent
+                    }
 
                     return new Data()
                     {
@@ -276,7 +288,7 @@ namespace GameArea
 
 
             }
-            // the field is task field and is claimed OR the field is goal field and is non-goal - action rejected
+            // the field is task field and is claimed - action rejected
             // or the player doesn't posses a piece
             return new Data()
             {
