@@ -1,6 +1,5 @@
 ﻿using Configuration;
 using GameArea.Texts;
-using GameMaster;
 using System;
 using System.IO;
 using System.Xml;

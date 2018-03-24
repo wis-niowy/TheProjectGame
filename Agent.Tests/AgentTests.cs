@@ -2,12 +2,15 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using GameArea;
 using Messages;
 using System;
+using Configuration;
 
 namespace Player.Tests
 {
     [TestClass]
     public class AgentTests
     {
+        GameMasterSettings settings = GameMasterSettings.GetDefaultGameMasterSettings();
+        GameMaster gameMaster = new GameArea.GameMaster(GameMasterSettings.GetDefaultGameMasterSettings());
 
         [TestMethod]
         public void NewAgent()
@@ -54,19 +57,8 @@ namespace Player.Tests
         [TestMethod]
         public void PlayerWithoutPieceTestsPiece()
         {
-            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition()
-            {
-                //BoardWidth = "5",
-                //GoalAreaLength = "2",
-                //TaskAreaLength = "4",
-                //ShamProbability = 0.5,
-                //InitialNumberOfPieces = 5,
-                //NumberOfPlayersPerTeam = "4",
-                //GameName = "Test Game",
-                //PlacingNewPiecesFrequency = 4
-
-            };
-            var gameMaster = new GameArea.GameMaster(conf);
+            var settings = GameMasterSettings.GetDefaultGameMasterSettings();
+            var gameMaster = new GameArea.GameMaster(settings);
             var agent = new Player.Agent(TeamColour.red, "testGUID-0000");
             gameMaster.RegisterAgent(agent);
 
@@ -78,8 +70,8 @@ namespace Player.Tests
         [TestMethod]
         public void PlayerWithShamPieceTestsPiece()
         {
-            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
-            var gameMaster = new GameArea.GameMaster(conf);
+            var settings = GameMasterSettings.GetDefaultGameMasterSettings();
+            var gameMaster = new GameArea.GameMaster(settings);
             var agent = new Player.Agent(TeamColour.red, "testGUID-0001");
             // equip an agent with a sham piece
             agent.SetPiece(new Piece(PieceType.sham, 100)
@@ -104,8 +96,8 @@ namespace Player.Tests
         [TestMethod]
         public void PlayerWithNormalPieceTestsPiece()
         {
-            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
-            var gameMaster = new GameArea.GameMaster(conf);
+            var settings = GameMasterSettings.GetDefaultGameMasterSettings();
+            var gameMaster = new GameArea.GameMaster(settings);
             var agent = new Player.Agent(TeamColour.blue, "testGUID-0002");
             // equip an agent with a normal piece
             agent.SetPiece(new Piece(PieceType.normal, 90)
@@ -131,8 +123,8 @@ namespace Player.Tests
         [TestMethod]
         public void PlayerPlacesShamPieceOnNotOccupiedTaskField()
         {
-            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
-            var gameMaster = new GameArea.GameMaster(conf);
+            var settings = GameMasterSettings.GetDefaultGameMasterSettings();
+            var gameMaster = new GameArea.GameMaster(settings);
             var agent = new Player.Agent(TeamColour.blue, "testGUID-0003");
             // equip an agent with a sham piece
             agent.SetPiece(new Piece(PieceType.sham, 90)
@@ -163,8 +155,8 @@ namespace Player.Tests
         [TestMethod]
         public void PlayerPlacesNormalPieceOnNotOccupiedTaskField()
         {
-            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
-            var gameMaster = new GameArea.GameMaster(conf);
+            var settings = GameMasterSettings.GetDefaultGameMasterSettings();
+            var gameMaster = new GameArea.GameMaster(settings);
             var agent = new Player.Agent(TeamColour.blue, "testGUID-0004");
             // equip an agent with a sham piece
             agent.SetPiece(new Piece(PieceType.normal, 90)
@@ -195,8 +187,8 @@ namespace Player.Tests
         [TestMethod]
         public void PlayerPlacesShamPieceOnGoalField()
         {
-            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
-            var gameMaster = new GameArea.GameMaster(conf);
+            var settings = GameMasterSettings.GetDefaultGameMasterSettings();
+            var gameMaster = new GameArea.GameMaster(settings);
             var agent = new Player.Agent(TeamColour.blue, "testGUID-0005");
             // equip an agent with a sham piece
             agent.SetPiece(new Piece(PieceType.sham, 70)
@@ -225,8 +217,8 @@ namespace Player.Tests
         [TestMethod]
         public void PlayerPlacesNormalPieceOnGoalFieldOfTypeGoal()
         {
-            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
-            var gameMaster = new GameArea.GameMaster(conf);
+            var settings = GameMasterSettings.GetDefaultGameMasterSettings();
+            var gameMaster = new GameArea.GameMaster(settings);
             var agent = new Player.Agent(TeamColour.blue, "testGUID-0006");
             // equip an agent with a sham piece
             agent.SetPiece(new Piece(PieceType.normal, 23)
@@ -255,8 +247,8 @@ namespace Player.Tests
         [TestMethod]
         public void PlayerPlacesNormalPieceOnGoalFieldOfTypeNonGoal()
         {
-            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
-            var gameMaster = new GameArea.GameMaster(conf);
+            var settings = GameMasterSettings.GetDefaultGameMasterSettings();
+            var gameMaster = new GameArea.GameMaster(settings);
             var agent = new Player.Agent(TeamColour.blue, "testGUID-0007");
             // equip an agent with a sham piece
             agent.SetPiece(new Piece(PieceType.normal, 23)
@@ -285,8 +277,8 @@ namespace Player.Tests
         [TestMethod]
         public void PlayerPicksUpNormalPieceFromTaskField()
         {
-            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
-            var gameMaster = new GameArea.GameMaster(conf);
+            var settings = GameMasterSettings.GetDefaultGameMasterSettings();
+            var gameMaster = new GameArea.GameMaster(settings);
             var agent = new Player.Agent(TeamColour.blue, "testGUID-0008");
             agent.SetLocation(2, 5);
 
@@ -314,8 +306,8 @@ namespace Player.Tests
         [TestMethod]
         public void PlayerPicksUpShamPieceFromTaskField()
         {
-            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
-            var gameMaster = new GameArea.GameMaster(conf);
+            var settings = GameMasterSettings.GetDefaultGameMasterSettings();
+            var gameMaster = new GameArea.GameMaster(settings);
             var agent = new Player.Agent(TeamColour.blue, "testGUID-0009");
             agent.SetLocation(2, 5);
 
@@ -343,8 +335,6 @@ namespace Player.Tests
         [TestMethod]
         public void PlayerPicksUpFromEmptyTaskField()
         {
-            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
-            var gameMaster = new GameArea.GameMaster(conf);
             var agent = new Player.Agent(TeamColour.blue, "testGUID-0010");
             agent.SetLocation(2, 5);
 
@@ -407,8 +397,6 @@ namespace Player.Tests
         [TestMethod]
         public void BluePlayerPicksUpFromBlueGoalFieldOfTypeGoal()
         {
-            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
-            var gameMaster = new GameArea.GameMaster(conf);
             var agent = new Player.Agent(TeamColour.blue, "testGUID-0011");
             agent.SetLocation(2, 2);
 
@@ -428,8 +416,6 @@ namespace Player.Tests
         [TestMethod]
         public void BluePlayerPicksUpFromBlueGoalFieldOfTypeNonGoal()
         {
-            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
-            var gameMaster = new GameArea.GameMaster(conf);
             var agent = new Player.Agent(TeamColour.blue, "testGUID-0012");
             agent.SetLocation(2, 1);
 
@@ -451,8 +437,6 @@ namespace Player.Tests
         [TestMethod]
         public void PlayerMovesFromTaskFieldToEmptyTaskField()
         {
-            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
-            var gameMaster = new GameArea.GameMaster(conf);
             var agent = new Player.Agent(TeamColour.blue, "testGUID-0013");
             agent.SetLocation(2, 4);
 
@@ -480,8 +464,6 @@ namespace Player.Tests
         [TestMethod]
         public void PlayerMovesFromTaskFieldToOccupiedTaskField()
         {
-            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
-            var gameMaster = new GameArea.GameMaster(conf);
             var agent = new Player.Agent(TeamColour.blue, "testGUID-0014");
             var strangerAgent = new Player.Agent(TeamColour.blue, "testGUID-0015");
             agent.SetLocation(2, 4);
@@ -518,8 +500,6 @@ namespace Player.Tests
         [TestMethod]
         public void PlayerMovesFromTaskFieldToRightEmptyGoalField()
         {
-            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
-            var gameMaster = new GameArea.GameMaster(conf);
             var agent = new Player.Agent(TeamColour.blue, "testGUID-0016");
             agent.SetLocation(2, 3);
 
@@ -546,8 +526,6 @@ namespace Player.Tests
         [TestMethod]
         public void PlayerMovesFromTaskFieldToToRightOccupiedGoalField()
         {
-            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
-            var gameMaster = new GameArea.GameMaster(conf);
             var agent = new Player.Agent(TeamColour.blue, "testGUID-0017");
             var strangerAgent = new Player.Agent(TeamColour.blue, "testGUID-0018");
             agent.SetLocation(2, 3);
@@ -583,8 +561,6 @@ namespace Player.Tests
         [TestMethod]
         public void PlayerMovesFromTaskFieldToWrongGoalField()
         {
-            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
-            var gameMaster = new GameArea.GameMaster(conf);
             var agent = new Player.Agent(TeamColour.blue, "testGUID-0019");
             agent.SetLocation(1, 9);
 
@@ -611,8 +587,6 @@ namespace Player.Tests
         [TestMethod]
         public void PlayerMovesFromTaskFieldOutOfBoard()
         {
-            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
-            var gameMaster = new GameArea.GameMaster(conf);
             var agent = new Player.Agent(TeamColour.red, "testGUID-0017");
             var agent2 = new Player.Agent(TeamColour.blue, "testGUID-0018");
             agent.SetLocation(4, 7);
@@ -648,8 +622,7 @@ namespace Player.Tests
         [TestMethod]
         public void PlayerMovesFromGoalFieldToEmptyTaskField()
         {
-            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
-            var gameMaster = new GameArea.GameMaster(conf);
+
             var agent = new Player.Agent(TeamColour.red, "testGUID-0020");
             agent.SetLocation(1, 10);
 
@@ -676,8 +649,6 @@ namespace Player.Tests
         [TestMethod]
         public void PlayerMovesFromGoalFieldToOccupiedTaskField()
         {
-            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
-            var gameMaster = new GameArea.GameMaster(conf);
             var agent = new Player.Agent(TeamColour.red, "testGUID-0014");
             var strangerAgent = new Player.Agent(TeamColour.blue, "testGUID-0015");
             agent.SetLocation(3, 10);
@@ -714,8 +685,6 @@ namespace Player.Tests
         [TestMethod]
         public void PlayerMovesFromGoalFieldToEmptyGoalField()
         {
-            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
-            var gameMaster = new GameArea.GameMaster(conf);
             var agent = new Player.Agent(TeamColour.red, "testGUID-0016");
             agent.SetLocation(1, 12);
 
@@ -742,8 +711,6 @@ namespace Player.Tests
         [TestMethod]
         public void PlayerMovesFromGoalFieldToToOccupiedGoalField()
         {
-            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
-            var gameMaster = new GameArea.GameMaster(conf);
             var agent = new Player.Agent(TeamColour.red, "testGUID-0017");
             var strangerAgent = new Player.Agent(TeamColour.red, "testGUID-0018");
             agent.SetLocation(3, 11);
@@ -779,8 +746,6 @@ namespace Player.Tests
         [TestMethod]
         public void PlayerMovesFromGoalFieldOutOfBoard()
         {
-            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
-            var gameMaster = new GameArea.GameMaster(conf);
             var agent = new Player.Agent(TeamColour.red, "testGUID-0017");
             var agent2 = new Player.Agent(TeamColour.blue, "testGUID-0018");
             agent.SetLocation(4, 11);
@@ -816,8 +781,6 @@ namespace Player.Tests
         [TestMethod]
         public void PlayerDiscoveryNothingInSight()
         {
-            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
-            var gameMaster = new GameArea.GameMaster(conf);
             var agent = new Player.Agent(TeamColour.blue, "testGUID-0020");
             agent.SetLocation(1, 5);
 
@@ -846,8 +809,6 @@ namespace Player.Tests
         [TestMethod]
         public void PlayerDiscoverySeesPiece()
         {
-            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
-            var gameMaster = new GameArea.GameMaster(conf);
             var agent = new Player.Agent(TeamColour.blue, "testGUID-0021");
             agent.SetLocation(1, 6);
 
@@ -882,8 +843,6 @@ namespace Player.Tests
         [TestMethod]
         public void PlayerDiscoverySeesPlayerInTaskArea()
         {
-            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
-            var gameMaster = new GameArea.GameMaster(conf);
             var agent1 = new Player.Agent(TeamColour.blue, "testGUID-0022");
             var agent2 = new Player.Agent(TeamColour.blue, "testGUID-0023");
             agent1.SetLocation(1, 6);
@@ -920,8 +879,6 @@ namespace Player.Tests
         [TestMethod]
         public void PlayerDiscoverySeesPlayerInGoalArea()
         {
-            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
-            var gameMaster = new GameArea.GameMaster(conf);
             var agent1 = new Player.Agent(TeamColour.blue, "testGUID-0024");
             var agent2 = new Player.Agent(TeamColour.blue, "testGUID-0025");
             agent1.SetLocation(1, 0);
@@ -958,8 +915,6 @@ namespace Player.Tests
         [TestMethod]
         public void PlayerDiscoveryNearBoardEdge()
         {
-            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
-            var gameMaster = new GameArea.GameMaster(conf);
             var agent = new Player.Agent(TeamColour.blue, "testGUID-0026");
             agent.SetLocation(0, 3);
 
@@ -985,8 +940,6 @@ namespace Player.Tests
         [TestMethod]
         public void PlayerDiscoveryCorner()
         {
-            Configuration.GameMasterSettingsGameDefinition conf = new Configuration.GameMasterSettingsGameDefinition();
-            var gameMaster = new GameArea.GameMaster(conf);
             var agent1 = new Player.Agent(TeamColour.blue, "testGUID-0027");
             var agent2 = new Player.Agent(TeamColour.red, "testGUID-0028");
             agent1.SetLocation(0, 0);

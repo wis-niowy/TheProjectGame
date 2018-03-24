@@ -119,35 +119,69 @@ namespace Configuration {
             }
         }
     }
-
+    
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/")]
-    public partial class GameMasterSettingsGameDefinition
-    {
-
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/")]
+    public partial class GameMasterSettingsGameDefinition {
+        
         private GoalField[] goalsField;
-
+        
         private double shamProbabilityField;
-
+        
         private uint placingNewPiecesFrequencyField;
-
+        
         private uint initialNumberOfPiecesField;
-
+        
         private uint boardWidthField;
-
+        
         private uint taskAreaLengthField;
-
+        
         private uint goalAreaLengthField;
-
+        
         private uint numberOfPlayersPerTeamField;
-
+        
         private string gameNameField;
 
-        public GameMasterSettingsGameDefinition() { }
+<<<<<<< HEAD
+        public GameMasterSettingsGameDefinition() {
+            this.shamProbabilityField = 0.1D;
+            this.placingNewPiecesFrequencyField = ((uint)(1000));
+            this.initialNumberOfPiecesField = ((uint)(4));
+            this.boardWidthField = "5";
+            this.taskAreaLengthField = "7";
+            this.goalAreaLengthField = "3";
+            this.numberOfPlayersPerTeamField = "4";
+
+            this.goalsField = new GoalField[]
+                {
+                new GoalField() { x = 1, y = 1, type = GoalFieldType.goal, team = TeamColour.blue },
+                new GoalField() { x = 2, y = 2, type = GoalFieldType.goal, team = TeamColour.blue },
+                new GoalField() { x = 3, y = 0, type = GoalFieldType.goal, team = TeamColour.blue },
+                new GoalField() { x = 2, y = 11, type = GoalFieldType.goal, team = TeamColour.red },
+                new GoalField() { x = 3, y = 10, type = GoalFieldType.goal, team = TeamColour.red },
+                new GoalField() { x = 4, y = 12, type = GoalFieldType.goal, team = TeamColour.red }
+
+                };
+
+            //// ORIGINALLY GENERATED PART:
+            //this.goalsField = new GoalField[]
+            //    {
+            //        // set of GoalFields was invalid ...
+            //        // corrected
+            //    new GoalField() { x = 1, y = 1, type = GoalFieldType.goal, team = TeamColour.blue },
+            //    new GoalField() { x = 1, y = 2, type = GoalFieldType.goal, team = TeamColour.blue },
+            //    new GoalField() { x = 1, y = 0, type = GoalFieldType.goal, team = TeamColour.blue },
+            //    new GoalField() { x = 1, y = 1, type = GoalFieldType.goal, team = TeamColour.red },
+            //    new GoalField() { x = 11, y = 2, type = GoalFieldType.goal, team = TeamColour.red },
+            //    new GoalField() { x = 11, y = 0, type = GoalFieldType.goal, team = TeamColour.red }
+
+            //    };
+=======
+        public GameMasterSettingsGameDefinition() {}
 
         public static GameMasterSettingsGameDefinition GetDefaultGameDefinition()
         {
@@ -163,149 +197,107 @@ namespace Configuration {
                 goalsField = new GoalField[]
                 {
                     new GoalField() { x = 1, y = 1, type = GoalFieldType.goal, team = TeamColour.blue },
-                new GoalField() { x = 2, y = 2, type = GoalFieldType.goal, team = TeamColour.blue },
-                new GoalField() { x = 3, y = 0, type = GoalFieldType.goal, team = TeamColour.blue },
-                new GoalField() { x = 2, y = 11, type = GoalFieldType.goal, team = TeamColour.red },
-                new GoalField() { x = 3, y = 10, type = GoalFieldType.goal, team = TeamColour.red },
-                new GoalField() { x = 4, y = 12, type = GoalFieldType.goal, team = TeamColour.red }
-
+                    new GoalField() { x = 1, y = 2, type = GoalFieldType.goal, team = TeamColour.blue },
+                    new GoalField() { x = 1, y = 0, type = GoalFieldType.goal, team = TeamColour.blue },
+                    new GoalField() { x = 1, y = 1, type = GoalFieldType.goal, team = TeamColour.red },
+                    new GoalField() { x = 11, y = 2, type = GoalFieldType.goal, team = TeamColour.red },
+                    new GoalField() { x = 11, y = 0, type = GoalFieldType.goal, team = TeamColour.red }
                 }
             };
+>>>>>>> Settings-Validation
         }
-
-        //// ORIGINALLY GENERATED PART:
-        //this.goalsField = new GoalField[]
-        //    {
-        //        // set of GoalFields was invalid ...
-        //        // corrected
-        //    new GoalField() { x = 1, y = 1, type = GoalFieldType.goal, team = TeamColour.blue },
-        //    new GoalField() { x = 1, y = 2, type = GoalFieldType.goal, team = TeamColour.blue },
-        //    new GoalField() { x = 1, y = 0, type = GoalFieldType.goal, team = TeamColour.blue },
-        //    new GoalField() { x = 1, y = 1, type = GoalFieldType.goal, team = TeamColour.red },
-        //    new GoalField() { x = 11, y = 2, type = GoalFieldType.goal, team = TeamColour.red },
-        //    new GoalField() { x = 11, y = 0, type = GoalFieldType.goal, team = TeamColour.red }
-
-        //    };
-
-
+        
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("Goals")]
-        public GoalField[] Goals
-        {
-            get
-            {
+        public GoalField[] Goals {
+            get {
                 return this.goalsField;
             }
-            set
-            {
+            set {
                 this.goalsField = value;
             }
         }
-
+        
         /// <remarks/>
-        public double ShamProbability
-        {
-            get
-            {
+        public double ShamProbability {
+            get {
                 return this.shamProbabilityField;
             }
-            set
-            {
+            set {
                 this.shamProbabilityField = value;
             }
         }
-
+        
         /// <remarks/>
-        public uint PlacingNewPiecesFrequency
-        {
-            get
-            {
+        public uint PlacingNewPiecesFrequency {
+            get {
                 return this.placingNewPiecesFrequencyField;
             }
-            set
-            {
+            set {
                 this.placingNewPiecesFrequencyField = value;
             }
         }
-
+        
         /// <remarks/>
-        public uint InitialNumberOfPieces
-        {
-            get
-            {
+        public uint InitialNumberOfPieces {
+            get {
                 return this.initialNumberOfPiecesField;
             }
-            set
-            {
+            set {
                 this.initialNumberOfPiecesField = value;
             }
         }
-
+        
         /// <remarks/>
         //[System.Xml.Serialization.XmlElementAttribute(DataType="nonNegativeInteger")]
-        public uint BoardWidth
-        {
-            get
-            {
+        public uint BoardWidth {
+            get {
                 return this.boardWidthField;
             }
-            set
-            {
+            set {
                 this.boardWidthField = value;
             }
         }
-
+        
         /// <remarks/>
         //[System.Xml.Serialization.XmlElementAttribute(DataType="nonNegativeInteger")]
-        public uint TaskAreaLength
-        {
-            get
-            {
+        public uint TaskAreaLength {
+            get {
                 return this.taskAreaLengthField;
             }
-            set
-            {
+            set {
                 this.taskAreaLengthField = value;
             }
         }
-
+        
         /// <remarks/>
         //[System.Xml.Serialization.XmlElementAttribute(DataType="nonNegativeInteger")]
-        public uint GoalAreaLength
-        {
-            get
-            {
+        public uint GoalAreaLength {
+            get {
                 return this.goalAreaLengthField;
             }
-            set
-            {
+            set {
                 this.goalAreaLengthField = value;
             }
         }
-
+        
         /// <remarks/>
         //[System.Xml.Serialization.XmlElementAttribute(DataType="nonNegativeInteger")]
-        public uint NumberOfPlayersPerTeam
-        {
-            get
-            {
+        public uint NumberOfPlayersPerTeam {
+            get {
                 return this.numberOfPlayersPerTeamField;
             }
-            set
-            {
+            set {
                 this.numberOfPlayersPerTeamField = value;
             }
         }
-
+        
         /// <remarks/>
-        public string GameName
-        {
-            get
-            {
+        public string GameName {
+            get {
                 return this.gameNameField;
             }
-            set
-            {
+            set {
                 this.gameNameField = value;
             }
         }
@@ -387,6 +379,43 @@ namespace Configuration {
     public abstract partial class Field : Location {
     }
     
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(Field))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(GoalField))]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/", IsNullable=true)]
+    public partial class Location {
+        
+        private uint xField;
+        
+        private uint yField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public uint x {
+            get {
+                return this.xField;
+            }
+            set {
+                this.xField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public uint y {
+            get {
+                return this.yField;
+            }
+            set {
+                this.yField = value;
+            }
+        }
+    }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]

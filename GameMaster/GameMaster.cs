@@ -59,7 +59,7 @@ namespace GameArea
         {
             var newId = agents.Count > 0 ? agents.Max(q => q.ID) + 1 : 1;
             agent.ID = newId;
-            agent.SetBoard(new Board(uint.Parse(gameSettings.BoardWidth), uint.Parse(gameSettings.TaskAreaLength), uint.Parse(gameSettings.GoalAreaLength)));
+            agent.SetBoard(new Board(GetGameDefinition.BoardWidth, GetGameDefinition.TaskAreaLength, GetGameDefinition.GoalAreaLength));
             agents.Add(new Player.Agent(agent));
         }
 
@@ -311,7 +311,7 @@ namespace GameArea
 
             // perform location data and get future field
             var futureLocation = PerformLocationDelta(direction, currentLocation, team);
-            var currentBoardField = actualBoard.GetField(futureLocation.x, futureLocation.y);
+            var futureBoardField = actualBoard.GetField(futureLocation.x, futureLocation.y);
 
 
             //player tried to step out of the board or enetr wrong GoalArea
@@ -330,7 +330,7 @@ namespace GameArea
             Messages.GoalField goalField = null;
 
             // future position is a TaskField
-            if (currentBoardField is GameArea.TaskField)
+            if (futureBoardField is GameArea.TaskField)
             {
                 fieldFromBoard = actualBoard.GetField(futureLocation.x, futureLocation.y) as GameArea.TaskField;
                 piece = fieldFromBoard.GetPiece; // may be null!
@@ -388,11 +388,11 @@ namespace GameArea
             else
             {
                 piece = null;
-
+                var futureGoalField = actualBoard.GetGoalField(futureLocation.x, futureLocation.y);
                 //player tried to step on a field with another agent
-                if (actualBoard.GetField(futureLocation.x, futureLocation.y).HasAgent())
+                if (futureGoalField.HasAgent())
                 {
-                    goalField = new Messages.GoalField(futureLocation.x, futureLocation.y)
+                    goalField = new Messages.GoalField(futureLocation.x, futureLocation.y, futureGoalField.GetOwner)
                     {
                         // we feedback with encountered stranger agent's id
                         playerId = actualBoard.GetField(futureLocation.x, futureLocation.y).Player.id,
@@ -411,7 +411,7 @@ namespace GameArea
                 // move action is valid
                 else
                 {
-                    goalField = new Messages.GoalField(futureLocation.x, futureLocation.y)
+                    goalField = new Messages.GoalField(futureLocation.x, futureLocation.y, futureGoalField.GetOwner)
                     {
                         // action was correct so we feedback with his own id
                         playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
@@ -478,7 +478,7 @@ namespace GameArea
                         }
                         else if (field is GoalField)
                         {
-                            Messages.GoalField responseField = new Messages.GoalField(location.x, location.y)
+                            Messages.GoalField responseField = new Messages.GoalField(location.x, location.y,(field as GoalField).GetOwner)
                             {
                                 x = (uint)(location.x + dx),
                                 y = (uint)(location.y + dy),

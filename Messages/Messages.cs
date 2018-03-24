@@ -144,7 +144,7 @@ namespace Messages
         
         private System.DateTime timestampField;
         
-        private ulong playerIdField;
+        private ulong? playerIdField;
         
         private bool playerIdFieldSpecified;
         
@@ -161,7 +161,7 @@ namespace Messages
         
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public ulong playerId {
+        public ulong? playerId {
             get {
                 return this.playerIdField;
             }

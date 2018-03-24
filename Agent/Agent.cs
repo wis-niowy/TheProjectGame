@@ -75,8 +75,6 @@ namespace Player
             this.location = new Location(original.location.x, original.location.y);
             if (original.piece != null)
                 this.piece = new Piece(original.piece); // agent can't see original piece (sham or goal info must be hidden)
-            //this.agentBoard = original.agentBoard; // it seems it doesn't need to be copied, because GameMaster does not make changes to boards of agents on his list
-
         }
 
         private Board agentBoard;
@@ -215,7 +213,8 @@ namespace Player
         public bool PickUpPiece(IGameMaster gameMaster)
         {
             Data responseMessage = gameMaster.HandlePickUpPieceRequest(this.GUID, this.GameId);
-
+            //UpdateAgentState(responseMessage);
+            // jeżeli Agent.Piece != null ---> return true;
             if (responseMessage.playerId == this.ID && !responseMessage.gameFinished)
             {
                 // player is on a TaskField that contains a piece
@@ -253,7 +252,7 @@ namespace Player
                         // add encountered stranger agent to this agent's view
                         var stranger = new Messages.Agent()
                         {
-                            id = responseMessage.TaskFields[0].playerId,
+                            id = (ulong)responseMessage.TaskFields[0].playerId,
                         };
                         agentBoard.GetField(futureLocation.x, futureLocation.y).Player = stranger;
 
@@ -275,7 +274,7 @@ namespace Player
                         // add encountered stranger agent to this agent's view
                         var stranger = new Messages.Agent()
                         {
-                            id = responseMessage.GoalFields[0].playerId,
+                            id = (ulong)responseMessage.GoalFields[0].playerId,
                         };
                         agentBoard.GetField(futureLocation.x, futureLocation.y).Player = stranger;
 
@@ -312,7 +311,7 @@ namespace Player
                     if (p != null)
                     {
                         updatedField.Player = new Messages.Agent();
-                        updatedField.Player.id = respField.playerId;
+                        updatedField.Player.id = (ulong)respField.playerId;
                     }
                 }
 
@@ -325,7 +324,7 @@ namespace Player
                     if (p != null)
                     {
                         updatedField.Player = new Messages.Agent();
-                        updatedField.Player.id = respField.playerId;
+                        updatedField.Player.id = (ulong)respField.playerId;
                     }
                 }
             }
