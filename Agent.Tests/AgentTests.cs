@@ -256,7 +256,7 @@ namespace Player.Tests
                 timestamp = DateTime.Now,
 
             });
-            gameMaster.RegisterAgent(agent);
+            gameMaster.RegisterAgent(agent,agent.GUID);
             agent.SetPiece(new Piece(PieceType.unknown, 23)
             {
                 timestamp = DateTime.Now,
@@ -400,7 +400,7 @@ namespace Player.Tests
             var agent = new Player.Agent(TeamColour.blue, "testGUID-0011");
             agent.SetLocation(2, 2);
 
-            gameMaster.RegisterAgent(agent);
+            gameMaster.RegisterAgent(agent,agent.GUID);
 
             // set an agent on a TaskField
             var setPositionResult = gameMaster.SetAbsoluteAgentLocation(2, 2, "testGUID-0011"); // we change a location of GM's copy

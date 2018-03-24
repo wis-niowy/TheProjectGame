@@ -105,7 +105,7 @@ namespace GameArea
             return fields[x, y];
         }
 
-        public void SetGoalField(GoalField goalField)
+        public void SetGoalField(GameMasterGoalField goalField)
         {
             fields[goalField.x, goalField.y] = goalField;
         }

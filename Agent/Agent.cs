@@ -3,6 +3,7 @@ using System;
 using GameArea;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Player
 {
@@ -18,6 +19,7 @@ namespace Player
 
     public class Agent
     {
+        private IGameMaster gameMaster;
         private ulong id;
         public ulong ID
         {
@@ -76,8 +78,9 @@ namespace Player
             team = newTeam;
         }
 
-        public Agent(TeamColour team, string _guid = "TEST_GUID")
+        public Agent(TeamColour team, string _guid = "TEST_GUID", IGameMaster gm = null)
         {
+            this.gameMaster = gm;
             this.team = team;
             this.SetGuid(_guid);
             this.location = new Location(0, 0);
@@ -169,6 +172,9 @@ namespace Player
         {
             Data responseMessage = gameMaster.HandleTestPieceRequest(this.GUID, this.GameId);
 
+            ConsoleWriter.Show("Received response for TestPiece for agent: " + guid);
+
+
             return UpdateLocalBoard(responseMessage, ActionType.TestPiece);
 
             //// if this message was sent to this
@@ -195,6 +201,9 @@ namespace Player
         {
             // should we check if received location is the same as the actual one?
             Data responseMessage = gameMaster.HandlePlacePieceRequest(this.GUID, this.GameId);
+
+            ConsoleWriter.Show("Received response for PlacePiece for agent: " + guid);
+
             var receivedLocation = responseMessage.PlayerLocation;
 
             return UpdateLocalBoard(responseMessage, ActionType.PlacePiece);
@@ -234,6 +243,8 @@ namespace Player
         {
             Data responseMessage = gameMaster.HandlePickUpPieceRequest(this.GUID, this.GameId);
 
+            ConsoleWriter.Show("Received response for PickUpPiece for agent: " + guid);
+
             return UpdateLocalBoard(responseMessage, ActionType.PickUpPiece);
 
             ////UpdateAgentState(responseMessage);
@@ -256,7 +267,10 @@ namespace Player
         public bool Move(IGameMaster gameMaster, MoveType direction)
         {
             Data responseMessage = gameMaster.HandleMoveRequest(direction, this.GUID, this.GameId);
-            var futureLocation = CalcualteFutureLoaction(this.location, direction);
+
+            ConsoleWriter.Show("Received response for Move for agent: " + guid);
+
+            var futureLocation = CalculateFutureLocation(this.location, direction);
 
             if (responseMessage.playerId == this.ID && !responseMessage.gameFinished)
             {
@@ -321,6 +335,8 @@ namespace Player
 
             UpdateLocalBoard(responseMessage, ActionType.Discover);
 
+            ConsoleWriter.Show("End of discovery for agent: " + guid);
+
             //if (responseMessage.playerId == this.ID && !responseMessage.gameFinished)
             //{
             //    foreach (var respField in responseMessage.TaskFields)
@@ -356,9 +372,36 @@ namespace Player
             //}
         }
 
-        public void doStrategy()
+        public void DoStrategy()
         {
-
+            var random = new Random(DateTime.Now.Millisecond);
+            var action = random.Next() % 5;
+            var actionParam = random.Next() % 4;
+            MoveType direction = MoveType.up;
+            switch(actionParam)
+            {
+                case 0: direction = MoveType.down;
+                    break;
+                case 1: direction = MoveType.up;
+                    break;
+                case 2:direction = MoveType.left;
+                    break;
+                case 3: direction = MoveType.right;
+                    break;
+            }
+            switch(action)
+            {
+                case 0: Move(gameMaster,direction);
+                    break;
+                case 1: PlacePiece(gameMaster);
+                    break;
+                case 2:PickUpPiece(gameMaster);
+                    break;
+                case 3: TestPiece(gameMaster);
+                    break;
+                case 4: Discover(gameMaster);
+                    break;
+            }
         }
 
         // additional methods
@@ -391,6 +434,8 @@ namespace Player
                         break;
                 }
             }
+
+            ConsoleWriter.Show("Updated state for agent: " + guid);
 
             return result;
         }
@@ -427,6 +472,7 @@ namespace Player
             if (taskFieldsArray != null && taskFieldsArray.Length > 0 && taskFieldsArray[0] != null) // agent kladzie kawalek na wolne pole
                                                                                                      // jezeli taskFieldsArray[0] == null to probowano polozyc na zajetym TaskField
             {
+                ConsoleWriter.Error("Placed piece when location: " + location + " by Agent with GUID: " + guid);
                 var receivedField = taskFieldsArray[0];
                 this.agentBoard.GetTaskField(location.x, location.y).SetPiece(this.GetPiece); // odkladamy kawalek
                 this.SetPiece(null);
@@ -464,6 +510,7 @@ namespace Player
 
             if (piecesArray != null && piecesArray.Length > 0 && piecesArray[0] != null)
             {
+                ConsoleWriter.Warning("Received piece from location: " + location + " to Agent with GUID: " + guid);
                 var receivedPiece = piecesArray[0];
                 this.SetPiece(receivedPiece);
                 agentBoard.GetTaskField(location.x, location.y).SetPiece(null);
@@ -502,16 +549,18 @@ namespace Player
                         updatedField.UpdateTimeStamp(respField.timestamp);
                         updatedField.Distance = respField.distanceToPiece;
 
+                        
                         if (respField.playerIdSpecified)
                             updatedField.Player = new Messages.Agent()
                             {
-                                id = respField.playerId.Value,
-                                team = myTeam.Union(otherTeam).First(p => p.id == respField.playerId.Value).team,
-                                type = myTeam.Union(otherTeam).First(p => p.id == respField.playerId.Value).type,
+                                id = respField.playerId
+#warning Wymaga napisania metody do otrzymywania listy wszystkich graczy
+                                //team = myTeam.Union(otherTeam).First(p => p.id == respField.playerId).team,
+                                //type = myTeam.Union(otherTeam).First(p => p.id == respField.playerId).type,
                             };
 
                         if (respField.pieceIdSpecified)
-                            updatedField.SetPiece(new Piece(PieceType.unknown, respField.pieceId.Value));
+                            updatedField.SetPiece(new Piece(PieceType.unknown, respField.pieceId));
                     }
                 }
             }
@@ -530,9 +579,10 @@ namespace Player
                         if (respField.playerIdSpecified)
                             updatedField.Player = new Messages.Agent()
                             {
-                                id = respField.playerId.Value,
-                                team = myTeam.Union(otherTeam).First(p => p.id == respField.playerId.Value).team,
-                                type = myTeam.Union(otherTeam).First(p => p.id == respField.playerId.Value).type,
+                                id = respField.playerId
+#warning Wymaga napisania metody do otrzymywania listy wszystkich graczy
+                                //team = myTeam.Union(otherTeam).First(p => p.id == respField.playerId).team,
+                                //type = myTeam.Union(otherTeam).First(p => p.id == respField.playerId).type,
                             };
                     }
                 }
@@ -613,7 +663,7 @@ namespace Player
         //    this.SetPiece(null);
         //}
 
-        private Location CalcualteFutureLoaction(Location oldLocation, MoveType direction)
+        private Location CalculateFutureLocation(Location oldLocation, MoveType direction)
         {
             Location newLocation = null;
             switch (direction)

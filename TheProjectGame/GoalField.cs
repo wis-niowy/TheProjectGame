@@ -46,7 +46,7 @@ namespace GameArea
 
         public Messages.GoalField ConvertToMessageGoalField()
         {
-            ulong? pId = null;
+            ulong pId = 0;
             if (this.Player != null)
                 pId = this.Player.id;
 

@@ -90,7 +90,7 @@ namespace Messages
         
         private int distanceToPieceField;
         
-        private ulong? pieceIdField;
+        private ulong pieceIdField;
         
         private bool pieceIdFieldSpecified;
         
@@ -107,7 +107,7 @@ namespace Messages
         
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public ulong? pieceId {
+        public ulong pieceId {
             get {
                 return this.pieceIdField;
             }
@@ -144,7 +144,7 @@ namespace Messages
         
         private System.DateTime timestampField;
         
-        private ulong? playerIdField;
+        private ulong playerIdField;
         
         private bool playerIdFieldSpecified;
         
@@ -161,7 +161,7 @@ namespace Messages
         
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public ulong? playerId {
+        public ulong playerId {
             get {
                 return this.playerIdField;
             }
@@ -251,6 +251,11 @@ namespace Messages
                 return false;
             var location = (Location)obj;
             return location.xField == xField && location.yField == yField;
+        }
+
+        public override string ToString()
+        {
+            return "("+x+","+y+")";
         }
     }
     

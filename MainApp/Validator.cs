@@ -136,11 +136,11 @@ namespace MainApp
 
             foreach (var g in goals)
             {
-                if ((g.x >= goalAreaLength && g.x < taskAreaLength + goalAreaLength) || (g.y >= boardWidth))
+                if ((g.y >= goalAreaLength && g.y < taskAreaLength + goalAreaLength) || (g.x >= boardWidth) || g.y >= taskAreaLength + 2 * goalAreaLength)
                     return ValidatorMessages.GOALS_OUTSIDE_GOAL_AREA;
-                if (g.team == TeamColour.blue && g.x >= goalAreaLength)
+                if (g.team == TeamColour.blue && g.y >= goalAreaLength)
                     return ValidatorMessages.BLUE_GOAL_IN_RED_GOAL_AREA;
-                if (g.team == TeamColour.red && g.x < goalAreaLength)
+                if (g.team == TeamColour.red && g.y < goalAreaLength)
                     return ValidatorMessages.RED_GOAL_IN_BLUE_GOAL_AREA;
             }
 

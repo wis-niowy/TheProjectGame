@@ -31,7 +31,8 @@ namespace GameArea
         public void SetPiece(Piece value)
         {
             piece = value;
-            distance = 0;
+            if(value != null)
+                distance = 0;
         }
 
         public TaskField(uint x, uint y, Piece piece = null) : base(x, y)
@@ -55,10 +56,10 @@ namespace GameArea
 
         public Messages.TaskField ConvertToMessageTaskField()
         {
-            ulong? playerid = null;
+            ulong playerid = 0;
             if (this.Player != null)
                 playerid = this.Player.id;
-            ulong? pieceid = null;
+            ulong pieceid = 0;
             if (this.Player != null)
                 pieceid = this.Player.id;
 

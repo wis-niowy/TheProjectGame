@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using GameArea;
 using Configuration;
+using System.Threading;
 
 namespace GameArea
 {
@@ -13,7 +14,8 @@ namespace GameArea
     {
         private GameMasterState state;
         private ulong nextPieceId = 0;
-        private ulong goalsLeft;
+        private ulong goalsRedLeft;
+        private ulong goalsBlueLeft;
         private Random random;
         private List<Player.Agent> agents;
         //private List<Piece> pieces;
@@ -45,6 +47,14 @@ namespace GameArea
             }
         }
 
+        public GameMasterSettingsActionCosts GetCosts
+        {
+            get
+            {
+                return gameSettings.ActionCosts;
+            }
+        }
+
 
         public List<Player.Agent> GetAgentsByTeam(Messages.TeamColour team)
         {
@@ -56,12 +66,24 @@ namespace GameArea
             return agents.Where(q => q.GUID == guid).FirstOrDefault();
         }
 
-        public void RegisterAgent(Player.Agent agent)
+        public void RegisterAgent(Player.Agent agent,string guid = null)
         {
             var newId = agents.Count > 0 ? agents.Max(q => q.ID) + 1 : 1;
             agent.ID = newId;
+            agent.SetGuid(guid != null ? guid:"Agent" + newId);
             agent.SetBoard(new Board(GetGameDefinition.BoardWidth, GetGameDefinition.TaskAreaLength, GetGameDefinition.GoalAreaLength));
+            var playerField = GetEmptyFieldForPlayer(agent.GetTeam);
+            agent.SetLocation(playerField);
             agents.Add(new Player.Agent(agent));
+            playerField.Player = new Messages.Agent()
+            {
+                id = agent.ID,
+                team = agent.GetTeam
+            };
+            ConsoleWriter.Show("Registered agent with params: GUID: " + agent.GUID + ", ID: " + agent.ID + " , Location: " + agent.GetLocation + ", Team: " + agent.GetTeam);
+
+            if (agents.Count == 2 * GetGameDefinition.NumberOfPlayersPerTeam)
+                state = GameMasterState.GameInprogress;
         }
 
         public Board GetBoard
@@ -77,7 +99,8 @@ namespace GameArea
             state = GameMasterState.AwaitingPlayers;
             random = new Random();
             agents = new List<Player.Agent>();
-            goalsLeft = settings.GameDefinition.NumberOfGoalsPerGame;
+            goalsRedLeft = settings.GameDefinition.NumberOfGoalsPerGame;
+            goalsBlueLeft = settings.GameDefinition.NumberOfGoalsPerGame;
             agentIdDictionary = new Dictionary<string, uint>();
             gameSettings = settings;
             InitBoard(gameSettings.GameDefinition);
@@ -94,7 +117,7 @@ namespace GameArea
         {
             foreach (var goal in goals)
             {
-                actualBoard.SetGoalField(new GameArea.GoalField(goal.x, goal.y, goal.team, goal.type));
+                actualBoard.SetGoalField(new GameArea.GameMasterGoalField(goal.x, goal.y, goal.team, goal.type));
             }
         }
 
@@ -130,11 +153,28 @@ namespace GameArea
                 return null;
             do
             {
-                x = (uint)random.Next() % actualBoard.TaskAreaHeight + actualBoard.GoalAreaHeight;
-                y = (uint)random.Next() % actualBoard.BoardWidth;
+                y = (uint)random.Next() % actualBoard.TaskAreaHeight + actualBoard.GoalAreaHeight;
+                x = (uint)random.Next() % actualBoard.BoardWidth;
                 field = actualBoard.GetTaskField(x, y);
             }
             while (field == null || field.GetPiece != null);
+            return field;
+        }
+
+        private GameArea.TaskField GetEmptyFieldForPlayer(TeamColour team)
+        {
+            uint x = 0, y = team == TeamColour.blue ? GetGameDefinition.GoalAreaLength : GetGameDefinition.GoalAreaLength + GetGameDefinition.TaskAreaLength - 1;
+            GameArea.TaskField field = actualBoard.GetTaskField(x, y);
+            while (field == null || field.Player != null)
+            {
+                x++;
+                if(x / GetGameDefinition.BoardWidth == 1)
+                {
+                    x = 0;
+                    y = team == TeamColour.blue ? y + 1 : y - 1;
+                }
+                field = actualBoard.GetTaskField(x, y);
+            }
             return field;
         }
 
@@ -239,7 +279,7 @@ namespace GameArea
                     timestamp = DateTime.Now
                 };
             }
-
+            Thread.Sleep((int)GetCosts.TestDelay);
             return new Data()
             {
                 gameFinished = false,
@@ -285,6 +325,7 @@ namespace GameArea
                     	UpdateDistancesFromAllPieces();
                     }
 
+                    Thread.Sleep((int)GetCosts.PlacingDelay);
                     return new Data()
                     {
                         gameFinished = false,
@@ -305,6 +346,7 @@ namespace GameArea
                         timestamp = DateTime.Now,
                         team = teamColour
                     };
+                    Thread.Sleep((int)GetCosts.PlacingDelay);
                     return new Data()
                     {
                         gameFinished = false,
@@ -331,10 +373,27 @@ namespace GameArea
                     // if GoalField is of type 'goal'
                     if ((actualBoard.GetField(location.x, location.y) as GameArea.GoalField).GoalType == GoalFieldType.goal)
                     {
-                        goalsLeft--;    // one goal less before the game is over
+                        var goal = actualBoard.GetField(location.x, location.y) as GameMasterGoalField;
+                        if (goal != null && !goal.IsFullfilled)
+                        {
+                            switch (goal.GetOwner)
+                            {
+                                case TeamColour.red:
+                                    goalsRedLeft--;    // one goal less before the game is over
+                                    break;
+                                case TeamColour.blue:
+                                    goalsBlueLeft--;
+                                    break;
+                            }
+                            if(goalsBlueLeft == 0 || goalsRedLeft == 0)
+                            {
+                                state = GameMasterState.GameOver;
+                            }
+                        }
                         agents.Where(q => q.GUID == playerGuid).First().SetPiece(null); // the piece is no longer possesed by an agent
                     }
 
+                    Thread.Sleep((int)GetCosts.PlacingDelay);
                     return new Data()
                     {
                         gameFinished = false,
@@ -348,6 +407,7 @@ namespace GameArea
             }
             // the field is task field and is claimed - action rejected
             // or the player doesn't posses a piece
+            Thread.Sleep((int)GetCosts.PlacingDelay);
             return new Data()
             {
                 gameFinished = false,
@@ -367,12 +427,12 @@ namespace GameArea
         public Data HandlePickUpPieceRequest(string playerGuid, ulong gameId)
         {
             var location = agents.Where(a => a.GUID == playerGuid).First().GetLocation;
-            Piece pieceDataToSend = null;
+            Piece[] pieces = null;
 
             // the TaskField contains a piece
             if (actualBoard.GetField(location.x, location.y) is GameArea.TaskField && (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).GetPiece != null)
             {
-                pieceDataToSend = new Piece()
+                Piece pieceDataToSend = new Piece()
                 {
                     type = PieceType.unknown,
                     id = (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).GetPiece.id,
@@ -380,17 +440,20 @@ namespace GameArea
                     timestamp = DateTime.Now
                 };
 
+                ConsoleWriter.Warning("Send piece from location: " + location + " to Agent with GUID: " + playerGuid);
+                pieces = new Piece[] { pieceDataToSend };
                 var piece = (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).GetPiece;
                 agents.Where(q => q.GUID == playerGuid).First().SetPiece(piece); // agent picks up a piece
                 (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).SetPiece(null); // the piece is no longer on the field  
                 UpdateDistancesFromAllPieces();
             }
             // player is either on an empty TaskField or on a GoalField
+            Thread.Sleep((int)GetCosts.PickUpDelay);
             return new Data()
             {
                 gameFinished = false,
                 playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
-                Pieces = new Piece[] { pieceDataToSend }
+                Pieces = pieces
             };
         }
 
@@ -474,8 +537,9 @@ namespace GameArea
                 actualBoard.GetField(currentLocation.x, currentLocation.y).Player = null;
                 actualBoard.GetField(futureLocation.x, futureLocation.y).Player = agent;
                 response.PlayerLocation = futureLocation;
+                agents.Where(q => q.GUID == playerGuid).First().SetLocation(futureLocation);
             }
-
+            Thread.Sleep((int)GetCosts.MoveDelay);
             return response;
 
         }
@@ -488,6 +552,7 @@ namespace GameArea
         /// <returns></returns>
         public Data HandleDiscoverRequest(string playerGuid, ulong gameId)
         {
+            ConsoleWriter.Show("Handling Discover Request for agent: " + playerGuid);
             var location = agents.Where(a => a.GUID == playerGuid).First().GetLocation;
             var team = agents.Where(q => q.GUID == playerGuid).First().GetTeam;
             List<Messages.TaskField> TaskFieldList = new List<Messages.TaskField>();
@@ -556,6 +621,7 @@ namespace GameArea
                         }
                     }
                 }
+            Thread.Sleep((int)GetCosts.DiscoverDelay);
             return new Data()
             {
                 gameFinished = false,
