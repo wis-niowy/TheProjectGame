@@ -50,5 +50,28 @@ namespace GameArea
                 return FieldType.Task;
             }
         }
+
+        public Messages.TaskField ConvertToMessageTaskField()
+        {
+            ulong? playerid = null;
+            if (this.Player != null)
+                playerid = this.Player.id;
+            ulong? pieceid = null;
+            if (this.Player != null)
+                pieceid = this.Player.id;
+
+            return new Messages.TaskField()
+            {
+                x = this.x,
+                y = this.y,
+                playerIdSpecified = this.Player != null,
+                playerId = playerid,
+                timestamp = this.TimeStamp,
+                distanceToPiece = this.Distance,
+                pieceIdSpecified = this.piece != null,
+                pieceId = pieceid,
+            };
+        }
+
     }
 }

@@ -320,7 +320,7 @@ namespace GameArea
                 {
                     gameFinished = false,
                     playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
-                    TaskFields = new Messages.TaskField[] { },
+                    //TaskFields = new Messages.TaskField[] { },
                     PlayerLocation = currentLocation
                 };
 
@@ -344,7 +344,7 @@ namespace GameArea
                         // we feedback with encountered stranger agent's id
                         playerId = actualBoard.GetField(futureLocation.x, futureLocation.y).Player.id,
                         timestamp = DateTime.Now,
-
+                        
                     };
 
                     return new Data()
@@ -353,7 +353,7 @@ namespace GameArea
                         playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
                         TaskFields = new Messages.TaskField[] { taskField },
                         PlayerLocation = currentLocation,
-                        Pieces = new Messages.Piece[] { piece }   // jesli dystans > 0 sekcji pieces nie ma?
+                        //Pieces = new Messages.Piece[] { piece }   // jesli dystans > 0 sekcji pieces nie ma?
                     };
                 }
                 // move action is valid
@@ -379,7 +379,7 @@ namespace GameArea
                         playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
                         TaskFields = new Messages.TaskField[] { taskField },
                         PlayerLocation = futureLocation,
-                        Pieces = new Messages.Piece[] { piece }   // jesli dystans > 0 sekcji pieces nie ma?
+                        //Pieces = new Messages.Piece[] { piece }   // jesli dystans > 0 sekcji pieces nie ma?
                     };
                 }
 
@@ -405,7 +405,7 @@ namespace GameArea
                         playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
                         GoalFields = new Messages.GoalField[] { goalField },
                         PlayerLocation = currentLocation,
-                        Pieces = new Messages.Piece[] { piece }   // jesli dystans > 0 sekcji pieces nie ma?
+                        //Pieces = new Messages.Piece[] { piece }   // jesli dystans > 0 sekcji pieces nie ma?
                     };
                 }
                 // move action is valid
@@ -429,7 +429,7 @@ namespace GameArea
                         playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
                         GoalFields = new Messages.GoalField[] { goalField },
                         PlayerLocation = futureLocation,
-                        Pieces = new Messages.Piece[] { piece }   // jesli dystans > 0 sekcji pieces nie ma?
+                        //Pieces = new Messages.Piece[] { piece }   // jesli dystans > 0 sekcji pieces nie ma?
                     };
                 }
             }

@@ -38,6 +38,16 @@ namespace GameArea
             }
         }
 
+        public Messages.GameBoard ConvertToMessageGameBoard()
+        {
+            return new GameBoard()
+            {
+                goalsHeight = this.GoalAreaHeight,
+                tasksHeight = this.TaskAreaHeight,
+                width = this.BoardWidth,
+            };
+        }
+
         public List<TaskField> TaskFields
         {
             get

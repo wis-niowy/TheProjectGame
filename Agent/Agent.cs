@@ -306,7 +306,7 @@ namespace Player
                     Type t = respField.GetType();
                     System.Reflection.PropertyInfo p = t.GetProperty("pieceId");
                     if (p != null)
-                        updatedField.SetPiece(new Piece(PieceType.unknown, respField.pieceId));
+                        updatedField.SetPiece(new Piece(PieceType.unknown, respField.pieceId.Value));
                     p = t.GetProperty("playerId");
                     if (p != null)
                     {
@@ -336,6 +336,61 @@ namespace Player
         }
 
         // additional methods
+
+        private void UpdateLocalBoard(Data responseMessage)
+        {
+            var gameFinished = responseMessage.gameFinished;
+            var currentLocation = responseMessage.PlayerLocation;
+            var playerId = responseMessage.playerId;
+
+            var taskFieldsArray = responseMessage.TaskFields;
+            var goalFieldsArray = responseMessage.GoalFields;
+            var piecesArray = responseMessage.Pieces;
+
+            if (playerId == this.ID && !gameFinished)
+            {
+                if (piecesArray != null && piecesArray.Length > 0 && piecesArray[0] == null) // otzymano informacje o kawalku
+                    // element != null oznacza, ze akcja byla poprawna
+                {
+                    var receivedPiece = piecesArray[0];
+                    if (receivedPiece.type == PieceType.unknown) // podniesiono kawalek (testowanie zawsze da normal/sham)
+                    {
+                        this.SetPiece(receivedPiece); // podnosimy kawalek
+                        this.agentBoard.GetTaskField(currentLocation.x, currentLocation.y).SetPiece(null); // zabieramy kawalek z planszy
+                    }
+                    else // testowano kawalek -- wynik normal lub sham
+                    {
+                        if (this.GetPiece.id == receivedPiece.id) // agent posiada ten sam kawalek, o ktorym dostal info
+                        {
+                            this.piece = receivedPiece; // aktualizacja lokalnego kawalka
+                        }
+                    }
+                }
+
+                if (taskFieldsArray != null && taskFieldsArray.Length > 0 && taskFieldsArray[0] != null) // otzymano informacje o TaskField
+                {
+                    var receivedField = taskFieldsArray[0];
+                    if (responseMessage.PlayerLocation == null) // wiadomosc zwrotna z akcji PlacePiece
+                    {
+                        this.agentBoard.GetTaskField(currentLocation.x, currentLocation.y).SetPiece(this.GetPiece); // odkladamy kawalek
+                        this.SetPiece(null);
+                    }
+                    else // PlayerLocation ustawione, a wiec wiadomosc zwrotna z akcji Move
+                    {
+                        if (receivedField.playerId != this.ID) // ruch sie nie udal bo napotkano innego gracza
+                        {
+
+                        }
+                        else // otrzymalismy nasze id wraz z danymi TaskField, wiec ruch sie udal
+                        {
+
+                        }
+                    }
+                }
+
+            }
+        }
+        
         private Location CalcualteFutureLoaction(Location oldLocation, MoveType direction)
         {
             Location newLocation = null;
@@ -356,5 +411,7 @@ namespace Player
             }
             return newLocation;
         }
+
+
     }
 }
