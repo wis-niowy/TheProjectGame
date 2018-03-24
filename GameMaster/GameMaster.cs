@@ -389,32 +389,6 @@ namespace GameArea
             {
                 piece = null;
 
-                //// player tried to enter other team's goal area -- NIE!
-                //if (!CheckIfNotEnteringWrongGoalArea((int)futureLocation.x, (int)futureLocation.y, team))
-                //{
-                //    ulong idToAssign;
-
-                //    if (actualBoard.GetField(futureLocation.x, futureLocation.y).HasAgent())
-                //        idToAssign = actualBoard.GetField(futureLocation.x, futureLocation.y).Player.id;
-                //    else
-                //        idToAssign = agents.Where(q => q.GUID == playerGuid).First().ID;
-
-                //    goalField = new Messages.GoalField(futureLocation.x, futureLocation.y)
-                //    {
-                //        // we feedback with encountered stranger agent's id
-                //        playerId = idToAssign,
-                //        timestamp = DateTime.Now,
-                //    };
-
-                //    return new Data()
-                //    {
-                //        gameFinished = false,
-                //        playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
-                //        TaskFields = new Messages.TaskField[] { },
-                //        PlayerLocation = currentLocation
-                //    };
-                //}
-
                 //player tried to step on a field with another agent
                 if (actualBoard.GetField(futureLocation.x, futureLocation.y).HasAgent())
                 {
