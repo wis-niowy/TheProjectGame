@@ -90,7 +90,7 @@ namespace Messages
         
         private int distanceToPieceField;
         
-        private ulong pieceIdField;
+        private ulong? pieceIdField;
         
         private bool pieceIdFieldSpecified;
         
@@ -107,7 +107,7 @@ namespace Messages
         
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public ulong pieceId {
+        public ulong? pieceId {
             get {
                 return this.pieceIdField;
             }

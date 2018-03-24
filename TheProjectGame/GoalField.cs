@@ -43,5 +43,23 @@ namespace GameArea
                 return owner;
             }
         }
+
+        public Messages.GoalField ConvertToMessageGoalField()
+        {
+            ulong? pId = null;
+            if (this.Player != null)
+                pId = this.Player.id;
+
+            return new Messages.GoalField()
+            {
+                x = this.x,
+                y = this.y,
+                playerIdSpecified = this.Player != null,
+                playerId = pId,
+                team = this.GetOwner,
+                timestamp = this.TimeStamp,
+                type = this.GoalType,
+            };
+        }
     }
 }
