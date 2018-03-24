@@ -455,6 +455,7 @@ namespace Player
                 if (receivedPiece.type != PieceType.unknown && this.GetPiece.id == receivedPiece.id)  // testowano kawalek -- wynik normal lub sham
                 {
                     this.piece = receivedPiece; // aktualizacja lokalnego kawalka
+                    this.piece.timestamp = DateTime.Now;
                     resultValue = true;
                 }
             }
@@ -474,7 +475,9 @@ namespace Player
             {
                 ConsoleWriter.Error("Placed piece when location: " + location + " by Agent with GUID: " + guid);
                 var receivedField = taskFieldsArray[0];
-                this.agentBoard.GetTaskField(location.x, location.y).SetPiece(this.GetPiece); // odkladamy kawalek
+                var field = this.agentBoard.GetTaskField(location.x, location.y);
+                field.SetPiece(this.GetPiece); // odkladamy kawalek
+                field.UpdateTimeStamp(DateTime.Now);
                 this.SetPiece(null);
                 resultValue = true;
             }
@@ -488,12 +491,15 @@ namespace Player
                 }
                 else if (receivedField.type == GoalFieldType.nongoal) // agent chybil probujac kawalkiem 'normal'
                 {
-                    agentBoard.GetGoalField(location.x, location.y).GoalType = GoalFieldType.nongoal;
+                    var field = agentBoard.GetGoalField(location.x, location.y);
+                    field.GoalType = GoalFieldType.nongoal;
+                    field.UpdateTimeStamp(DateTime.Now);
                     resultValue = false;
                 }
                 else // (receivedField.type == GoalFieldType.unknown) -- polozono sham na GoalField - zadnych info o polu, wiec wiemy ze agent ma typ sham
                 {
                     this.GetPiece.type = PieceType.sham;
+                    this.GetPiece.timestamp = DateTime.Now;
                     resultValue = false;
                 }
             }
@@ -513,6 +519,7 @@ namespace Player
                 ConsoleWriter.Warning("Received piece from location: " + location + " to Agent with GUID: " + guid);
                 var receivedPiece = piecesArray[0];
                 this.SetPiece(receivedPiece);
+                this.GetPiece.timestamp = DateTime.Now;
                 agentBoard.GetTaskField(location.x, location.y).SetPiece(null);
                 resultValue = true;
             }
