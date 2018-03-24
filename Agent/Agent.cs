@@ -27,8 +27,8 @@ namespace Player
                 return guid;
             }
         }
-        
-        public void SetGuid (string newGuid) // setter?
+
+        public void SetGuid(string newGuid) // setter?
         {
             guid = newGuid;
         }
@@ -64,7 +64,7 @@ namespace Player
         {
             this.team = team;
             this.SetGuid(_guid);
-            this.location = new Location(0,0);
+            this.location = new Location(0, 0);
         }
 
         public Agent(Agent original)
@@ -132,7 +132,7 @@ namespace Player
 
         public void SetLocation(uint x, uint y)
         {
-            location = new Location(x,y);
+            location = new Location(x, y);
         }
 
         public Messages.Agent ConvertToMessageAgent()
@@ -291,11 +291,44 @@ namespace Player
             }
             return false;
         }
-    
+
 
         public void Discover(IGameMaster gameMaster)
         {
+            Data responseMessage = gameMaster.HandleDiscoverRequest(this.GUID, this.GameId);
+            if (responseMessage.playerId == this.ID && !responseMessage.gameFinished)
+            {
+                foreach (var respField in responseMessage.TaskFields)
+                {
+                    GameArea.TaskField updatedField = agentBoard.GetField(respField.x, respField.y) as GameArea.TaskField;
+                    updatedField.UpdateTimeStamp(respField.timestamp);
+                    updatedField.Distance = respField.distanceToPiece;
 
+                    Type t = respField.GetType();
+                    System.Reflection.PropertyInfo p = t.GetProperty("pieceId");
+                    if (p != null)
+                        updatedField.SetPiece(new Piece(PieceType.unknown, respField.pieceId));
+                    p = t.GetProperty("playerId");
+                    if (p != null)
+                    {
+                        updatedField.Player = new Messages.Agent();
+                        updatedField.Player.id = respField.playerId;
+                    }
+                }
+
+                foreach (var respField in responseMessage.GoalFields)
+                {
+                    GameArea.GoalField updatedField = agentBoard.GetField(respField.x, respField.y) as GameArea.GoalField;
+                    updatedField.UpdateTimeStamp(respField.timestamp);
+                    Type t = respField.GetType();
+                    System.Reflection.PropertyInfo p = t.GetProperty("playerId");
+                    if (p != null)
+                    {
+                        updatedField.Player = new Messages.Agent();
+                        updatedField.Player.id = respField.playerId;
+                    }
+                }
+            }
         }
 
         public void doStrategy()
@@ -307,7 +340,7 @@ namespace Player
         private Location CalcualteFutureLoaction(Location oldLocation, MoveType direction)
         {
             Location newLocation = null;
-            switch(direction)
+            switch (direction)
             {
                 case MoveType.up:
                     newLocation = new Location(oldLocation.x, oldLocation.y + 1);

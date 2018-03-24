@@ -5,8 +5,20 @@ using System.Text;
 
 namespace GameArea
 {
-    public class TaskField:Field
+    public class TaskField : Field
     {
+        private int distance;
+        public int Distance
+        {
+            get
+            {
+                return distance;
+            }
+            set
+            {
+                this.distance = value;
+            }
+        }
         private Piece piece;    //--------- czy piece ma być tylko na task field, czy na dowolnym field?
         public Piece GetPiece
         {
@@ -21,7 +33,7 @@ namespace GameArea
             piece = value;
         }
 
-        public TaskField(uint x, uint y, Piece piece = null):base(x,y)
+        public TaskField(uint x, uint y, Piece piece = null) : base(x, y)
         {
             this.piece = piece;
         }
