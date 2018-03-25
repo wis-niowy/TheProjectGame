@@ -277,6 +277,7 @@ namespace GameArea
         public Data HandleTestPieceRequest(string playerGuid, ulong gameId)
         {
             Piece pieceDataToSend = null;
+            Func<bool> isGameFinished = () => { return state == GameMasterState.GameOver; };
 
             if (agents.Where(q => q.GUID == playerGuid).First().GetPiece != null)
             {
@@ -291,7 +292,7 @@ namespace GameArea
             Thread.Sleep((int)GetCosts.TestDelay);
             return new Data()
             {
-                gameFinished = false,
+                gameFinished = isGameFinished(),
                 //playerId = agentIdDictionary[playerGuid],
                 playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
                 Pieces = new Piece[] { pieceDataToSend }
@@ -308,6 +309,14 @@ namespace GameArea
         public Data HandlePlacePieceRequest(string playerGuid, ulong gameId)
         {
             var location = agents.Where(q => q.GUID == playerGuid).First().GetLocation;
+            Func<bool> isGameFinished = () => { return state == GameMasterState.GameOver; };
+
+            var resposne = new Data()
+            {
+                playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
+                //PlayerLocation = agents.Where(q => q.GUID == playerGuid).First().GetLocation
+                
+            };
 
             // player posseses a piece
             if (agents.Where(q => q.GUID == playerGuid).First().GetPiece != null)
@@ -317,7 +326,7 @@ namespace GameArea
                 {
                     Messages.TaskField fieldMessage = null; 
 
-                    // if Task field is not occupied
+                    // if TaskField is not occupied
                     if ((actualBoard.GetField(location.x, location.y) as GameArea.TaskField).GetPiece == null)
                     {
                         fieldMessage = new Messages.TaskField(location.x, location.y)
@@ -334,13 +343,8 @@ namespace GameArea
                     	UpdateDistancesFromAllPieces();
                     }
 
-                    Thread.Sleep((int)GetCosts.PlacingDelay);
-                    return new Data()
-                    {
-                        gameFinished = false,
-                        playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
-                        TaskFields = new Messages.TaskField[] { fieldMessage }
-                    };
+                    //Thread.Sleep((int)GetCosts.PlacingDelay);
+                    resposne.TaskFields = new Messages.TaskField[] { fieldMessage }; // fieldMessage is null if TaskField is occupied
                 }
                 // player carries a sham piece and is on a GoalField - he receives no data about a current GoalField and cannot place a piece
                 else if (actualBoard.GetField(location.x, location.y) is GameArea.GoalField && agents.Where(q => q.GUID == playerGuid).First().GetPiece.type == PieceType.sham)
@@ -355,13 +359,8 @@ namespace GameArea
                         timestamp = DateTime.Now,
                         team = teamColour
                     };
-                    Thread.Sleep((int)GetCosts.PlacingDelay);
-                    return new Data()
-                    {
-                        gameFinished = false,
-                        playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
-                        GoalFields = new Messages.GoalField[] { fieldMessage }
-                    };
+                    
+                    resposne.GoalFields = new Messages.GoalField[] { fieldMessage };
                 }
                 // the goal field is a goal or nongoal and player carries a normal piece
                 else if (actualBoard.GetField(location.x, location.y) is GameArea.GoalField)
@@ -379,7 +378,7 @@ namespace GameArea
                         team = teamColour
                     };
 
-                    // if GoalField is of type 'goal'
+                    // if GoalField is of type 'goal' we update data and notify point score
                     if ((actualBoard.GetField(location.x, location.y) as GameArea.GoalField).GoalType == GoalFieldType.goal)
                     {
                         var goal = actualBoard.GetField(location.x, location.y) as GameMasterGoalField;
@@ -398,17 +397,12 @@ namespace GameArea
                             {
                                 state = GameMasterState.GameOver;
                             }
+                            agents.Where(q => q.GUID == playerGuid).First().SetPiece(null); // the piece is no longer possesed by an agent
                         }
-                        agents.Where(q => q.GUID == playerGuid).First().SetPiece(null); // the piece is no longer possesed by an agent
+                        
                     }
 
-                    Thread.Sleep((int)GetCosts.PlacingDelay);
-                    return new Data()
-                    {
-                        gameFinished = false,
-                        playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
-                        GoalFields = new Messages.GoalField[] { fieldMessage }
-                    };
+                    resposne.GoalFields = new Messages.GoalField[] { fieldMessage };
                 }
 
 
@@ -416,14 +410,9 @@ namespace GameArea
             }
             // the field is task field and is claimed - action rejected
             // or the player doesn't posses a piece
+            resposne.gameFinished = isGameFinished();
             Thread.Sleep((int)GetCosts.PlacingDelay);
-            return new Data()
-            {
-                gameFinished = false,
-                playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
-                PlayerLocation = agents.Where(q => q.GUID == playerGuid).First().GetLocation
-                //GoalFields = new Messages.GoalField[] { null }
-            };
+            return resposne;
 
         }
 
@@ -436,7 +425,14 @@ namespace GameArea
         public Data HandlePickUpPieceRequest(string playerGuid, ulong gameId)
         {
             var location = agents.Where(a => a.GUID == playerGuid).First().GetLocation;
-            Piece[] pieces = null;
+            Func<bool> isGameFinished = () => { return state == GameMasterState.GameOver; };
+            Piece[] pieces = new Piece[] { null };
+
+            var response = new Data()
+            {
+                playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
+                Pieces = pieces
+            };
 
             // the TaskField contains a piece
             if (actualBoard.GetField(location.x, location.y) is GameArea.TaskField && (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).GetPiece != null)
@@ -450,20 +446,19 @@ namespace GameArea
                 };
 
                 ConsoleWriter.Warning("Send piece from location: " + location + " to Agent with GUID: " + playerGuid);
-                pieces = new Piece[] { pieceDataToSend };
+
+                response.Pieces[0] = pieceDataToSend;
+
                 var piece = (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).GetPiece;
                 agents.Where(q => q.GUID == playerGuid).First().SetPiece(piece); // agent picks up a piece
                 (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).SetPiece(null); // the piece is no longer on the field  
                 UpdateDistancesFromAllPieces();
             }
+
             // player is either on an empty TaskField or on a GoalField
+            response.gameFinished = isGameFinished();
             Thread.Sleep((int)GetCosts.PickUpDelay);
-            return new Data()
-            {
-                gameFinished = false,
-                playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
-                Pieces = pieces
-            };
+            return response;
         }
 
         /// <summary>
@@ -476,6 +471,7 @@ namespace GameArea
         public Data HandleMoveRequest(MoveType direction, string playerGuid, ulong gameId)
         {
             var currentLocation = agents.Where(a => a.GUID == playerGuid).First().GetLocation;
+            Func<bool> isGameFinished = () => { return state == GameMasterState.GameOver; };
             var team = agents.Where(a => a.GUID == playerGuid).First().GetTeam;
 
             // perform location data and get future field
@@ -485,7 +481,6 @@ namespace GameArea
             //basic info for response
             Data response = new Data()
             {
-                gameFinished = false,
                 playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
                 TaskFields = new Messages.TaskField[] { },
                 GoalFields = null,
@@ -548,6 +543,7 @@ namespace GameArea
                 response.PlayerLocation = futureLocation;
                 agents.Where(q => q.GUID == playerGuid).First().SetLocation(futureLocation);
             }
+            response.gameFinished = isGameFinished();
             Thread.Sleep((int)GetCosts.MoveDelay);
             return response;
 
@@ -561,6 +557,7 @@ namespace GameArea
         /// <returns></returns>
         public Data HandleDiscoverRequest(string playerGuid, ulong gameId)
         {
+            Func<bool> isGameFinished = () => { return state == GameMasterState.GameOver; };
             ConsoleWriter.Show("Handling Discover Request for agent: " + playerGuid);
             var location = agents.Where(a => a.GUID == playerGuid).First().GetLocation;
             var team = agents.Where(q => q.GUID == playerGuid).First().GetTeam;
@@ -633,7 +630,7 @@ namespace GameArea
             Thread.Sleep((int)GetCosts.DiscoverDelay);
             return new Data()
             {
-                gameFinished = false,
+                gameFinished = isGameFinished(),
                 playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
                 TaskFields = TaskFieldList.ToArray(),
                 GoalFields = GoalFieldList.ToArray()
