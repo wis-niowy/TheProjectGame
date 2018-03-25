@@ -18,6 +18,7 @@ namespace Player
         /// <returns>True - request was valid; False - request was not valid</returns>
         public bool TestPiece(IGameMaster gameMaster)
         {
+            ConsoleWriter.Show("Agent: " + GUID + "tries to test piece with id: " + GetPiece.id + " on location " + location);
             Data responseMessage = gameMaster.HandleTestPieceRequest(this.GUID, this.GameId);
 
             ConsoleWriter.Show("Received response for TestPiece for agent: " + guid);

@@ -153,7 +153,7 @@ namespace GameArea
         }
 
         private Field[,] fields;
-        public Board(uint width, uint pieceAreaHeight, uint goalAreaHeight)
+        public Board(uint width, uint pieceAreaHeight, uint goalAreaHeight, GoalFieldType defaultGoalType = GoalFieldType.unknown)
         {
             this.width = width;
             this.taskAreaHeight = pieceAreaHeight;
@@ -163,8 +163,8 @@ namespace GameArea
             {
                 for (uint j = 0; j < BoardWidth; j++)
                 {
-                    fields[j, i] = new GoalField(j, i, TeamColour.blue, GoalFieldType.nongoal);
-                    fields[j, i + pieceAreaHeight + goalAreaHeight] = new GoalField(j, i + pieceAreaHeight + goalAreaHeight, TeamColour.red, GoalFieldType.nongoal);
+                    fields[j, i] = new GoalField(j, i, TeamColour.blue, defaultGoalType);
+                    fields[j, i + pieceAreaHeight + goalAreaHeight] = new GoalField(j, i + pieceAreaHeight + goalAreaHeight, TeamColour.red, defaultGoalType);
                 }
             }
             for (uint i = GoalAreaHeight; i < BoardHeight - GoalAreaHeight; i++)

@@ -134,7 +134,7 @@ namespace GameArea
 
         private void InitBoard(GameMasterSettingsGameDefinition settings)
         {
-            actualBoard = new Board((uint)settings.BoardWidth, settings.TaskAreaLength, settings.GoalAreaLength);
+            actualBoard = new Board((uint)settings.BoardWidth, settings.TaskAreaLength, settings.GoalAreaLength,GoalFieldType.nongoal);
             PlaceInitialPieces(settings.InitialNumberOfPieces);
             PlaceInitialGoals(settings.Goals);
         }
