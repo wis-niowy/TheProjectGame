@@ -2,54 +2,14 @@
 using Messages;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Player
 {
     public partial class Agent
     {
-        
-        public void DoStrategy()
-        {
-            var random = new Random(DateTime.Now.Millisecond);
-            var action = random.Next() % 5;
-            var actionParam = random.Next() % 4;
-            MoveType direction = MoveType.up;
-            switch (actionParam)
-            {
-                case 0:
-                    direction = MoveType.down;
-                    break;
-                case 1:
-                    direction = MoveType.up;
-                    break;
-                case 2:
-                    direction = MoveType.left;
-                    break;
-                case 3:
-                    direction = MoveType.right;
-                    break;
-            }
-            switch (action)
-            {
-                case 0:
-                    Move(gameMaster, direction);
-                    break;
-                case 1:
-                    PlacePiece(gameMaster);
-                    break;
-                case 2:
-                    PickUpPiece(gameMaster);
-                    break;
-                case 3:
-                    TestPiece(gameMaster);
-                    break;
-                case 4:
-                    Discover(gameMaster);
-                    break;
-            }
-        }
-
+       
 
         /// <summary>
         /// Method to send request to test the piece

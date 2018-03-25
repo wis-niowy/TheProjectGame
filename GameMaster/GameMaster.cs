@@ -6,12 +6,14 @@ using System.Linq;
 using GameArea;
 using Configuration;
 using System.Threading;
+using System.Timers;
 
 namespace GameArea
 {
     public enum GameMasterState { AwaitingPlayers, GameInprogress, GameOver };
     public class GameMaster : IGameMaster
     {
+        static readonly object lockObject = new object();
         private GameMasterState state;
         private ulong nextPieceId = 0;
         private ulong goalsRedLeft;
@@ -22,7 +24,15 @@ namespace GameArea
         private Dictionary<string, uint> agentIdDictionary;
         private Board actualBoard;
         private GameMasterSettings gameSettings;
+        private System.Timers.Timer pieceAdder;
 
+        public bool IsGameFinished
+        {
+            get
+            {
+                return state == GameMasterState.GameOver;
+            }
+        }
         public List<Player.Agent> GetAgents
         {
             get
@@ -72,11 +82,11 @@ namespace GameArea
         /// <param name="agent"></param>
         /// <param name="guid"></param>
         /// <param name="findFreeLocationAndPlacePlayer">Ustaw na false aby Game Master nie przydzielal znalezionego przez siebie miejsca i nie ustawial gracza na pozycji</param>
-        public void RegisterAgent(Player.Agent agent,string guid = null, bool findFreeLocationAndPlacePlayer = true)
+        public void RegisterAgent(Player.Agent agent, string guid = null, bool findFreeLocationAndPlacePlayer = true)
         {
             var newId = agents.Count > 0 ? agents.Max(q => q.ID) + 1 : 1;
             agent.ID = newId;
-            agent.SetGuid(guid != null ? guid:"Agent" + newId);
+            agent.SetGuid(guid != null ? guid : "Agent" + newId);
             agent.SetBoard(new Board(GetGameDefinition.BoardWidth, GetGameDefinition.TaskAreaLength, GetGameDefinition.GoalAreaLength));
             if (findFreeLocationAndPlacePlayer)
             {
@@ -108,11 +118,18 @@ namespace GameArea
             state = GameMasterState.AwaitingPlayers;
             random = new Random();
             agents = new List<Player.Agent>();
-            goalsRedLeft = settings.GameDefinition.NumberOfGoalsPerGame;
-            goalsBlueLeft = settings.GameDefinition.NumberOfGoalsPerGame;
+            goalsRedLeft = (ulong)settings.GameDefinition.Goals.Where(q => q.team == TeamColour.red).Count();
+            goalsBlueLeft = (ulong)settings.GameDefinition.Goals.Where(q => q.team == TeamColour.blue).Count();
             agentIdDictionary = new Dictionary<string, uint>();
             gameSettings = settings;
             InitBoard(gameSettings.GameDefinition);
+            InitPieceAdder();
+        }
+
+        private void InitPieceAdder()
+        {
+            pieceAdder = new System.Timers.Timer(GetGameDefinition.PlacingNewPiecesFrequency);
+            pieceAdder.Elapsed += PieceAdder_Elapsed;
         }
 
         private void InitBoard(GameMasterSettingsGameDefinition settings)
@@ -143,6 +160,22 @@ namespace GameArea
                 var field = GetEmptyFieldForPiece();
                 field.SetPiece(piece);
             }
+        }
+
+        private bool PlaceNewPiece()
+        {
+            var piece = CreatePiece();
+            var field = GetEmptyFieldForPiece();
+            if (field != null)
+            {
+                field.SetPiece(piece);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
         }
 
         private Piece CreatePiece()
@@ -177,7 +210,7 @@ namespace GameArea
             while (field == null || field.Player != null)
             {
                 x++;
-                if(x / GetGameDefinition.BoardWidth == 1)
+                if (x / GetGameDefinition.BoardWidth == 1)
                 {
                     x = 0;
                     y = team == TeamColour.blue ? y + 1 : y - 1;
@@ -221,13 +254,13 @@ namespace GameArea
                 {
                     uint currentDist = 1;
                     uint x, y;
-                    while (currentDist < field.Distance && currentDist<taskFields.Count)
+                    while (currentDist < field.Distance && currentDist < taskFields.Count)
                     {
                         for (x = 0; x <= currentDist; x++)
                         {
                             y = currentDist - x;
 
-                            
+
                             if (CheckIfNotOutOfTaskArea(field.x + x, field.y + y) && ((actualBoard.GetField(field.x + x, field.y + y)) as TaskField).GetPiece != null)
                             {
                                 field.Distance = (int)currentDist;
@@ -276,23 +309,29 @@ namespace GameArea
         /// <returns></returns>
         public Data HandleTestPieceRequest(string playerGuid, ulong gameId)
         {
+            Monitor.Enter(lockObject);
             Piece pieceDataToSend = null;
-            Func<bool> isGameFinished = () => { return state == GameMasterState.GameOver; };
-
-            if (agents.Where(q => q.GUID == playerGuid).First().GetPiece != null)
+            try
             {
-                pieceDataToSend = new Piece()
+                if (agents.Where(q => q.GUID == playerGuid).First().GetPiece != null)
                 {
-                    type = agents.Where(q => q.GUID == playerGuid).First().GetPiece.type,
-                    id = agents.Where(q => q.GUID == playerGuid).First().GetPiece.id,
-                    playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
-                    timestamp = DateTime.Now
-                };
+                    pieceDataToSend = new Piece()
+                    {
+                        type = agents.Where(q => q.GUID == playerGuid).First().GetPiece.type,
+                        id = agents.Where(q => q.GUID == playerGuid).First().GetPiece.id,
+                        playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
+                        timestamp = DateTime.Now
+                    };
+                }
+            }
+            finally
+            {
+                Monitor.Exit(lockObject);
             }
             Thread.Sleep((int)GetCosts.TestDelay);
             return new Data()
             {
-                gameFinished = isGameFinished(),
+                gameFinished = IsGameFinished,
                 //playerId = agentIdDictionary[playerGuid],
                 playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
                 Pieces = new Piece[] { pieceDataToSend }
@@ -309,108 +348,112 @@ namespace GameArea
         public Data HandlePlacePieceRequest(string playerGuid, ulong gameId)
         {
             var location = agents.Where(q => q.GUID == playerGuid).First().GetLocation;
-            Func<bool> isGameFinished = () => { return state == GameMasterState.GameOver; };
 
             var resposne = new Data()
             {
                 playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
                 //PlayerLocation = agents.Where(q => q.GUID == playerGuid).First().GetLocation
-                
+
             };
 
-            // player posseses a piece
-            if (agents.Where(q => q.GUID == playerGuid).First().GetPiece != null)
+            Monitor.Enter(lockObject);
+            try
             {
-                // player is on the TaskField
-                if (actualBoard.GetField(location.x, location.y) is GameArea.TaskField)
+                // player posseses a piece
+                if (agents.Where(q => q.GUID == playerGuid).First().GetPiece != null)
                 {
-                    Messages.TaskField fieldMessage = null; 
-
-                    // if TaskField is not occupied
-                    if ((actualBoard.GetField(location.x, location.y) as GameArea.TaskField).GetPiece == null)
+                    // player is on the TaskField
+                    if (actualBoard.GetField(location.x, location.y) is GameArea.TaskField)
                     {
-                        fieldMessage = new Messages.TaskField(location.x, location.y)
+                        Messages.TaskField fieldMessage = null;
+
+                        // if TaskField is not occupied
+                        if ((actualBoard.GetField(location.x, location.y) as GameArea.TaskField).GetPiece == null)
                         {
+                            fieldMessage = new Messages.TaskField(location.x, location.y)
+                            {
+                                playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
+                                playerIdSpecified = true,
+                                pieceId = agents.Where(q => q.GUID == playerGuid).First().GetPiece.id,
+                                pieceIdSpecified = true,
+                                timestamp = DateTime.Now
+                            };
+
+                            (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).SetPiece(agents.Where(q => q.GUID == playerGuid).First().GetPiece); // the piece is put on the field
+                            agents.Where(q => q.GUID == playerGuid).First().SetPiece(null); // the piece is no longer possesed by an agent
+                            UpdateDistancesFromAllPieces();
+                        }
+
+                        //Thread.Sleep((int)GetCosts.PlacingDelay);
+                        resposne.TaskFields = new Messages.TaskField[] { fieldMessage }; // fieldMessage is null if TaskField is occupied
+                    }
+                    // player carries a sham piece and is on a GoalField - he receives no data about a current GoalField and cannot place a piece
+                    else if (actualBoard.GetField(location.x, location.y) is GameArea.GoalField && agents.Where(q => q.GUID == playerGuid).First().GetPiece.type == PieceType.sham)
+                    {
+                        var teamColour = agents.Where(q => q.GUID == playerGuid).First().GetTeam;
+                        var fieldMessage = new Messages.GoalField()
+                        {
+                            x = location.x,
+                            y = location.y,
                             playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
                             playerIdSpecified = true,
-                            pieceId = agents.Where(q => q.GUID == playerGuid).First().GetPiece.id,
-                            pieceIdSpecified = true,
-                            timestamp = DateTime.Now
+                            timestamp = DateTime.Now,
+                            team = teamColour
                         };
 
-                        (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).SetPiece(agents.Where(q => q.GUID == playerGuid).First().GetPiece); // the piece is put on the field
-                        agents.Where(q => q.GUID == playerGuid).First().SetPiece(null); // the piece is no longer possesed by an agent
-                    	UpdateDistancesFromAllPieces();
+                        resposne.GoalFields = new Messages.GoalField[] { fieldMessage };
                     }
-
-                    //Thread.Sleep((int)GetCosts.PlacingDelay);
-                    resposne.TaskFields = new Messages.TaskField[] { fieldMessage }; // fieldMessage is null if TaskField is occupied
-                }
-                // player carries a sham piece and is on a GoalField - he receives no data about a current GoalField and cannot place a piece
-                else if (actualBoard.GetField(location.x, location.y) is GameArea.GoalField && agents.Where(q => q.GUID == playerGuid).First().GetPiece.type == PieceType.sham)
-                {
-                    var teamColour = agents.Where(q => q.GUID == playerGuid).First().GetTeam;
-                    var fieldMessage = new Messages.GoalField()
+                    // the goal field is a goal or nongoal and player carries a normal piece
+                    else if (actualBoard.GetField(location.x, location.y) is GameArea.GoalField)
                     {
-                        x = location.x,
-                        y = location.y,
-                        playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
-                        playerIdSpecified = true,
-                        timestamp = DateTime.Now,
-                        team = teamColour
-                    };
-                    
-                    resposne.GoalFields = new Messages.GoalField[] { fieldMessage };
-                }
-                // the goal field is a goal or nongoal and player carries a normal piece
-                else if (actualBoard.GetField(location.x, location.y) is GameArea.GoalField)
-                {
-                    var teamColour = agents.Where(q => q.GUID == playerGuid).First().GetTeam;
-                    var goalFieldType = actualBoard.GetGoalField(location.x, location.y).GoalType;
-                    var fieldMessage = new Messages.GoalField()
-                    {
-                        x = location.x,
-                        y = location.y,
-                        playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
-                        playerIdSpecified = true,
-                        timestamp = DateTime.Now,
-                        type = goalFieldType,
-                        team = teamColour
-                    };
-
-                    // if GoalField is of type 'goal' we update data and notify point score
-                    if ((actualBoard.GetField(location.x, location.y) as GameArea.GoalField).GoalType == GoalFieldType.goal)
-                    {
-                        var goal = actualBoard.GetField(location.x, location.y) as GameMasterGoalField;
-                        if (goal != null && !goal.IsFullfilled)
+                        var teamColour = agents.Where(q => q.GUID == playerGuid).First().GetTeam;
+                        var goalFieldType = actualBoard.GetGoalField(location.x, location.y).GoalType;
+                        var fieldMessage = new Messages.GoalField()
                         {
-                            switch (goal.GetOwner)
+                            x = location.x,
+                            y = location.y,
+                            playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
+                            playerIdSpecified = true,
+                            timestamp = DateTime.Now,
+                            type = goalFieldType,
+                            team = teamColour
+                        };
+
+                        // if GoalField is of type 'goal' we update data and notify point score
+                        if ((actualBoard.GetField(location.x, location.y) as GameArea.GoalField).GoalType == GoalFieldType.goal)
+                        {
+                            var goal = actualBoard.GetField(location.x, location.y) as GameMasterGoalField;
+                            if (goal != null && !goal.IsFullfilled && state != GameMasterState.GameOver)
                             {
-                                case TeamColour.red:
-                                    goalsRedLeft--;    // one goal less before the game is over
-                                    break;
-                                case TeamColour.blue:
-                                    goalsBlueLeft--;
-                                    break;
+                                switch (goal.GetOwner)
+                                {
+                                    case TeamColour.red:
+                                        goalsRedLeft--;    // one goal less before the game is over
+                                        break;
+                                    case TeamColour.blue:
+                                        goalsBlueLeft--;
+                                        break;
+                                }
+                                if (goalsBlueLeft == 0 || goalsRedLeft == 0)
+                                {
+                                    state = GameMasterState.GameOver;
+                                }
+                                agents.Where(q => q.GUID == playerGuid).First().SetPiece(null); // the piece is no longer possesed by an agent
                             }
-                            if(goalsBlueLeft == 0 || goalsRedLeft == 0)
-                            {
-                                state = GameMasterState.GameOver;
-                            }
-                            agents.Where(q => q.GUID == playerGuid).First().SetPiece(null); // the piece is no longer possesed by an agent
+
                         }
-                        
+
+                        resposne.GoalFields = new Messages.GoalField[] { fieldMessage };
                     }
-
-                    resposne.GoalFields = new Messages.GoalField[] { fieldMessage };
                 }
-
-
-
+                // the field is task field and is claimed - action rejected
+                // or the player doesn't posses a piece
+                resposne.gameFinished = IsGameFinished;
             }
-            // the field is task field and is claimed - action rejected
-            // or the player doesn't posses a piece
-            resposne.gameFinished = isGameFinished();
+            finally
+            {
+                Monitor.Exit(lockObject);
+            }
             Thread.Sleep((int)GetCosts.PlacingDelay);
             return resposne;
 
@@ -425,7 +468,6 @@ namespace GameArea
         public Data HandlePickUpPieceRequest(string playerGuid, ulong gameId)
         {
             var location = agents.Where(a => a.GUID == playerGuid).First().GetLocation;
-            Func<bool> isGameFinished = () => { return state == GameMasterState.GameOver; };
             Piece[] pieces = new Piece[] { null };
 
             var response = new Data()
@@ -434,29 +476,37 @@ namespace GameArea
                 Pieces = pieces
             };
 
-            // the TaskField contains a piece
-            if (actualBoard.GetField(location.x, location.y) is GameArea.TaskField && (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).GetPiece != null)
+            Monitor.Enter(lockObject);
+            try
             {
-                Piece pieceDataToSend = new Piece()
+                // the TaskField contains a piece
+                if (actualBoard.GetField(location.x, location.y) is GameArea.TaskField && (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).GetPiece != null)
                 {
-                    type = PieceType.unknown,
-                    id = (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).GetPiece.id,
-                    playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
-                    timestamp = DateTime.Now
-                };
+                    Piece pieceDataToSend = new Piece()
+                    {
+                        type = PieceType.unknown,
+                        id = (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).GetPiece.id,
+                        playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
+                        timestamp = DateTime.Now
+                    };
 
-                ConsoleWriter.Warning("Send piece from location: " + location + " to Agent with GUID: " + playerGuid);
+                    ConsoleWriter.Warning("Send piece from location: " + location + " to Agent with GUID: " + playerGuid);
 
-                response.Pieces[0] = pieceDataToSend;
+                    response.Pieces[0] = pieceDataToSend;
 
-                var piece = (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).GetPiece;
-                agents.Where(q => q.GUID == playerGuid).First().SetPiece(piece); // agent picks up a piece
-                (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).SetPiece(null); // the piece is no longer on the field  
-                UpdateDistancesFromAllPieces();
+                    var piece = (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).GetPiece;
+                    agents.Where(q => q.GUID == playerGuid).First().SetPiece(piece); // agent picks up a piece
+                    (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).SetPiece(null); // the piece is no longer on the field  
+                    UpdateDistancesFromAllPieces();
+                }
+
+                // player is either on an empty TaskField or on a GoalField
+                response.gameFinished = IsGameFinished;
             }
-
-            // player is either on an empty TaskField or on a GoalField
-            response.gameFinished = isGameFinished();
+            finally
+            {
+                Monitor.Exit(lockObject);
+            }
             Thread.Sleep((int)GetCosts.PickUpDelay);
             return response;
         }
@@ -471,7 +521,6 @@ namespace GameArea
         public Data HandleMoveRequest(MoveType direction, string playerGuid, ulong gameId)
         {
             var currentLocation = agents.Where(a => a.GUID == playerGuid).First().GetLocation;
-            Func<bool> isGameFinished = () => { return state == GameMasterState.GameOver; };
             var team = agents.Where(a => a.GUID == playerGuid).First().GetTeam;
 
             // perform location data and get future field
@@ -491,59 +540,67 @@ namespace GameArea
             if (!ValidateFieldPosition((int)futureLocation.x, (int)futureLocation.y, team))
                 return response;
 
-                        
+
             Messages.Piece piece;
             Messages.Field field;
 
-            // what type of field are we trying to enter - Task or Goal?
-            if (futureBoardField is GameArea.TaskField)
+            Monitor.Enter(lockObject);
+            try
             {
-                GameArea.TaskField fieldFromBoard = actualBoard.GetField(futureLocation.x, futureLocation.y) as GameArea.TaskField;
-                field = new Messages.TaskField(futureLocation.x, futureLocation.y)
+                // what type of field are we trying to enter - Task or Goal?
+                if (futureBoardField is GameArea.TaskField)
                 {
-                    distanceToPiece = fieldFromBoard.Distance,
-                    timestamp = DateTime.Now,
-                };
+                    GameArea.TaskField fieldFromBoard = actualBoard.GetField(futureLocation.x, futureLocation.y) as GameArea.TaskField;
+                    field = new Messages.TaskField(futureLocation.x, futureLocation.y)
+                    {
+                        distanceToPiece = fieldFromBoard.Distance,
+                        timestamp = DateTime.Now,
+                    };
 
-                // check if there is a piece on the filed
-                fieldFromBoard = actualBoard.GetField(futureLocation.x, futureLocation.y) as GameArea.TaskField;
-                piece = (fieldFromBoard as GameArea.TaskField).GetPiece;
-                if (piece != null)
-                {
-                    response.Pieces = new Messages.Piece[] { piece };
-                    (field as Messages.TaskField).pieceId = piece.id;
-                    (field as Messages.TaskField).pieceIdSpecified = true;
+                    // check if there is a piece on the filed
+                    fieldFromBoard = actualBoard.GetField(futureLocation.x, futureLocation.y) as GameArea.TaskField;
+                    piece = (fieldFromBoard as GameArea.TaskField).GetPiece;
+                    if (piece != null)
+                    {
+                        response.Pieces = new Messages.Piece[] { piece };
+                        (field as Messages.TaskField).pieceId = piece.id;
+                        (field as Messages.TaskField).pieceIdSpecified = true;
+                    }
+                    response.TaskFields = new Messages.TaskField[] { (field as Messages.TaskField) };
+
                 }
-                response.TaskFields = new Messages.TaskField[] { (field as Messages.TaskField) };
-
-            }
-            else //if (futureBoardField is GameArea.GoalField)
-            {
-                GameArea.GoalField fieldFromBoard = actualBoard.GetField(futureLocation.x, futureLocation.y) as GameArea.GoalField;
-                field = new Messages.GoalField(futureLocation.x, futureLocation.y, fieldFromBoard.GetOwner)
+                else //if (futureBoardField is GameArea.GoalField)
                 {
-                    timestamp = DateTime.Now,
-                };
-                response.GoalFields = new Messages.GoalField[] { (field as Messages.GoalField) };
-                response.TaskFields = null;
-            }
+                    GameArea.GoalField fieldFromBoard = actualBoard.GetField(futureLocation.x, futureLocation.y) as GameArea.GoalField;
+                    field = new Messages.GoalField(futureLocation.x, futureLocation.y, fieldFromBoard.GetOwner)
+                    {
+                        timestamp = DateTime.Now,
+                    };
+                    response.GoalFields = new Messages.GoalField[] { (field as Messages.GoalField) };
+                    response.TaskFields = null;
+                }
 
-            // check if there is another agent on the field we're trying to enter - if so, wedon't actually move, just get an update on the field
-            if (futureBoardField.HasAgent())
-            {
-                field.playerId = futureBoardField.Player.id;
-                field.playerIdSpecified = true;
+                // check if there is another agent on the field we're trying to enter - if so, wedon't actually move, just get an update on the field
+                if (futureBoardField.HasAgent())
+                {
+                    field.playerId = futureBoardField.Player.id;
+                    field.playerIdSpecified = true;
+                }
+                else    //there is no player, we can move
+                {
+                    // perform move action
+                    var agent = actualBoard.GetField(currentLocation.x, currentLocation.y).Player;
+                    actualBoard.GetField(currentLocation.x, currentLocation.y).Player = null;
+                    actualBoard.GetField(futureLocation.x, futureLocation.y).Player = agent;
+                    response.PlayerLocation = futureLocation;
+                    agents.Where(q => q.GUID == playerGuid).First().SetLocation(futureLocation);
+                }
+                response.gameFinished = IsGameFinished;
             }
-            else    //there is no player, we can move
+            finally
             {
-                // perform move action
-                var agent = actualBoard.GetField(currentLocation.x, currentLocation.y).Player;
-                actualBoard.GetField(currentLocation.x, currentLocation.y).Player = null;
-                actualBoard.GetField(futureLocation.x, futureLocation.y).Player = agent;
-                response.PlayerLocation = futureLocation;
-                agents.Where(q => q.GUID == playerGuid).First().SetLocation(futureLocation);
+                Monitor.Exit(lockObject);
             }
-            response.gameFinished = isGameFinished();
             Thread.Sleep((int)GetCosts.MoveDelay);
             return response;
 
@@ -557,80 +614,90 @@ namespace GameArea
         /// <returns></returns>
         public Data HandleDiscoverRequest(string playerGuid, ulong gameId)
         {
-            Func<bool> isGameFinished = () => { return state == GameMasterState.GameOver; };
             ConsoleWriter.Show("Handling Discover Request for agent: " + playerGuid);
             var location = agents.Where(a => a.GUID == playerGuid).First().GetLocation;
             var team = agents.Where(q => q.GUID == playerGuid).First().GetTeam;
             List<Messages.TaskField> TaskFieldList = new List<Messages.TaskField>();
             List<Messages.GoalField> GoalFieldList = new List<Messages.GoalField>();
 
-            for (int dx = -1; dx <= 1; ++dx)
-                for (int dy = -1; dy <= 1; ++dy)
+            Monitor.Enter(lockObject);
+            try
+
+            {
+                for (int dx = -1; dx <= 1; ++dx)
                 {
-                    if (dx == 0 && dy == 0) continue;
-                    if (ValidateFieldPosition((int)(location.x + dx), (int)(location.y + dy), team))
+                    for (int dy = -1; dy <= 1; ++dy)
                     {
-                        Field field = actualBoard.GetField((uint)(location.x + dx), (uint)(location.y + dy));
-                        // discovered field is a TaskField - can contain players and pieces
-                        if (field is TaskField)
+                        if (dx == 0 && dy == 0) continue;
+                        if (ValidateFieldPosition((int)(location.x + dx), (int)(location.y + dy), team))
                         {
-                            //basic information
-                            Messages.TaskField responseField = new Messages.TaskField(location.x, location.y)
+                            Field field = actualBoard.GetField((uint)(location.x + dx), (uint)(location.y + dy));
+                            // discovered field is a TaskField - can contain players and pieces
+                            if (field is TaskField)
                             {
-                                x = (uint)(location.x + dx),
-                                y = (uint)(location.y + dy),
-                                timestamp = DateTime.Now,
-                                distanceToPiece = (field as TaskField).Distance
-                            };
+                                //basic information
+                                Messages.TaskField responseField = new Messages.TaskField(location.x, location.y)
+                                {
+                                    x = (uint)(location.x + dx),
+                                    y = (uint)(location.y + dy),
+                                    timestamp = DateTime.Now,
+                                    distanceToPiece = (field as TaskField).Distance
+                                };
 
-                            //anoter agent on the field
-                            if (field.HasAgent())
-                            {
-                                responseField.playerId = field.Player.id;
-                                responseField.playerIdSpecified = true;
+                                //anoter agent on the field
+                                if (field.HasAgent())
+                                {
+                                    responseField.playerId = field.Player.id;
+                                    responseField.playerIdSpecified = true;
+                                }
+                                else
+                                    responseField.playerIdSpecified = false;
+
+                                //piece on the field
+                                Messages.Piece piece = (field as TaskField).GetPiece;
+                                if (piece != null)
+                                {
+                                    responseField.pieceId = piece.id;
+                                    responseField.pieceIdSpecified = true;
+                                }
+                                else
+                                    responseField.pieceIdSpecified = false;
+
+                                TaskFieldList.Add(responseField);
                             }
-                            else
-                                responseField.playerIdSpecified = false;
 
-                            //piece on the field
-                            Messages.Piece piece = (field as TaskField).GetPiece;
-                            if (piece != null)
+                            // discovered field is a GoalField - can contain players
+                            else if (field is GoalField)
                             {
-                                responseField.pieceId = piece.id;
-                                responseField.pieceIdSpecified = true;
+                                Messages.GoalField responseField = new Messages.GoalField(location.x, location.y, (field as GoalField).GetOwner)
+                                {
+                                    x = (uint)(location.x + dx),
+                                    y = (uint)(location.y + dy),
+                                    timestamp = DateTime.Now
+                                };
+
+                                if (field.HasAgent())
+                                {
+                                    responseField.playerId = field.Player.id;
+                                    responseField.playerIdSpecified = true;
+                                }
+                                else
+                                    responseField.playerIdSpecified = false;
+
+                                GoalFieldList.Add(responseField);
                             }
-                            else
-                                responseField.pieceIdSpecified = false;
-
-                            TaskFieldList.Add(responseField);
-                        }
-
-                        // discovered field is a GoalField - can contain players
-                        else if (field is GoalField)
-                        {
-                            Messages.GoalField responseField = new Messages.GoalField(location.x, location.y, (field as GoalField).GetOwner)
-                            {
-                                x = (uint)(location.x + dx),
-                                y = (uint)(location.y + dy),
-                                timestamp = DateTime.Now
-                            };
-
-                            if (field.HasAgent())
-                            {
-                                responseField.playerId = field.Player.id;
-                                responseField.playerIdSpecified = true;
-                            }
-                            else
-                                responseField.playerIdSpecified = false;
-
-                            GoalFieldList.Add(responseField);
                         }
                     }
                 }
+            }
+            finally
+            {
+                Monitor.Exit(lockObject);
+            }
             Thread.Sleep((int)GetCosts.DiscoverDelay);
             return new Data()
             {
-                gameFinished = isGameFinished(),
+                gameFinished = IsGameFinished,
                 playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
                 TaskFields = TaskFieldList.ToArray(),
                 GoalFields = GoalFieldList.ToArray()
@@ -745,7 +812,7 @@ namespace GameArea
             }
 
             return result;
-            
+
             //var team = agent.GetTeam;
             //if (ValidateFieldPosition((int)x, (int)y, team))
             //{
@@ -780,5 +847,22 @@ namespace GameArea
         }
 
         #endregion
+        private void PieceAdder_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            Monitor.Enter(lockObject);
+            try
+            {
+                if (state == GameMasterState.GameInprogress)
+                {
+                    PlaceNewPiece();
+                }
+            }
+            finally
+            {
+                Monitor.Exit(lockObject);
+            }
+        }
     }
+
+
 }

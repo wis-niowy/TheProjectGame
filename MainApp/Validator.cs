@@ -153,5 +153,12 @@ namespace MainApp
                 return ValidatorMessages.ACTION_COSTS_NULL;
             return "";
         }
+
+        public static string ValidateNumberNumberOfGoals(uint numberOfGoals)
+        {
+            if (numberOfGoals <= 0)
+                return ValidatorMessages.NUMBER_OF_GOALS_ZERO_OR_LESS;
+            return "";
+        }
     }
 }

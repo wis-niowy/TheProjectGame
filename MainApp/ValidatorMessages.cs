@@ -24,5 +24,8 @@ namespace MainApp
         public const string NULL_GOALFIELD_ARRAY = "Array is null";
         public const string NULL_GOALFIELD = "Goalfields array has null element";
         public const string ACTION_COSTS_NULL = "Action costs are null";
+        public const string NUMBER_OF_GOALS_ZERO_OR_LESS = "Number of goal is zero or less";
+        public const string NUMBER_OF_RED_GOALS_NOT_EQUAL_GOALS_NUMBER_PER_GAME = "Number of red goals is not equal to number of goals per game";
+        public const string NUMBER_OF_BLUE_GOALS_NOT_EQUAL_GOALS_NUMBER_PER_GAME = "Number of blue goals is not equal to number of goals per game";
     }
 }

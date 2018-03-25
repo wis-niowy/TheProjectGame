@@ -181,7 +181,6 @@ namespace Configuration {
                 new GoalField() { x = 2, y = 11, type = GoalFieldType.goal, team = TeamColour.red },
                 new GoalField() { x = 3, y = 10, type = GoalFieldType.goal, team = TeamColour.red },
                 new GoalField() { x = 4, y = 12, type = GoalFieldType.goal, team = TeamColour.red }
-
                 }
             };
         }
@@ -312,18 +311,6 @@ namespace Configuration {
             set
             {
                 this.numberOfPlayersPerTeamField = value;
-            }
-        }
-
-        public uint NumberOfGoalsPerGame
-        {
-            get
-            {
-                return this.numberOfGoalsPerGame;
-            }
-            set
-            {
-                this.numberOfGoalsPerGame = value;
             }
         }
 

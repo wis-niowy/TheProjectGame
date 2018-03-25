@@ -64,6 +64,20 @@ namespace GameArea
             }
         }
 
+        public List<GoalField> GoalFields(TeamColour team)
+        {
+            var goalFields = new List<GoalField>();
+            for (uint i = 0; i < BoardHeight; i++)
+            {
+                for (uint j = 0; j < BoardWidth; j++)
+                {
+                    if (fields[j, i] is GoalField && ((GoalField)fields[j, i]).GetOwner == team)
+                        goalFields.Add((GoalField)fields[j, i]);
+                }
+            }
+            return goalFields;
+        }
+
         public List<GoalField> GetBlueGoalAreaFields
         {
             get
@@ -117,11 +131,25 @@ namespace GameArea
             return (TaskField)fields[x, y];
         }
 
+        public TaskField GetTaskField(Location location)
+        {
+            if (location == null)
+                return null;
+            return GetTaskField(location.x,location.y);
+        }
+
         public GoalField GetGoalField(uint x, uint y)
         {
             if ((y >= GoalAreaHeight && y <GoalAreaHeight + TaskAreaHeight) || x >= BoardWidth)
                 return null;
             return (GoalField)fields[x, y];
+        }
+
+        public GoalField GetGoalField(Location location)
+        {
+            if (location == null)
+                return null;
+            return GetGoalField(location.x, location.y);
         }
 
         private Field[,] fields;
