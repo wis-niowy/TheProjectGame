@@ -60,7 +60,7 @@ namespace Player.Tests
             var settings = GameMasterSettings.GetDefaultGameMasterSettings();
             var gameMaster = new GameArea.GameMaster(settings);
             var agent = new Player.Agent(TeamColour.red, "testGUID-0000");
-            gameMaster.RegisterAgent(agent);
+            gameMaster.RegisterAgent(agent,agent.GUID, findFreeLocationAndPlacePlayer : false);
 
             var testResult = agent.TestPiece(gameMaster);
 
@@ -79,7 +79,7 @@ namespace Player.Tests
                 timestamp = DateTime.Now,
 
             });
-            gameMaster.RegisterAgent(agent);
+            gameMaster.RegisterAgent(agent,agent.GUID, findFreeLocationAndPlacePlayer : false);
             agent.SetPiece(new Piece(PieceType.unknown, 100)
             {
                 timestamp = DateTime.Now,
@@ -105,7 +105,7 @@ namespace Player.Tests
                 timestamp = DateTime.Now,
 
             });
-            gameMaster.RegisterAgent(agent);
+            gameMaster.RegisterAgent(agent,agent.GUID, findFreeLocationAndPlacePlayer : false);
             agent.SetPiece(new Piece(PieceType.unknown, 90)
             {
                 timestamp = DateTime.Now,
@@ -132,7 +132,7 @@ namespace Player.Tests
                 timestamp = DateTime.Now,
 
             });
-            gameMaster.RegisterAgent(agent);
+            gameMaster.RegisterAgent(agent,agent.GUID, findFreeLocationAndPlacePlayer : false);
             agent.SetPiece(new Piece(PieceType.unknown, 90)
             {
                 timestamp = DateTime.Now,
@@ -164,7 +164,7 @@ namespace Player.Tests
                 timestamp = DateTime.Now,
 
             });
-            gameMaster.RegisterAgent(agent);
+            gameMaster.RegisterAgent(agent,agent.GUID, findFreeLocationAndPlacePlayer : false);
             agent.SetPiece(new Piece(PieceType.unknown, 90)
             {
                 timestamp = DateTime.Now,
@@ -196,7 +196,7 @@ namespace Player.Tests
                 timestamp = DateTime.Now,
 
             });
-            gameMaster.RegisterAgent(agent);
+            gameMaster.RegisterAgent(agent,agent.GUID, findFreeLocationAndPlacePlayer : false);
             agent.SetPiece(new Piece(PieceType.unknown, 70)
             {
                 timestamp = DateTime.Now,
@@ -226,7 +226,7 @@ namespace Player.Tests
                 timestamp = DateTime.Now,
 
             });
-            gameMaster.RegisterAgent(agent);
+            gameMaster.RegisterAgent(agent,agent.GUID, findFreeLocationAndPlacePlayer : false);
             agent.SetPiece(new Piece(PieceType.unknown, 23)
             {
                 timestamp = DateTime.Now,
@@ -256,7 +256,7 @@ namespace Player.Tests
                 timestamp = DateTime.Now,
 
             });
-            gameMaster.RegisterAgent(agent,agent.GUID);
+            gameMaster.RegisterAgent(agent,agent.GUID, findFreeLocationAndPlacePlayer : false);
             agent.SetPiece(new Piece(PieceType.unknown, 23)
             {
                 timestamp = DateTime.Now,
@@ -287,7 +287,7 @@ namespace Player.Tests
 
             Assert.IsNotNull((gameMaster.GetBoard.GetField(2, 5) as GameArea.TaskField).GetPiece);
 
-            gameMaster.RegisterAgent(agent);
+            gameMaster.RegisterAgent(agent,agent.GUID, findFreeLocationAndPlacePlayer : false);
 
             // set an agent on a TaskField
             var setPositionResult = gameMaster.SetAbsoluteAgentLocation(2, 5, "testGUID-0008"); // we change a location of GM's copy
@@ -316,7 +316,7 @@ namespace Player.Tests
 
             Assert.IsNotNull((gameMaster.GetBoard.GetField(2, 5) as GameArea.TaskField).GetPiece);
 
-            gameMaster.RegisterAgent(agent);
+            gameMaster.RegisterAgent(agent,agent.GUID, findFreeLocationAndPlacePlayer : false);
 
             // set an agent on a TaskField
             var setPositionResult = gameMaster.SetAbsoluteAgentLocation(2, 5, "testGUID-0009"); // we change a location of GM's copy
@@ -338,7 +338,7 @@ namespace Player.Tests
             var agent = new Player.Agent(TeamColour.blue, "testGUID-0010");
             agent.SetLocation(2, 5);
 
-            gameMaster.RegisterAgent(agent);
+            gameMaster.RegisterAgent(agent,agent.GUID, findFreeLocationAndPlacePlayer : false);
 
             // set an agent on a TaskField
             var setPositionResult = gameMaster.SetAbsoluteAgentLocation(2, 5, "testGUID-0010"); // we change a location of GM's copy
@@ -361,7 +361,7 @@ namespace Player.Tests
         //    var gameMaster = new GameArea.GameMaster(conf);
         //    var agent = new Player.Agent(TeamColour.blue, "testGUID-0011");
 
-        //    gameMaster.RegisterAgent(agent);
+        //    gameMaster.RegisterAgent(agent,agent.GUID, findFreeLocationAndPlacePlayer : false);
 
         //    // set an agent on a TaskField
         //    var setPositionResult = gameMaster.SetAbsoluteAgentLocation(2, 11, "testGUID-0011"); // we change a location of GM's copy
@@ -381,7 +381,7 @@ namespace Player.Tests
         //    var gameMaster = new GameArea.GameMaster(conf);
         //    var agent = new Player.Agent(TeamColour.blue, "testGUID-0012");
 
-        //    gameMaster.RegisterAgent(agent);
+        //    gameMaster.RegisterAgent(agent,agent.GUID, findFreeLocationAndPlacePlayer : false);
 
         //    // set an agent on a TaskField
         //    var setPositionResult = gameMaster.SetAbsoluteAgentLocation(2, 12, "testGUID-0012"); // we change a location of GM's copy
@@ -400,7 +400,7 @@ namespace Player.Tests
             var agent = new Player.Agent(TeamColour.blue, "testGUID-0011");
             agent.SetLocation(2, 2);
 
-            gameMaster.RegisterAgent(agent,agent.GUID);
+            gameMaster.RegisterAgent(agent,agent.GUID, findFreeLocationAndPlacePlayer : false);
 
             // set an agent on a TaskField
             var setPositionResult = gameMaster.SetAbsoluteAgentLocation(2, 2, "testGUID-0011"); // we change a location of GM's copy
@@ -419,7 +419,7 @@ namespace Player.Tests
             var agent = new Player.Agent(TeamColour.blue, "testGUID-0012");
             agent.SetLocation(2, 1);
 
-            gameMaster.RegisterAgent(agent);
+            gameMaster.RegisterAgent(agent,agent.GUID, findFreeLocationAndPlacePlayer : false);
 
             // set an agent on a TaskField
             var setPositionResult = gameMaster.SetAbsoluteAgentLocation(2, 1, "testGUID-0012"); // we change a location of GM's copy
@@ -440,7 +440,7 @@ namespace Player.Tests
             var agent = new Player.Agent(TeamColour.blue, "testGUID-0013");
             agent.SetLocation(2, 4);
 
-            gameMaster.RegisterAgent(agent);
+            gameMaster.RegisterAgent(agent,agent.GUID, findFreeLocationAndPlacePlayer : false);
 
             // set an agent on a TaskField
             var setPositionResult = gameMaster.SetAbsoluteAgentLocation(2, 4, "testGUID-0013"); // we change a location of GM's copy
@@ -469,8 +469,8 @@ namespace Player.Tests
             agent.SetLocation(2, 4);
             strangerAgent.SetLocation(2, 5);
 
-            gameMaster.RegisterAgent(agent); // id = 1
-            gameMaster.RegisterAgent(strangerAgent); // id = 2
+            gameMaster.RegisterAgent(agent,agent.GUID, findFreeLocationAndPlacePlayer : false); // id = 1
+            gameMaster.RegisterAgent(strangerAgent,strangerAgent.GUID, findFreeLocationAndPlacePlayer : false); // id = 2
 
             // set agents on a TaskField
             var setPositionResult = gameMaster.SetAbsoluteAgentLocation(2, 4, "testGUID-0014");
@@ -503,7 +503,7 @@ namespace Player.Tests
             var agent = new Player.Agent(TeamColour.blue, "testGUID-0016");
             agent.SetLocation(2, 3);
 
-            gameMaster.RegisterAgent(agent);
+            gameMaster.RegisterAgent(agent,agent.GUID, findFreeLocationAndPlacePlayer : false);
 
             // set an agent on a TaskField
             var setPositionResult = gameMaster.SetAbsoluteAgentLocation(2, 3, "testGUID-0016"); // we change a location of GM's copy
@@ -531,8 +531,8 @@ namespace Player.Tests
             agent.SetLocation(2, 3);
             strangerAgent.SetLocation(2, 2);
 
-            gameMaster.RegisterAgent(agent); // id = 1
-            gameMaster.RegisterAgent(strangerAgent); // id = 2
+            gameMaster.RegisterAgent(agent,agent.GUID, findFreeLocationAndPlacePlayer : false); // id = 1
+            gameMaster.RegisterAgent(strangerAgent,strangerAgent.GUID, findFreeLocationAndPlacePlayer : false); // id = 2
 
             // set agents on a TaskField
             var setPositionResult = gameMaster.SetAbsoluteAgentLocation(2, 3, "testGUID-0017");
@@ -564,7 +564,7 @@ namespace Player.Tests
             var agent = new Player.Agent(TeamColour.blue, "testGUID-0019");
             agent.SetLocation(1, 9);
 
-            gameMaster.RegisterAgent(agent);
+            gameMaster.RegisterAgent(agent,agent.GUID, findFreeLocationAndPlacePlayer : false);
 
             // set an agent on a TaskField
             var setPositionResult = gameMaster.SetAbsoluteAgentLocation(1, 9, "testGUID-0019"); // we change a location of GM's copy
@@ -592,8 +592,8 @@ namespace Player.Tests
             agent.SetLocation(4, 7);
             agent2.SetLocation(0, 5);
 
-            gameMaster.RegisterAgent(agent); // id = 1
-            gameMaster.RegisterAgent(agent2); // id = 2
+            gameMaster.RegisterAgent(agent,agent.GUID, findFreeLocationAndPlacePlayer : false); // id = 1
+            gameMaster.RegisterAgent(agent2,agent2.GUID, findFreeLocationAndPlacePlayer : false); // id = 2
 
             // set agents on a TaskField
             var setPositionResult = gameMaster.SetAbsoluteAgentLocation(4, 7, "testGUID-0017");
@@ -626,7 +626,7 @@ namespace Player.Tests
             var agent = new Player.Agent(TeamColour.red, "testGUID-0020");
             agent.SetLocation(1, 10);
 
-            gameMaster.RegisterAgent(agent);
+            gameMaster.RegisterAgent(agent,agent.GUID, findFreeLocationAndPlacePlayer : false);
 
             // set an agent on a TaskField
             var setPositionResult = gameMaster.SetAbsoluteAgentLocation(1, 10, "testGUID-0020"); // we change a location of GM's copy
@@ -654,8 +654,8 @@ namespace Player.Tests
             agent.SetLocation(3, 10);
             strangerAgent.SetLocation(3, 9);
 
-            gameMaster.RegisterAgent(agent); // id = 1
-            gameMaster.RegisterAgent(strangerAgent); // id = 2
+            gameMaster.RegisterAgent(agent,agent.GUID, findFreeLocationAndPlacePlayer : false); // id = 1
+            gameMaster.RegisterAgent(strangerAgent,strangerAgent.GUID, findFreeLocationAndPlacePlayer : false); // id = 2
 
             // set agents on a TaskField
             var setPositionResult = gameMaster.SetAbsoluteAgentLocation(3, 10, "testGUID-0014");
@@ -688,7 +688,7 @@ namespace Player.Tests
             var agent = new Player.Agent(TeamColour.red, "testGUID-0016");
             agent.SetLocation(1, 12);
 
-            gameMaster.RegisterAgent(agent);
+            gameMaster.RegisterAgent(agent,agent.GUID, findFreeLocationAndPlacePlayer : false);
 
             // set an agent on a TaskField
             var setPositionResult = gameMaster.SetAbsoluteAgentLocation(1, 12, "testGUID-0016"); // we change a location of GM's copy
@@ -716,8 +716,8 @@ namespace Player.Tests
             agent.SetLocation(3, 11);
             strangerAgent.SetLocation(2, 11);
 
-            gameMaster.RegisterAgent(agent); // id = 1
-            gameMaster.RegisterAgent(strangerAgent); // id = 2
+            gameMaster.RegisterAgent(agent,agent.GUID, findFreeLocationAndPlacePlayer : false); // id = 1
+            gameMaster.RegisterAgent(strangerAgent,strangerAgent.GUID, findFreeLocationAndPlacePlayer : false); // id = 2
 
             // set agents on a TaskField
             var setPositionResult = gameMaster.SetAbsoluteAgentLocation(3, 11, "testGUID-0017");
@@ -751,8 +751,8 @@ namespace Player.Tests
             agent.SetLocation(4, 11);
             agent2.SetLocation(0, 1);
 
-            gameMaster.RegisterAgent(agent); // id = 1
-            gameMaster.RegisterAgent(agent2); // id = 2
+            gameMaster.RegisterAgent(agent,agent.GUID, findFreeLocationAndPlacePlayer : false); // id = 1
+            gameMaster.RegisterAgent(agent2,agent2.GUID, findFreeLocationAndPlacePlayer : false); // id = 2
 
             // set agents on a TaskField
             var setPositionResult = gameMaster.SetAbsoluteAgentLocation(4, 11, "testGUID-0017");
@@ -784,7 +784,7 @@ namespace Player.Tests
             var agent = new Player.Agent(TeamColour.blue, "testGUID-0020");
             agent.SetLocation(1, 5);
 
-            gameMaster.RegisterAgent(agent);
+            gameMaster.RegisterAgent(agent,agent.GUID, findFreeLocationAndPlacePlayer : false);
 
             // set an agent on a TaskField
             var setPositionResult = gameMaster.SetAbsoluteAgentLocation(1, 5, "testGUID-0020"); // we change a location of GM's copy
@@ -812,7 +812,7 @@ namespace Player.Tests
             var agent = new Player.Agent(TeamColour.blue, "testGUID-0021");
             agent.SetLocation(1, 6);
 
-            gameMaster.RegisterAgent(agent);
+            gameMaster.RegisterAgent(agent,agent.GUID, findFreeLocationAndPlacePlayer : false);
 
             // set an agent on a TaskField
             var setPositionResult = gameMaster.SetAbsoluteAgentLocation(1, 6, "testGUID-0021"); // we change a location of GM's copy
@@ -848,8 +848,8 @@ namespace Player.Tests
             agent1.SetLocation(1, 6);
             agent2.SetLocation(1, 5);
 
-            gameMaster.RegisterAgent(agent1);
-            gameMaster.RegisterAgent(agent2);
+            gameMaster.RegisterAgent(agent1,agent1.GUID, findFreeLocationAndPlacePlayer : false);
+            gameMaster.RegisterAgent(agent2,agent2.GUID, findFreeLocationAndPlacePlayer : false);
 
             // set an agent on a TaskField
             var setPositionResult1 = gameMaster.SetAbsoluteAgentLocation(1, 6, "testGUID-0022"); // we change a location of GM's copy
@@ -884,8 +884,8 @@ namespace Player.Tests
             agent1.SetLocation(1, 0);
             agent2.SetLocation(1, 1);
 
-            gameMaster.RegisterAgent(agent1);
-            gameMaster.RegisterAgent(agent2);
+            gameMaster.RegisterAgent(agent1,agent1.GUID, findFreeLocationAndPlacePlayer : false);
+            gameMaster.RegisterAgent(agent2,agent2.GUID, findFreeLocationAndPlacePlayer : false);
 
             // set an agent on a TaskField
             var setPositionResult1 = gameMaster.SetAbsoluteAgentLocation(1, 0, "testGUID-0024"); // we change a location of GM's copy
@@ -918,7 +918,7 @@ namespace Player.Tests
             var agent = new Player.Agent(TeamColour.blue, "testGUID-0026");
             agent.SetLocation(0, 3);
 
-            gameMaster.RegisterAgent(agent);
+            gameMaster.RegisterAgent(agent,agent.GUID, findFreeLocationAndPlacePlayer : false);
 
             // set an agent on a TaskField
             var setPositionResult = gameMaster.SetAbsoluteAgentLocation(0, 3, "testGUID-0026"); // we change a location of GM's copy
@@ -945,8 +945,8 @@ namespace Player.Tests
             agent1.SetLocation(0, 0);
             agent2.SetLocation(4, 9);
 
-            gameMaster.RegisterAgent(agent1);
-            gameMaster.RegisterAgent(agent2);
+            gameMaster.RegisterAgent(agent1,agent1.GUID, findFreeLocationAndPlacePlayer : false);
+            gameMaster.RegisterAgent(agent2,agent2.GUID, findFreeLocationAndPlacePlayer : false);
 
             // set an agent on a TaskField
             var setPositionResult1 = gameMaster.SetAbsoluteAgentLocation(0, 0, "testGUID-0027"); // we change a location of GM's copy

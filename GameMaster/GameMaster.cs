@@ -66,20 +66,29 @@ namespace GameArea
             return agents.Where(q => q.GUID == guid).FirstOrDefault();
         }
 
-        public void RegisterAgent(Player.Agent agent,string guid = null)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="agent"></param>
+        /// <param name="guid"></param>
+        /// <param name="findFreeLocationAndPlacePlayer">Ustaw na false aby Game Master nie przydzielal znalezionego przez siebie miejsca i nie ustawial gracza na pozycji</param>
+        public void RegisterAgent(Player.Agent agent,string guid = null, bool findFreeLocationAndPlacePlayer = true)
         {
             var newId = agents.Count > 0 ? agents.Max(q => q.ID) + 1 : 1;
             agent.ID = newId;
             agent.SetGuid(guid != null ? guid:"Agent" + newId);
             agent.SetBoard(new Board(GetGameDefinition.BoardWidth, GetGameDefinition.TaskAreaLength, GetGameDefinition.GoalAreaLength));
-            var playerField = GetEmptyFieldForPlayer(agent.GetTeam);
-            agent.SetLocation(playerField);
-            agents.Add(new Player.Agent(agent));
-            playerField.Player = new Messages.Agent()
+            if (findFreeLocationAndPlacePlayer)
             {
-                id = agent.ID,
-                team = agent.GetTeam
-            };
+                var playerField = GetEmptyFieldForPlayer(agent.GetTeam);
+                agent.SetLocation(playerField);
+                playerField.Player = new Messages.Agent()
+                {
+                    id = agent.ID,
+                    team = agent.GetTeam
+                };
+            }
+            agents.Add(new Player.Agent(agent));
             ConsoleWriter.Show("Registered agent with params: GUID: " + agent.GUID + ", ID: " + agent.ID + " , Location: " + agent.GetLocation + ", Team: " + agent.GetTeam);
 
             if (agents.Count == 2 * GetGameDefinition.NumberOfPlayersPerTeam)
@@ -708,6 +717,8 @@ namespace GameArea
         /// <returns></returns>
         public bool SetAbsoluteAgentLocation(uint x, uint y, string guid)
         {
+            var player = agents.Where(q => q.GUID == guid).First();
+
             var team = agents.Where(q => q.GUID == guid).First().GetTeam;
             if (ValidateFieldPosition((int)x, (int)y, team))
             {
@@ -717,6 +728,38 @@ namespace GameArea
                 return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// FOR UNIT TESTING - add player to the GM list and set player in a given board location
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="guid"></param>
+        /// <returns></returns>
+        public bool SetAbsoluteAgentLocation(uint x, uint y, Player.Agent agent)
+        {
+            bool result = false;
+            var player = agents.Where(q => q.GUID == agent.GUID).First(); // znajdujemy agenta na liscie agentow Game Mastera -- czy jest zarejestrowany
+
+            if (player != null)
+            {
+                result = SetAbsoluteAgentLocation(x, y, agent.GUID);
+            }
+
+            return result;
+            
+            //var team = agent.GetTeam;
+            //if (ValidateFieldPosition((int)x, (int)y, team))
+            //{
+            //    agent.SetLocation(x, y);
+            //    actualBoard.GetField(x, y).Player = agent.ConvertToMessageAgent();
+
+            //    // rzutowanie wymuszone lekkim balaganem: w fieldzie jest typ Message.Agent, na liscie Player.Agent - laczymy ich po ID w razie potrzeby
+            //    return true;
+            //}
+
+            //return false;
         }
 
         /// <summary>

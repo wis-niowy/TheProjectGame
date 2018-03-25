@@ -83,6 +83,7 @@ namespace Configuration {
             return new GameMasterSettings()
             {
                 retryRegisterGameIntervalField = ((uint)(5000)),
+                actionCostsField = new GameMasterSettingsActionCosts(),
                 gameDefinitionField = GameMasterSettingsGameDefinition.GetDefaultGameDefinition()
             };
         }
