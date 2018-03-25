@@ -46,7 +46,7 @@ namespace Player
         {
             get
             {
-                return agentBoard.GetGoalField(location.x, location.y) is GameArea.GoalField;
+                return agentBoard.GetField(location.x, location.y) is GameArea.GoalField;
             }
         }
 
@@ -54,7 +54,7 @@ namespace Player
         {
             get
             {
-                return agentBoard.GetGoalField(location.x, location.y) is GameArea.TaskField;
+                return agentBoard.GetField(location.x, location.y) is GameArea.TaskField;
             }
         }
 
@@ -275,7 +275,7 @@ namespace Player
         {
             MoveType closestDirection = MoveType.left;
             var minDistance = Left != null ? Left.Distance : int.MaxValue;
-            if (Down != null && minDistance > Right.Distance)
+            if (Right != null && minDistance > Right.Distance)
                 closestDirection = MoveType.right;
             return closestDirection;
         }
