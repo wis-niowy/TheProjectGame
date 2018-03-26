@@ -23,12 +23,40 @@ namespace Player
         {
             while (!HasPiece)
             {
+                if (gameFinished)
+                {
+                    gameFinished = true;
+                    break;
+                }
                 GoToNearestPiece(); //move to piece
-                TryPickPiece(); //possible that piece has gone
+                if (gameFinished)
+                {
+                    gameFinished = true;
+                    break;
+                }
+                if(OnPiece)
+                    TryPickPiece(); //possible that piece has gone
+                if (gameFinished)
+                {
+                    gameFinished = true;
+                    break;
+                }
                 if (HasPiece)
+                {
                     TryTestPiece();
+                }
+                if (gameFinished)
+                {
+                    if (gameFinished)
+                    {
+                        gameFinished = true;
+                        break;
+                    }
+                    gameFinished = true;
+                    break;
+                }
             }
-            
+
         }
 
         private void GoToNearestPiece() //makes moves until is not on piece
@@ -37,8 +65,12 @@ namespace Player
             {
                 GoToTaskArea();
             }
-            while (!OnPiece)
+            if(!OnPiece)
             {
+                if (gameFinished)
+                {
+                    return;
+                }
                 Discover(gameMaster);
                 MoveType direction = FindNearestPieceDirection();
                 MoveType secondDirection = direction;
@@ -47,8 +79,8 @@ namespace Player
                 {
                     TryMove(direction); //try again
                 }
-                else
-                    continue; //something is blocking action, repeat discovery and move
+                else 
+                    return; //something is blocking action, repeat discovery and move
                 MoveType possibleDirection = GetSecondClosestDirection(direction);
                 var possibleTask = GetTaskFromDirection(possibleDirection);
                 if (possibleTask != null && possibleTask.Distance < GetCurrentTaksField.Distance)
@@ -60,6 +92,7 @@ namespace Player
                 }
                 //end of loop, try move to piece again, until not on piece
             }
+
         }
 
         private bool TryPickPiece()
@@ -76,10 +109,33 @@ namespace Player
         {
             while(HasPiece)
             {
+                if (gameFinished)
+                {
+                    gameFinished = true;
+                    break;
+                }
                 GoToGoalArea();
-                GoToNotFullfilledGoal();
+                if (gameFinished)
+                {
+                    gameFinished = true;
+                    break;
+                }
+                if(InGoalArea)
+                    GoToNotFullfilledGoal();
+                if (gameFinished)
+                {
+                    gameFinished = true;
+                    break;
+                }
                 if (GetCurrentGoalField.GoalType == GoalFieldType.unknown)
+                {
+                    if (gameFinished)
+                    {
+                        gameFinished = true;
+                        break;
+                    }
                     TryPlacePiece();
+                }
             }
         }
 
@@ -88,14 +144,11 @@ namespace Player
             var currentGoal = GetCurrentGoalField;
             if (currentGoal.GoalType == GoalFieldType.unknown)
                 return;
-            while (currentGoal.GoalType != GoalFieldType.unknown)
+            MoveType direction = GetClosestUnknownGoalDirection();
+            var moved = TryMove(direction);
+            if (!moved)
             {
-                MoveType direction = GetClosestUnknownGoalDirection();
-                var moved = TryMove(direction);
-                if(!moved)
-                {
-                    TryMove(direction);
-                }
+                TryMove(direction);
             }
         }
 

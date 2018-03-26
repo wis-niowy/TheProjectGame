@@ -20,7 +20,8 @@ namespace Player
         {
             ConsoleWriter.Show("Agent: " + GUID + "tries to test piece with id: " + GetPiece.id + " on location " + location);
             Data responseMessage = gameMaster.HandleTestPieceRequest(this.GUID, this.GameId);
-
+            if (responseMessage.gameFinished)
+                gameFinished = true;
             ConsoleWriter.Show("Received response for TestPiece for agent: " + guid);
 
             return UpdateLocalBoard(responseMessage, ActionType.TestPiece);
@@ -35,7 +36,8 @@ namespace Player
         {
             // should we check if received location is the same as the actual one?
             Data responseMessage = gameMaster.HandlePlacePieceRequest(this.GUID, this.GameId);
-
+            if (responseMessage.gameFinished)
+                gameFinished = true;
             ConsoleWriter.Show("Received response for PlacePiece for agent: " + guid);
 
             var receivedLocation = responseMessage.PlayerLocation;
@@ -46,7 +48,8 @@ namespace Player
         public bool PickUpPiece(IGameMaster gameMaster)
         {
             Data responseMessage = gameMaster.HandlePickUpPieceRequest(this.GUID, this.GameId);
-
+            if (responseMessage.gameFinished)
+                gameFinished = true;
             ConsoleWriter.Show("Received response for PickUpPiece for agent: " + guid);
 
             return UpdateLocalBoard(responseMessage, ActionType.PickUpPiece);
@@ -54,8 +57,11 @@ namespace Player
 
         public bool Move(IGameMaster gameMaster, MoveType direction)
         {
-            Data responseMessage = gameMaster.HandleMoveRequest(direction, this.GUID, this.GameId);
+            ConsoleWriter.Show("Agent: " + guid + " send request for move from location: " + location + " in direction: " + direction);
 
+            Data responseMessage = gameMaster.HandleMoveRequest(direction, this.GUID, this.GameId);
+            if (responseMessage.gameFinished)
+                gameFinished = true;
             ConsoleWriter.Show("Received response for Move for agent: " + guid);
 
             //return MoveUpdate(responseMessage, direction); ---- dla tego sypia sie 3 testy - do sprawdzenia pozniej!
@@ -122,7 +128,8 @@ namespace Player
         public void Discover(IGameMaster gameMaster)
         {
             Data responseMessage = gameMaster.HandleDiscoverRequest(this.GUID, this.GameId);
-
+            if (responseMessage.gameFinished)
+                gameFinished = true;
             UpdateLocalBoard(responseMessage, ActionType.Discover);
 
             ConsoleWriter.Show("End of discovery for agent: " + guid);

@@ -19,6 +19,7 @@ namespace Player
 
     public partial class Agent
     {
+        private bool gameFinished;
         private IGameMaster gameMaster;
         private ulong id;
         public ulong ID

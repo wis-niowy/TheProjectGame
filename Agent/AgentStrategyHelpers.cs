@@ -75,18 +75,21 @@ namespace Player
 
         private void GoToTaskArea()
         {
-            while (InGoalArea)
+            if (gameFinished)
             {
-                switch (team)
-                {
-                    case TeamColour.red:
-                        TryMoveDown(true);
-                        break;
-                    case TeamColour.blue:
-                        TryMoveUp(true);
-                        break;
-                }
+                gameFinished = true;
+                return;
             }
+            switch (team)
+            {
+                case TeamColour.red:
+                    TryMoveDown(true);
+                    break;
+                case TeamColour.blue:
+                    TryMoveUp(true);
+                    break;
+            }
+
         }
 
         private void GoToGoalArea()
@@ -312,18 +315,18 @@ namespace Player
         }
         private int GetDistance(Location goalLocation)
         {
-            return (int)(Math.Abs(goalLocation.x - AgentLocation.x) + Math.Abs(goalLocation.y - AgentLocation.x));
+            return (int)(Math.Abs((int)goalLocation.x - (int)AgentLocation.x) + Math.Abs((int)goalLocation.y - (int)AgentLocation.y));
         }
 
         private MoveType GetDirectionToGoal(GameArea.GoalField goal)
         {
             MoveType direction = MoveType.left;
-            int xDiff = (int)(Math.Abs(goal.x - AgentLocation.x));
-            int yDiff = (int)(Math.Abs(goal.y - AgentLocation.y));
+            long xDiff = Math.Abs((int)goal.x - (int)AgentLocation.x);
+            long yDiff = Math.Abs((int)goal.y - (int)AgentLocation.y);
 
             if (xDiff < yDiff) //move in y axis
             {
-                if (goal.y - AgentLocation.y > 0)
+                if ((int)goal.y - (int)AgentLocation.y > 0)
                 {
                     direction = MoveType.up;
                 }
@@ -332,7 +335,7 @@ namespace Player
             }
             else
             {
-                if (goal.x - AgentLocation.x > 0)
+                if ((int)goal.x - (int)AgentLocation.x > 0)
                 {
                     direction = MoveType.right;
                 }
