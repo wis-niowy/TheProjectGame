@@ -10,10 +10,10 @@
     <ShamProbability>0.33</ShamProbability>
     <PlacingNewPiecesFrequency>200</PlacingNewPiecesFrequency>
     <InitialNumberOfPieces>10</InitialNumberOfPieces>
-    <BoardWidth>10</BoardWidth>
+    <BoardWidth>8</BoardWidth>
     <TaskAreaLength>10</TaskAreaLength>
     <GoalAreaLength>3</GoalAreaLength>
-    <NumberOfPlayersPerTeam>1</NumberOfPlayersPerTeam>
+    <NumberOfPlayersPerTeam>2</NumberOfPlayersPerTeam>
     <GameName>Endgame</GameName>
   </GameDefinition>
   <ActionCosts>

@@ -803,7 +803,7 @@ namespace Player.Tests
             Assert.AreEqual(agent.ID, gameMaster.GetBoard.GetField(1, 5).Player.id);
             Assert.IsNull((gameMaster.GetBoard.GetField(2, 5) as GameArea.TaskField).GetPiece);
             Assert.IsNull((agent.GetBoard.GetField(2, 5) as GameArea.TaskField).GetPiece);
-            Assert.AreEqual(1, (agent.GetBoard.GetField(2, 5) as GameArea.TaskField).Distance);
+            //Assert.AreEqual(1, (agent.GetBoard.GetField(2, 5) as GameArea.TaskField).Distance);
         }
 
         [TestMethod]
@@ -837,7 +837,7 @@ namespace Player.Tests
             Assert.AreEqual(98ul, (gameMaster.GetBoard.GetField(2, 6) as GameArea.TaskField).GetPiece.id);
             Assert.AreEqual(98ul, (agent.GetBoard.GetField(2, 6) as GameArea.TaskField).GetPiece.id);
             Assert.IsNull((gameMaster.GetBoard.GetField(1, 6) as GameArea.TaskField).GetPiece);
-            Assert.AreEqual(1, (agent.GetBoard.GetField(1, 5) as GameArea.TaskField).Distance);
+            //Assert.AreEqual(1, (agent.GetBoard.GetField(1, 5) as GameArea.TaskField).Distance);
         }
 
         [TestMethod]

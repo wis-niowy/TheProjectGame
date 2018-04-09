@@ -18,7 +18,7 @@ namespace Player
         /// <returns>True - request was valid; False - request was not valid</returns>
         public bool TestPiece(IGameMaster gameMaster)
         {
-            ConsoleWriter.Show("Agent: " + GUID + "tries to test piece with id: " + GetPiece.id + " on location " + location);
+            ConsoleWriter.Show("Agent: " + GUID + "tries to test piece with id: " + (GetPiece != null ? GetPiece.id.ToString() : "none") + " on location " + location);
             Data responseMessage = gameMaster.HandleTestPieceRequest(this.GUID, this.GameId);
             if (responseMessage.gameFinished)
                 gameFinished = true;
@@ -55,6 +55,7 @@ namespace Player
             return UpdateLocalBoard(responseMessage, ActionType.PickUpPiece);
         }
 
+        // TODO: refactor this method
         public bool Move(IGameMaster gameMaster, MoveType direction)
         {
             ConsoleWriter.Show("Agent: " + guid + " send request for move from location: " + location + " in direction: " + direction);
@@ -64,7 +65,7 @@ namespace Player
                 gameFinished = true;
             ConsoleWriter.Show("Received response for Move for agent: " + guid);
 
-            //return MoveUpdate(responseMessage, direction); ---- dla tego sypia sie 3 testy - do sprawdzenia pozniej!
+            //return MoveUpdate(responseMessage, direction);// ---- dla tego sypia sie 3 testy - do sprawdzenia pozniej!
 
             var futureLocation = CalculateFutureLocation(this.location, direction);
 
@@ -404,5 +405,7 @@ namespace Player
             }
             return newLocation;
         }
+
+
     }
 }
