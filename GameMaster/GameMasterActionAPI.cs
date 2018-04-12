@@ -21,15 +21,16 @@ namespace GameArea
         {
             Monitor.Enter(lockObject);
             Piece pieceDataToSend = null;
+            var agent = agents.Where(q => q.GUID == playerGuid).First();
             try
             {
-                if (agents.Where(q => q.GUID == playerGuid).First().GetPiece != null)
+                if (agent.GetPiece != null)
                 {
                     pieceDataToSend = new Piece()
                     {
-                        type = agents.Where(q => q.GUID == playerGuid).First().GetPiece.type,
-                        id = agents.Where(q => q.GUID == playerGuid).First().GetPiece.id,
-                        playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
+                        type = agent.GetPiece.type,
+                        id = agent.GetPiece.id,
+                        playerId = agent.ID,
                         timestamp = DateTime.Now
                     };
                 }
@@ -42,7 +43,7 @@ namespace GameArea
             return new Data()
             {
                 gameFinished = IsGameFinished,
-                playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
+                playerId = agent.ID,
                 Pieces = new Piece[] { pieceDataToSend }
             };
         }
@@ -89,16 +90,18 @@ namespace GameArea
         public Data HandlePlacePieceRequest(string playerGuid, ulong gameId)
         {
             var location = agents.Where(q => q.GUID == playerGuid).First().GetLocation;
+            var agent = agents.Where(q => q.GUID == playerGuid).First();
+            // basic information
             var response = new Data()
             {
-                playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
+                playerId = agent.ID,
             };
 
             Monitor.Enter(lockObject);
             try
             {
                 // player posseses a piece
-                if (agents.Where(q => q.GUID == playerGuid).First().GetPiece != null)
+                if (agent.GetPiece != null)
                 {
                     // player is on the TaskField
                     if (actualBoard.GetField(location.x, location.y) is GameArea.TaskField)
@@ -106,7 +109,7 @@ namespace GameArea
                         response.TaskFields = TryPlacePieceOnTaskField(location, playerGuid);
                     }
                     // player carries a sham piece and is on a GoalField - he receives no data about a current GoalField and cannot place a piece
-                    else if (actualBoard.GetField(location.x, location.y) is GameArea.GoalField && agents.Where(q => q.GUID == playerGuid).First().GetPiece.type == PieceType.sham)
+                    else if (actualBoard.GetField(location.x, location.y) is GameArea.GoalField && agent.GetPiece.type == PieceType.sham)
                     {
                         response.GoalFields = TryPlaceShamPieceOnGoalField(location, playerGuid);
                     }
@@ -138,25 +141,27 @@ namespace GameArea
         public Data HandlePickUpPieceRequest(string playerGuid, ulong gameId)
         {
             var location = agents.Where(a => a.GUID == playerGuid).First().GetLocation;
+            var agent = agents.Where(q => q.GUID == playerGuid).First();
             Piece[] pieces = new Piece[] { null };
 
             var response = new Data()
             {
-                playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
+                playerId = agent.ID,
                 Pieces = pieces
             };
 
             Monitor.Enter(lockObject);
             try
             {
+                var currentTaskField = actualBoard.GetField(location.x, location.y) as GameArea.TaskField;
                 // the TaskField contains a piece
-                if (actualBoard.GetField(location.x, location.y) is GameArea.TaskField && (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).GetPiece != null)
+                if (currentTaskField != null && currentTaskField.GetPiece != null)
                 {
                     Piece pieceDataToSend = new Piece()
                     {
                         type = PieceType.unknown,
-                        id = (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).GetPiece.id,
-                        playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
+                        id = currentTaskField.GetPiece.id,
+                        playerId = agent.ID,
                         timestamp = DateTime.Now
                     };
 
@@ -164,9 +169,9 @@ namespace GameArea
 
                     response.Pieces[0] = pieceDataToSend;
 
-                    var piece = (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).GetPiece;
-                    agents.Where(q => q.GUID == playerGuid).First().SetPiece(piece); // agent picks up a piece
-                    (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).SetPiece(null); // the piece is no longer on the field  
+                    var piece = currentTaskField.GetPiece;
+                    agent.SetPiece(piece); // agent picks up a piece
+                    currentTaskField.SetPiece(null); // the piece is no longer on the field  
                     UpdateDistancesFromAllPieces();
                 }
 
@@ -192,6 +197,7 @@ namespace GameArea
         {
             var currentLocation = agents.Where(a => a.GUID == playerGuid).First().GetLocation;
             var team = agents.Where(a => a.GUID == playerGuid).First().GetTeam;
+            var agent = agents.Where(q => q.GUID == playerGuid).First();
 
             // perform location delta and get future field
             var futureLocation = PerformLocationDelta(direction, currentLocation, team);
@@ -200,7 +206,7 @@ namespace GameArea
             //basic info for response
             Data response = new Data()
             {
-                playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
+                playerId = agent.ID,
                 TaskFields = new Messages.TaskField[] { },
                 GoalFields = null,
                 PlayerLocation = currentLocation

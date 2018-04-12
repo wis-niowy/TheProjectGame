@@ -19,22 +19,24 @@ namespace GameArea
         public Messages.TaskField[] TryPlacePieceOnTaskField(Location location, string playerGuid)
         {
             Messages.TaskField fieldMessage = null;
+            var currentTaskField = actualBoard.GetField(location.x, location.y) as GameArea.TaskField;
+            var agent = agents.Where(q => q.GUID == playerGuid).First();
 
             // if TaskField is not occupied
-            if ((actualBoard.GetField(location.x, location.y) as GameArea.TaskField).GetPiece == null)
+            if (currentTaskField.GetPiece == null)
             {
                 fieldMessage = new Messages.TaskField(location.x, location.y)
                 {
-                    playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
+                    playerId = agent.ID,
                     playerIdSpecified = true,
-                    pieceId = agents.Where(q => q.GUID == playerGuid).First().GetPiece.id,
+                    pieceId = agent.GetPiece.id,
                     pieceIdSpecified = true,
                     timestamp = DateTime.Now
                 };
 
-                var piece = agents.Where(q => q.GUID == playerGuid).First().GetPiece;
-                (actualBoard.GetField(location.x, location.y) as GameArea.TaskField).SetPiece(piece); // the piece is put on the field
-                agents.Where(q => q.GUID == playerGuid).First().SetPiece(null); // the piece is no longer possesed by an agent
+                var piece = agent.GetPiece;
+                currentTaskField.SetPiece(piece); // the piece is put on the field
+                agent.SetPiece(null); // the piece is no longer possesed by an agent
                 UpdateDistancesFromAllPieces();
             }
 
@@ -50,11 +52,12 @@ namespace GameArea
         public Messages.GoalField[] TryPlaceShamPieceOnGoalField(Location location, string playerGuid)
         {
             var teamColour = agents.Where(q => q.GUID == playerGuid).First().GetTeam;
+            var agent = agents.Where(q => q.GUID == playerGuid).First();
             var fieldMessage = new Messages.GoalField()
             {
                 x = location.x,
                 y = location.y,
-                playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
+                playerId = agent.ID,
                 playerIdSpecified = true,
                 timestamp = DateTime.Now,
                 team = teamColour
@@ -73,11 +76,12 @@ namespace GameArea
         {
             var teamColour = agents.Where(q => q.GUID == playerGuid).First().GetTeam;
             var goalFieldType = actualBoard.GetGoalField(location.x, location.y).GoalType;
+            var agent = agents.Where(q => q.GUID == playerGuid).First();
             var fieldMessage = new Messages.GoalField()
             {
                 x = location.x,
                 y = location.y,
-                playerId = agents.Where(q => q.GUID == playerGuid).First().ID,
+                playerId = agent.ID,
                 playerIdSpecified = true,
                 timestamp = DateTime.Now,
                 type = goalFieldType,
@@ -85,7 +89,8 @@ namespace GameArea
             };
 
             // if GoalField is of type 'goal' we update data and notify point score
-            if ((actualBoard.GetField(location.x, location.y) as GameArea.GoalField).GoalType == GoalFieldType.goal)
+            var currentGoalField = actualBoard.GetField(location.x, location.y) as GameArea.GoalField;
+            if (currentGoalField.GoalType == GoalFieldType.goal)
             {
                 var goal = actualBoard.GetField(location.x, location.y) as GameMasterGoalField;
                 if (goal != null && !goal.IsFullfilled && state != GameMasterState.GameOver)
@@ -103,7 +108,7 @@ namespace GameArea
                     {
                         state = GameMasterState.GameOver;
                     }
-                    agents.Where(q => q.GUID == playerGuid).First().SetPiece(null); // the piece is no longer possesed by an agent
+                    agent.SetPiece(null); // the piece is no longer possesed by an agent
                 }
 
             }
