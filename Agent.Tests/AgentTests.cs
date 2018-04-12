@@ -173,6 +173,8 @@ namespace Player.Tests
 
             // set an agent on a TaskField
             var setPositionResult = gameMaster.SetAbsoluteAgentLocation(1, 5, "testGUID-0004"); // we change a location of GM's copy
+            // assure there is no piece on the field
+            gameMaster.GetBoard.GetTaskField(1, 5).SetPiece(null);
 
             // action: agent places a piece
             var actionResult = agent.PlacePiece(gameMaster);

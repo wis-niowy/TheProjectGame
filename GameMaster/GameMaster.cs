@@ -26,6 +26,21 @@ namespace GameArea
         private GameMasterSettings gameSettings;
         private System.Timers.Timer pieceAdder;
 
+        public ulong GoalsRedLeft
+        {
+            get
+            {
+                return goalsRedLeft;
+            }
+        }
+        public ulong GoalsBlueLeft
+        {
+            get
+            {
+                return goalsBlueLeft;
+            }
+        }
+
         public bool IsGameFinished
         {
             get
