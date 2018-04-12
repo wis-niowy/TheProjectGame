@@ -18,11 +18,10 @@ namespace Player
         /// <returns>True - request was valid; False - request was not valid</returns>
         public bool TestPiece(IGameMaster gameMaster)
         {
-            ConsoleWriter.Show("Agent: " + GUID + "tries to test piece with id: " + (GetPiece != null ? GetPiece.id.ToString() : "none") + " on location " + location);
+            ConsoleWriter.Show(GUID + " tries to test piece: " + GetPiece.id + " on location: " + GetLocation);
             Data responseMessage = gameMaster.HandleTestPieceRequest(this.GUID, this.GameId);
             if (responseMessage.gameFinished)
                 gameFinished = true;
-            ConsoleWriter.Show("Received response for TestPiece for agent: " + guid);
 
             return UpdateLocalBoard(responseMessage, ActionType.TestPiece);
         }
@@ -34,11 +33,11 @@ namespace Player
         /// <returns></returns>
         public bool PlacePiece(IGameMaster gameMaster)
         {
+            ConsoleWriter.Show(guid + " places piece: " + piece.id + " of type: " + piece.type + " on location: " + GetLocation);
             // should we check if received location is the same as the actual one?
             Data responseMessage = gameMaster.HandlePlacePieceRequest(this.GUID, this.GameId);
             if (responseMessage.gameFinished)
                 gameFinished = true;
-            ConsoleWriter.Show("Received response for PlacePiece for agent: " + guid);
 
             var receivedLocation = responseMessage.PlayerLocation;
 
@@ -47,25 +46,23 @@ namespace Player
 
         public bool PickUpPiece(IGameMaster gameMaster)
         {
+            ConsoleWriter.Show(guid + " picks up piece on location: " + GetLocation);
             Data responseMessage = gameMaster.HandlePickUpPieceRequest(this.GUID, this.GameId);
             if (responseMessage.gameFinished)
                 gameFinished = true;
-            ConsoleWriter.Show("Received response for PickUpPiece for agent: " + guid);
 
             return UpdateLocalBoard(responseMessage, ActionType.PickUpPiece);
         }
 
-        // TODO: refactor this method
         public bool Move(IGameMaster gameMaster, MoveType direction)
         {
-            ConsoleWriter.Show("Agent: " + guid + " send request for move from location: " + location + " in direction: " + direction);
+            ConsoleWriter.Show(guid + " wants to move from: " + GetLocation + " in direction: " + direction);
 
             Data responseMessage = gameMaster.HandleMoveRequest(direction, this.GUID, this.GameId);
             if (responseMessage.gameFinished)
                 gameFinished = true;
-            ConsoleWriter.Show("Received response for Move for agent: " + guid);
 
-            //return MoveUpdate(responseMessage, direction);// ---- dla tego sypia sie 3 testy - do sprawdzenia pozniej!
+            //return MoveUpdate(responseMessage, direction); ---- dla tego sypia sie 3 testy - do sprawdzenia pozniej!
 
             var futureLocation = CalculateFutureLocation(this.location, direction);
 
@@ -128,12 +125,20 @@ namespace Player
 
         public void Discover(IGameMaster gameMaster)
         {
+            ConsoleWriter.Show(guid + " discovers on location: " + GetLocation);
             Data responseMessage = gameMaster.HandleDiscoverRequest(this.GUID, this.GameId);
             if (responseMessage.gameFinished)
                 gameFinished = true;
             UpdateLocalBoard(responseMessage, ActionType.Discover);
+        }
 
-            ConsoleWriter.Show("End of discovery for agent: " + guid);
+        public bool Destroy(IGameMaster gameMaster)
+        {
+            ConsoleWriter.Show(guid + " tries to destroy piece: " + piece.id + " which is: " + piece.type + "on location: " + GetLocation);
+            Data responseMessage = gameMaster.HandleDestroyPieceRequest(GUID, GameId);
+            if (responseMessage.gameFinished)
+                gameFinished = true;
+            return UpdateLocalBoard(responseMessage, ActionType.Destroy);
         }
         
         // additional methods
@@ -164,12 +169,26 @@ namespace Player
                     case ActionType.Discover:
                         DiscoverUpdate(responseMessage);
                         break;
+                    case ActionType.Destroy:
+                        result = DestroyUpdate(responseMessage);
+                        break;
                 }
             }
 
-            ConsoleWriter.Show("Updated state for agent: " + guid);
+            ConsoleWriter.Show("Updated state by: " + guid + " from action: " + action);
 
             return result;
+        }
+
+        private bool DestroyUpdate(Data responseMessage)
+        {
+            var resultValue = false;
+
+            var piecesArray = responseMessage.Pieces;
+            if (piecesArray != null && piecesArray.Length > 0 && piecesArray[0] == null && HasPiece)
+                resultValue =  true; //poprawna akcja, miał piece, usunął
+            piece = null;
+            return resultValue; //akcja bez sensu - nie miał piece
         }
 
         private bool TestPieceUpdate(Data responseMessage)
@@ -205,7 +224,6 @@ namespace Player
             if (taskFieldsArray != null && taskFieldsArray.Length > 0 && taskFieldsArray[0] != null) // agent kladzie kawalek na wolne pole
                                                                                                      // jezeli taskFieldsArray[0] == null to probowano polozyc na zajetym TaskField
             {
-                ConsoleWriter.Error("Placed piece when location: " + location + " by Agent with GUID: " + guid);
                 var receivedField = taskFieldsArray[0];
                 var field = this.agentBoard.GetTaskField(location.x, location.y);
                 field.SetPiece(this.GetPiece); // odkladamy kawalek
@@ -248,12 +266,15 @@ namespace Player
 
             if (piecesArray != null && piecesArray.Length > 0 && piecesArray[0] != null)
             {
-                ConsoleWriter.Warning("Received piece from location: " + location + " to Agent with GUID: " + guid);
                 var receivedPiece = piecesArray[0];
                 this.SetPiece(receivedPiece);
                 this.GetPiece.timestamp = DateTime.Now;
                 agentBoard.GetTaskField(location.x, location.y).SetPiece(null);
                 resultValue = true;
+            }
+            else
+            {
+                ConsoleWriter.Warning(guid + " has not picked a piece on location:" + location);
             }
 
             return resultValue;
@@ -405,7 +426,5 @@ namespace Player
             }
             return newLocation;
         }
-
-
     }
 }

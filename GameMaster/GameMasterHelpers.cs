@@ -39,7 +39,6 @@ namespace GameArea
                 agent.SetPiece(null); // the piece is no longer possesed by an agent
                 UpdateDistancesFromAllPieces();
             }
-
             return new Messages.TaskField[] { fieldMessage }; // fieldMessage is null if TaskField is occupied
         }
 
@@ -107,6 +106,7 @@ namespace GameArea
                     if (goalsBlueLeft == 0 || goalsRedLeft == 0)
                     {
                         state = GameMasterState.GameOver;
+                        PrintEndGameState();
                     }
                     agent.SetPiece(null); // the piece is no longer possesed by an agent
                 }
@@ -114,6 +114,39 @@ namespace GameArea
             }
 
             return new Messages.GoalField[] { fieldMessage };
+        }
+
+        private void PrintEndGameState()
+        {
+            var winner = GoalsBlueLeft == 0 ? TeamColour.blue : TeamColour.red;
+            var opponent = GoalsBlueLeft == 0 ? TeamColour.red : TeamColour.blue;
+            var opponentScore = winner == TeamColour.blue ? goalsRedLeft : goalsBlueLeft;
+            ConsoleWriter.Show("\n\n\n************************\n THE WINNERS IS: " + winner + "\n THE NOOBS ARE: " + opponent + "\n WITH GOALS LEFT: " + opponentScore + "\n \n \n END OF GAME: " + GetGameDefinition.GameName + " \n \n*****************");
+        }
+
+        public void PrintBoardState()
+        {
+            StringBuilder boardPrint = new StringBuilder("\n BOARD STATE: \n");
+            for (int y = (int)GetBoard.BoardHeight - 1; y >= 0; y--)
+            {
+                boardPrint.Append("["+y);
+                if (y < 10)
+                    boardPrint.Append(" ");
+                boardPrint.Append("] ");
+                for (int x = 0; x < (int)GetBoard.BoardWidth; x++)
+                {
+                    var field = GetBoard.GetField((uint)x, (uint)y);
+                    boardPrint.Append(field.ToString());
+                }
+                boardPrint.AppendLine();
+            }
+            for (int x = 0; x < (int)GetBoard.BoardWidth; x++)
+            {
+                if(x==0)
+                    boardPrint.Append("     ");
+                boardPrint.Append("[ " + x +" ]");
+            }
+                ConsoleWriter.Show(boardPrint.ToString());
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
-﻿using Messages;
+﻿using GameArea;
+using Messages;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,62 +10,32 @@ namespace Player
     {
         public void DoStrategy()
         {
-            if (!HasPiece)
+            if (!HasValidPiece)
             {
                 FindAndPickPiece();
             }
-            if(HasPiece)
+            if(HasValidPiece)
             {
                 FullfillGoal();
             }
         }
 
-        private void FindAndPickPiece()
+        public void FindAndPickPiece()
         {
-            while (!HasPiece)
-            {
-                if (gameFinished)
-                {
-                    gameFinished = true;
-                    break;
-                }
+            if(!OnPiece && !HasPiece)
                 GoToNearestPiece(); //move to piece
-                if (gameFinished)
-                {
-                    gameFinished = true;
-                    break;
-                }
-                if(OnPiece)
-                    TryPickPiece(); //possible that piece has gone
-                if (gameFinished)
-                {
-                    gameFinished = true;
-                    break;
-                }
-                if (HasPiece)
-                {
-                    TryTestPiece();
-                }
-                if (gameFinished)
-                {
-                    if (gameFinished)
-                    {
-                        gameFinished = true;
-                        break;
-                    }
-                    gameFinished = true;
-                    break;
-                }
-            }
-
+            else if (OnPiece && !HasPiece)
+                TryPickPiece(); //possible that piece has gone
+            else if(HasUnknownPiece)
+                TryTestPiece(); //test if valid
+            else if(HasShamPiece)
+                DestroyPiece();
         }
 
-        private void GoToNearestPiece() //makes moves until is not on piece
+        public void GoToNearestPiece() //makes moves until is not on piece
         {
             if (InGoalArea)
-            {
-                GoToTaskArea();
-            }
+                GoToTaskArea(team);
             if(!OnPiece)
             {
                 if (gameFinished)
@@ -72,6 +43,8 @@ namespace Player
                     return;
                 }
                 Discover(gameMaster);
+                if (OnPiece)
+                    return;
                 MoveType direction = FindNearestPieceDirection();
                 MoveType secondDirection = direction;
                 var moved = TryMove(direction);
@@ -92,54 +65,34 @@ namespace Player
                 }
                 //end of loop, try move to piece again, until not on piece
             }
-
         }
 
-        private bool TryPickPiece()
+        public bool TryPickPiece()
         {
             return PickUpPiece(gameMaster);
         }
 
-        private bool TryTestPiece()
+        public bool TryTestPiece()
         {
             return TestPiece(gameMaster);
         }
 
-        private void FullfillGoal()
+        public bool DestroyPiece()
         {
-            while(HasPiece)
-            {
-                if (gameFinished)
-                {
-                    gameFinished = true;
-                    break;
-                }
-                GoToGoalArea();
-                if (gameFinished)
-                {
-                    gameFinished = true;
-                    break;
-                }
-                if(InGoalArea)
-                    GoToNotFullfilledGoal();
-                if (gameFinished)
-                {
-                    gameFinished = true;
-                    break;
-                }
-                if (GetCurrentGoalField.GoalType == GoalFieldType.unknown)
-                {
-                    if (gameFinished)
-                    {
-                        gameFinished = true;
-                        break;
-                    }
-                    TryPlacePiece();
-                }
-            }
+            return Destroy(gameMaster);
         }
 
-        private void GoToNotFullfilledGoal()
+        public void FullfillGoal()
+        {
+            if (InTaskArea)
+                GoToGoalArea(team);
+            else if(InGoalArea && GetCurrentGoalField.GoalType != GoalFieldType.unknown)
+                GoToNotFullfilledGoal();
+            else if(InGoalArea && GetCurrentGoalField.GoalType == GoalFieldType.unknown)
+                TryPlacePiece();
+        }
+
+        public void GoToNotFullfilledGoal()
         {
             var currentGoal = GetCurrentGoalField;
             if (currentGoal.GoalType == GoalFieldType.unknown)
@@ -152,7 +105,7 @@ namespace Player
             }
         }
 
-        private bool TryPlacePiece()
+        public bool TryPlacePiece()
         {
             var goalFullfilled = PlacePiece(gameMaster);
             if(!goalFullfilled) //found non-goal field in goalarea

@@ -39,6 +39,7 @@ namespace GameArea
             {
                 Monitor.Exit(lockObject);
             }
+            PrintBoardState();
             Thread.Sleep((int)GetCosts.TestDelay);
             return new Data()
             {
@@ -71,6 +72,7 @@ namespace GameArea
             {
                 Monitor.Exit(lockObject);
             }
+            PrintBoardState();
             Thread.Sleep((int)GetCosts.TestDelay);
             return new Data()
             {
@@ -127,6 +129,7 @@ namespace GameArea
             {
                 Monitor.Exit(lockObject);
             }
+            PrintBoardState();
             Thread.Sleep((int)GetCosts.PlacingDelay);
             return response;
 
@@ -165,8 +168,6 @@ namespace GameArea
                         timestamp = DateTime.Now
                     };
 
-                    ConsoleWriter.Warning("Send piece from location: " + location + " to Agent with GUID: " + playerGuid);
-
                     response.Pieces[0] = pieceDataToSend;
 
                     var piece = currentTaskField.GetPiece;
@@ -182,6 +183,7 @@ namespace GameArea
             {
                 Monitor.Exit(lockObject);
             }
+            PrintBoardState();
             Thread.Sleep((int)GetCosts.PickUpDelay);
             return response;
         }
@@ -251,6 +253,7 @@ namespace GameArea
             {
                 Monitor.Exit(lockObject);
             }
+            PrintBoardState();
             Thread.Sleep((int)GetCosts.MoveDelay);
             return response;
 
@@ -264,7 +267,6 @@ namespace GameArea
         /// <returns></returns>
         public Data HandleDiscoverRequest(string playerGuid, ulong gameId)
         {
-            ConsoleWriter.Show("Handling Discover Request for agent: " + playerGuid);
             var location = agents.Where(a => a.GUID == playerGuid).First().GetLocation;
             var team = agents.Where(q => q.GUID == playerGuid).First().GetTeam;
             List<Messages.TaskField> TaskFieldList = new List<Messages.TaskField>();
@@ -300,6 +302,7 @@ namespace GameArea
             {
                 Monitor.Exit(lockObject);
             }
+            PrintBoardState();
             Thread.Sleep((int)GetCosts.DiscoverDelay);
             return new Data()
             {

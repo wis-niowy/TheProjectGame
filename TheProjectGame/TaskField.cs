@@ -76,5 +76,35 @@ namespace GameArea
             };
         }
 
+        public override string ToString()
+        {
+            StringBuilder value = new StringBuilder();
+            if (Player != null)
+            {
+                value.Append(Player.team == TeamColour.red ? "[R" : "[B");
+            }
+            else
+                value.Append("[ ");
+            if (piece != null)
+            {
+                switch (piece.type)
+                {
+                    case PieceType.normal:
+                        value.Append("NP");
+                        break;
+                    case PieceType.sham:
+                        value.Append("SP");
+                        break;
+                    case PieceType.unknown:
+                        value.Append("UP");
+                        break;
+                }
+            }
+            else
+                value.Append("  ");
+            value.Append("]");
+            return value.ToString();
+        }
+
     }
 }

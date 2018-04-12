@@ -73,146 +73,115 @@ namespace Player
         }
 
 
-        private void GoToTaskArea()
+        public void GoToTaskArea(TeamColour color)
         {
-            if (gameFinished)
-            {
-                gameFinished = true;
-                return;
-            }
-            switch (team)
+            if (!InTaskArea)
+                switch (color)
             {
                 case TeamColour.red:
-                    TryMoveDown(true);
+                    TryMove(MoveType.down,true);
                     break;
                 case TeamColour.blue:
-                    TryMoveUp(true);
+                    TryMove(MoveType.up,true);
                     break;
             }
 
         }
 
-        private void GoToGoalArea()
+        public void GoToGoalArea(TeamColour color)
         {
-            while (InTaskArea)
+            if (!InGoalArea)
             {
-                switch (team)
+                switch (color)
                 {
                     case TeamColour.red:
-                        TryMoveUp(true);
+                        TryMove(MoveType.up, true);
                         break;
                     case TeamColour.blue:
-                        TryMoveDown(true);
+                        TryMove(MoveType.down, true);
                         break;
                 }
             }
         }
 
-        private bool TryMove(MoveType direction, bool untilSucces = false)
+        public bool TryMove(MoveType direction, bool untilSucces = false)
+        {
+            if (untilSucces) //try to move until succes; if can't move - go Alternative1 or Alternative2 and then try move 3 times, if fail then go back and return
+            {
+                bool moved = Move(gameMaster, direction);
+                for (int i = 0; i < 3 && !moved; i++)
+                {
+                    
+                    if (!Move(gameMaster, Alternative1(direction)))
+                        Move(gameMaster, Alternative2(direction));
+                    moved = Move(gameMaster, direction);
+                }
+                if (!moved)
+                    Move(gameMaster, OppositeDirection(direction));
+                return moved;
+            }
+            else //only try, if not possible - don't try to force move
+            {
+                return Move(gameMaster, direction);
+            }
+        }
+
+        public MoveType OppositeDirection(MoveType direction)
+        {
+            switch (direction)
+            {
+                case MoveType.up: return MoveType.down;
+                case MoveType.down: return MoveType.up;
+
+                case MoveType.left: return MoveType.right;
+                case MoveType.right: 
+                default: return MoveType.left;
+            }
+        }
+
+        public MoveType Alternative1(MoveType direction)
+        {
+            switch (direction)
+            {
+                case MoveType.up:
+                case MoveType.down: return MoveType.left;
+
+                case MoveType.left:
+                case MoveType.right:
+                default: return MoveType.up;
+            }
+        }
+
+        public MoveType Alternative2(MoveType direction)
         {
             switch(direction)
             {
-                case MoveType.left:
-                    return TryMoveLeft(untilSucces);
-                case MoveType.right:
-                    return TryMoveRight(untilSucces);
                 case MoveType.up:
-                    return TryMoveUp(untilSucces);
-                case MoveType.down:
-                    return TryMoveDown(untilSucces);
-            }
-            return false;
-        }
+                case MoveType.down: return MoveType.right;
 
-        private bool TryMoveDown(bool untilSucces = false)
-        {
-            if (untilSucces) //try to move down until succes; if can't move - go left or right and then try down
-            {
-                while (!Move(gameMaster, MoveType.down))
-                {
-
-                    if (!Move(gameMaster, MoveType.left))
-                        Move(gameMaster, MoveType.right);
-                }
-                return true;
-            }
-            else //only try, if not possible - don't try to force move
-            {
-                return Move(gameMaster, MoveType.down);
+                case MoveType.left:
+                case MoveType.right:
+                default: return MoveType.down;
             }
         }
 
-        private bool TryMoveUp(bool untilSucces = false)
-        {
-            if (untilSucces) //try to move up until succes; if can't move - go left or right and then try up
-            {
-                while (!Move(gameMaster, MoveType.up))
-                {
-
-                    if (!Move(gameMaster, MoveType.left))
-                        Move(gameMaster, MoveType.right);
-                }
-                return true;
-            }
-            else //only try, if not possible - don't try to force move
-            {
-                return Move(gameMaster, MoveType.up);
-            }
-        }
-
-        private bool TryMoveLeft(bool untilSucces = false)
-        {
-            if (untilSucces) //try to move left until succes; if can't move - go up or down and then try left
-            {
-                while (!Move(gameMaster, MoveType.left))
-                {
-
-                    if (!Move(gameMaster, MoveType.up))
-                        Move(gameMaster, MoveType.down);
-                }
-                return true;
-            }
-            else //only try, if not possible - don't try to force move
-            {
-                return Move(gameMaster, MoveType.left);
-            }
-        }
-
-        private bool TryMoveRight(bool untilSucces = false)
-        {
-            if (untilSucces) //try to move right until succes; if can't move - go up or down and then try right
-            {
-                while (!Move(gameMaster, MoveType.right))
-                {
-
-                    if (!Move(gameMaster, MoveType.up))
-                        Move(gameMaster, MoveType.down);
-                }
-                return true;
-            }
-            else //only try, if not possible - don't try to force move
-            {
-                return Move(gameMaster, MoveType.right);
-            }
-        }
-
-        private MoveType FindNearestPieceDirection()
+        public MoveType FindNearestPieceDirection()
         {
             var directionInfo = GetTaskDirectionInfo();
             return directionInfo.GetClosestDirection();
         }
-        private MoveType FindNearestPieceUpDownDirection()
+        public MoveType FindNearestPieceUpDownDirection()
         {
             var directionInfo = GetTaskDirectionInfo();
             return directionInfo.GetClosesUpDownDirection();
         }
-        private MoveType FindNearestPieceLeftRightDirection()
+        public MoveType FindNearestPieceLeftRightDirection()
         {
             var directionInfo = GetTaskDirectionInfo();
             return directionInfo.GetClosesLeftRightDirection();
         }
 
-        private TaskDirectionInfo GetTaskDirectionInfo()
+        public TaskDirectionInfo GetTaskDirectionInfo()
         {
             return new TaskDirectionInfo(GetTaskFromDirection(MoveType.left),
                                                   GetTaskFromDirection(MoveType.right),
@@ -220,7 +189,7 @@ namespace Player
                                                   GetTaskFromDirection(MoveType.down));
         }
 
-        private MoveType GetSecondClosestDirection(MoveType firstMove)
+        public MoveType GetSecondClosestDirection(MoveType firstMove)
         {
             if (firstMove == MoveType.down || firstMove == MoveType.up)
                 return FindNearestPieceLeftRightDirection();
@@ -228,7 +197,7 @@ namespace Player
                 return FindNearestPieceUpDownDirection();
         }
 
-        private MoveType GetClosestUnknownGoalDirection()
+        public MoveType GetClosestUnknownGoalDirection()
         {
             return (new GoalDirectionInfo(agentBoard.GoalFields(team),team,location).GetClosestDirection());
         }

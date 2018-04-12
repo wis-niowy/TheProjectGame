@@ -117,7 +117,10 @@ namespace GameArea
             ConsoleWriter.Show("Registered agent with params: GUID: " + agent.GUID + ", ID: " + agent.ID + " , Location: " + agent.GetLocation + ", Team: " + agent.GetTeam);
 
             if (agents.Count == 2 * GetGameDefinition.NumberOfPlayersPerTeam)
+            {
                 state = GameMasterState.GameInprogress;
+                PrintBoardState();
+            }
         }
 
         public Board GetBoard

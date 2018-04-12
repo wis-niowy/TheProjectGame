@@ -3,17 +3,17 @@
                     KeepAliveInterval="500"
                     RetryRegisterGameInterval="60000">
   <GameDefinition>
-    <Goals team="red" x="4" y ="15" type="goal" />
+    <Goals team="red" x="1" y ="5" type="goal" />
 
 
-    <Goals team="blue" x="6" y="1" type="goal" />
-    <ShamProbability>0.33</ShamProbability>
+    <Goals team="blue" x="1" y="1" type="goal" />
+    <ShamProbability>0.99</ShamProbability>
     <PlacingNewPiecesFrequency>200</PlacingNewPiecesFrequency>
-    <InitialNumberOfPieces>10</InitialNumberOfPieces>
-    <BoardWidth>8</BoardWidth>
-    <TaskAreaLength>10</TaskAreaLength>
-    <GoalAreaLength>3</GoalAreaLength>
-    <NumberOfPlayersPerTeam>2</NumberOfPlayersPerTeam>
+    <InitialNumberOfPieces>2</InitialNumberOfPieces>
+    <BoardWidth>3</BoardWidth>
+    <TaskAreaLength>2</TaskAreaLength>
+    <GoalAreaLength>2</GoalAreaLength>
+    <NumberOfPlayersPerTeam>1</NumberOfPlayersPerTeam>
     <GameName>Endgame</GameName>
   </GameDefinition>
   <ActionCosts>

@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Configuration\Configuration.csproj" />
     <ProjectReference Include="..\GameMaster\GameMaster.csproj" />
+    <ProjectReference Include="..\TheProjectGame\GameArea.csproj" />
   </ItemGroup>
 
 </Project>

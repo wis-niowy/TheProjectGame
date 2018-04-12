@@ -11,12 +11,14 @@ namespace MainApp
     public class GameController
     {
         public GameMaster GM { get; set; }
-        public List<Agent> Agents { get; set; }
+        public List<IAgent> Agents { get; set; }
+        private bool TestMode;
 
-        public GameController(GameMasterSettings settings)
+        public GameController(GameMasterSettings settings,bool testing = false)
         {
             GM = new GameMaster(settings);
-            Agents = new List<Agent>();
+            Agents = new List<IAgent>();
+            TestMode = testing;
         }
 
         public void RegisterAgents()
@@ -49,12 +51,21 @@ namespace MainApp
                     if (task == null)
                     {
                         tasks[i] = Task<string>.Run(() => agent.DoStrategy());
+                        while (TestMode && !tasks[i].IsCompleted)
+                        {
+                            //waiting for task to do its job
+                        }
+                            
                         actionsCount--;
                     }
                     else if (task.IsCompleted)
                     {
                         task.Dispose();
                         tasks[i] = Task<string>.Run(() => agent.DoStrategy());
+                        while (TestMode && !tasks[i].IsCompleted)
+                        {
+                            //waiting for task to do its job
+                        }
                         actionsCount--;
                     }
                     else

@@ -12,5 +12,6 @@ namespace GameArea
         Data HandlePickUpPieceRequest(string playerGuid, ulong gameId);
         Data HandleMoveRequest(MoveType direction, string playerGuid, ulong gameId);
         Data HandleDiscoverRequest(string playerId, ulong gameGuid);
+        Data HandleDestroyPieceRequest(string playerId, ulong gameGuid);
     }
 }

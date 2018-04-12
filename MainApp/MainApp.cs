@@ -12,25 +12,30 @@ namespace MainApp
 {
     public class MainApp
     {
-        
         public static void Main(string[] args)
         {
+            GameMasterSettings settings;
             ConsoleWriter.Show(Constants.MAIN_APP_START);
             if (args.Length == 0)
             {
                 ConsoleWriter.Warning(Constants.NO_FILE_SPECIFIED);
+                ConsoleWriter.Show("Loading default settings.");
+                settings = LoadSettingsFromFile("Championship.xml");
             }
-            var settings = LoadSettingsFromFile("Championship.xml");
+            else
+            {
+                ConsoleWriter.Show("Loading specified settings in file: " + args[0]);
+                settings = LoadSettingsFromFile(args[0]);
+            }
             if (settings != null)
             {
                 ConsoleWriter.Show(Constants.SETTINGS_LOADED_SUCCES);
-                DoGame(settings);
+                DoGame(settings,true);
             }
             else
             {
                 ConsoleWriter.Show(Constants.SETTINGS_LOADED_FAIL);
             }
-
 
             ConsoleWriter.Show(Constants.MAIN_APP_CLOSE);
         }
@@ -66,9 +71,9 @@ namespace MainApp
             return settings;
         }
 
-        public static void DoGame(GameMasterSettings settings)
+        public static void DoGame(GameMasterSettings settings,bool  testing = false)
         {
-            var GameController = new GameController(settings);
+            var GameController = new GameController(settings, testing);
             GameController.RegisterAgents();
             GameController.HandleGame();
         }

@@ -61,5 +61,30 @@ namespace GameArea
                 type = this.GoalType,
             };
         }
+
+        public override string ToString()
+        {
+            StringBuilder value = new StringBuilder();
+            if (Player != null)
+            {
+                value.Append(Player.team == TeamColour.red ? "[R" : "[B");
+            }
+            else
+                value.Append("[ ");
+            switch (GoalType)
+            {
+                case GoalFieldType.goal:
+                    value.Append("G ");
+                    break;
+                case GoalFieldType.nongoal:
+                    value.Append("NG");
+                    break;
+                case GoalFieldType.unknown:
+                    value.Append("UK");
+                    break;
+            }
+            value.Append("]");
+            return value.ToString();
+        }
     }
 }

@@ -14,10 +14,11 @@ namespace Player
         PlacePiece,
         PickUpPiece,
         Move,
-        Discover
+        Discover,
+        Destroy
     }
 
-    public partial class Agent
+    public partial class Agent:IAgent
     {
         private bool gameFinished;
         private IGameMaster gameMaster;
@@ -134,6 +135,30 @@ namespace Player
             }
         }
 
+        public bool HasValidPiece
+        {
+            get
+            {
+                return piece != null && piece.type == PieceType.normal;
+            }
+        }
+
+        public bool HasUnknownPiece
+        {
+            get
+            {
+                return piece != null && piece.type == PieceType.unknown;
+            }
+        }
+
+        public bool HasShamPiece
+        {
+            get
+            {
+                return piece != null && piece.type == PieceType.sham;
+            }
+        }
+
         private Location location;
         public Location GetLocation
         {
@@ -145,7 +170,7 @@ namespace Player
 
         public void SetLocation(Location point)
         {
-            location = point;
+            location = new Location(point.x, point.y);
         }
 
         public void SetLocation(uint x, uint y)
@@ -162,7 +187,5 @@ namespace Player
                 type = PlayerType.member
             };
         }
-
-
     }
 }
