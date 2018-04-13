@@ -116,84 +116,51 @@ namespace GameArea
             return new Messages.GoalField[] { fieldMessage };
         }
 
-        private void PrintEndGameState()
-        {
-            var winner = GoalsBlueLeft == 0 ? TeamColour.blue : TeamColour.red;
-            var opponent = GoalsBlueLeft == 0 ? TeamColour.red : TeamColour.blue;
-            var opponentScore = winner == TeamColour.blue ? goalsRedLeft : goalsBlueLeft;
-            ConsoleWriter.Show("\n\n\n************************\n THE WINNERS IS: " + winner + "\n THE NOOBS ARE: " + opponent + "\n WITH GOALS LEFT: " + opponentScore + "\n \n \n END OF GAME: " + GetGameDefinition.GameName + " \n \n*****************");
-        }
+        ///// <summary>
+        ///// Handles agent's request - move towards TaskField - fills response message with data about futureField
+        ///// </summary>
+        ///// <param name="location"></param>
+        ///// <param name="playerGuid"></param>
+        ///// <returns>Info about future field</returns>
+        //public void TryMoveAgentToTaskField(Data response, Location futureLocation, string playerGuid,
+        //                                    out Messages.Piece piece, out Messages.Field field)
+        //{
+        //    GameArea.TaskField fieldFromBoard = actualBoard.GetField(futureLocation.x, futureLocation.y) as GameArea.TaskField;
+        //    field = new Messages.TaskField(futureLocation.x, futureLocation.y)
+        //    {
+        //        distanceToPiece = fieldFromBoard.Distance,
+        //        timestamp = DateTime.Now,
+        //    };
 
-        public void PrintBoardState()
-        {
-            StringBuilder boardPrint = new StringBuilder("\n BOARD STATE: \n");
-            for (int y = (int)GetBoard.BoardHeight - 1; y >= 0; y--)
-            {
-                boardPrint.Append("["+y);
-                if (y < 10)
-                    boardPrint.Append(" ");
-                boardPrint.Append("] ");
-                for (int x = 0; x < (int)GetBoard.BoardWidth; x++)
-                {
-                    var field = GetBoard.GetField((uint)x, (uint)y);
-                    boardPrint.Append(field.ToString());
-                }
-                boardPrint.AppendLine();
-            }
-            for (int x = 0; x < (int)GetBoard.BoardWidth; x++)
-            {
-                if(x==0)
-                    boardPrint.Append("     ");
-                boardPrint.Append("[ " + x +" ]");
-            }
-                ConsoleWriter.Show(boardPrint.ToString());
-        }
+        //    // check if there is a piece on the filed
+        //    fieldFromBoard = actualBoard.GetField(futureLocation.x, futureLocation.y) as GameArea.TaskField;
+        //    piece = (fieldFromBoard as GameArea.TaskField).GetPiece;
+        //    if (piece != null)
+        //    {
+        //        response.Pieces = new Messages.Piece[] { piece };
+        //        (field as Messages.TaskField).pieceId = piece.id;
+        //        (field as Messages.TaskField).pieceIdSpecified = true;
+        //    }
+        //    response.TaskFields = new Messages.TaskField[] { (field as Messages.TaskField) };
+        //}
 
-        /// <summary>
-        /// Handles agent's request - move towards TaskField
-        /// </summary>
-        /// <param name="location"></param>
-        /// <param name="playerGuid"></param>
-        /// <returns>Info about future field</returns>
-        public void TryMoveAgentToTaskField(Data response, Location futureLocation, string playerGuid,
-                                            out Messages.Piece piece, out Messages.Field field)
-        {
-            GameArea.TaskField fieldFromBoard = actualBoard.GetField(futureLocation.x, futureLocation.y) as GameArea.TaskField;
-            field = new Messages.TaskField(futureLocation.x, futureLocation.y)
-            {
-                distanceToPiece = fieldFromBoard.Distance,
-                timestamp = DateTime.Now,
-            };
-
-            // check if there is a piece on the filed
-            fieldFromBoard = actualBoard.GetField(futureLocation.x, futureLocation.y) as GameArea.TaskField;
-            piece = (fieldFromBoard as GameArea.TaskField).GetPiece;
-            if (piece != null)
-            {
-                response.Pieces = new Messages.Piece[] { piece };
-                (field as Messages.TaskField).pieceId = piece.id;
-                (field as Messages.TaskField).pieceIdSpecified = true;
-            }
-            response.TaskFields = new Messages.TaskField[] { (field as Messages.TaskField) };
-        }
-
-        /// <summary>
-        /// Handles agent's request - move towards GoalField
-        /// </summary>
-        /// <param name="location"></param>
-        /// <param name="playerGuid"></param>
-        /// <returns>Info about future field</returns>
-        public void TryMoveAgentToGoalField(Data response, Location futureLocation, string playerGuid,
-                                            out Messages.Field field)
-        {
-            GameArea.GoalField fieldFromBoard = actualBoard.GetField(futureLocation.x, futureLocation.y) as GameArea.GoalField;
-            field = new Messages.GoalField(futureLocation.x, futureLocation.y, fieldFromBoard.GetOwner)
-            {
-                timestamp = DateTime.Now,
-            };
-            response.GoalFields = new Messages.GoalField[] { (field as Messages.GoalField) };
-            response.TaskFields = null;
-        }
+        ///// <summary>
+        ///// Handles agent's request - move towards GoalField - fills response message with data about futureField
+        ///// </summary>
+        ///// <param name="location"></param>
+        ///// <param name="playerGuid"></param>
+        ///// <returns>Info about future field</returns>
+        //public void TryMoveAgentToGoalField(Data response, Location futureLocation, string playerGuid,
+        //                                    out Messages.Field field)
+        //{
+        //    GameArea.GoalField fieldFromBoard = actualBoard.GetField(futureLocation.x, futureLocation.y) as GameArea.GoalField;
+        //    field = new Messages.GoalField(futureLocation.x, futureLocation.y, fieldFromBoard.GetOwner)
+        //    {
+        //        timestamp = DateTime.Now,
+        //    };
+        //    response.GoalFields = new Messages.GoalField[] { (field as Messages.GoalField) };
+        //    response.TaskFields = null;
+        //} // najprawdopodobniej do wyrzucenia
 
         /// <summary>
         /// Performs move action for an agent - called when action is valid
@@ -281,6 +248,39 @@ namespace GameArea
                 responseField.playerIdSpecified = false;
 
             GoalFieldList.Add(responseField);
+        }
+
+        private void PrintEndGameState()
+        {
+            var winner = GoalsBlueLeft == 0 ? TeamColour.blue : TeamColour.red;
+            var opponent = GoalsBlueLeft == 0 ? TeamColour.red : TeamColour.blue;
+            var opponentScore = winner == TeamColour.blue ? goalsRedLeft : goalsBlueLeft;
+            ConsoleWriter.Show("\n\n\n************************\n THE WINNERS IS: " + winner + "\n THE NOOBS ARE: " + opponent + "\n WITH GOALS LEFT: " + opponentScore + "\n \n \n END OF GAME: " + GetGameDefinition.GameName + " \n \n*****************");
+        }
+
+        public void PrintBoardState()
+        {
+            StringBuilder boardPrint = new StringBuilder("\n BOARD STATE: \n");
+            for (int y = (int)GetBoard.BoardHeight - 1; y >= 0; y--)
+            {
+                boardPrint.Append("[" + y);
+                if (y < 10)
+                    boardPrint.Append(" ");
+                boardPrint.Append("] ");
+                for (int x = 0; x < (int)GetBoard.BoardWidth; x++)
+                {
+                    var field = GetBoard.GetField((uint)x, (uint)y);
+                    boardPrint.Append(field.ToString());
+                }
+                boardPrint.AppendLine();
+            }
+            for (int x = 0; x < (int)GetBoard.BoardWidth; x++)
+            {
+                if (x == 0)
+                    boardPrint.Append("     ");
+                boardPrint.Append("[ " + x + " ]");
+            }
+            ConsoleWriter.Show(boardPrint.ToString());
         }
 
         /// <summary>

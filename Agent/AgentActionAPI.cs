@@ -18,7 +18,8 @@ namespace Player
         /// <returns>True - request was valid; False - request was not valid</returns>
         public bool TestPiece(IGameMaster gameMaster)
         {
-            ConsoleWriter.Show(GUID + " tries to test piece: " + GetPiece.id + " on location: " + GetLocation);
+            if (GetPiece != null)
+                ConsoleWriter.Show(GUID + " tries to test piece: " + GetPiece.id + " on location: " + GetLocation);
             Data responseMessage = gameMaster.HandleTestPieceRequest(this.GUID, this.GameId);
             if (responseMessage.gameFinished)
                 gameFinished = true;

@@ -453,8 +453,6 @@ namespace Player.Tests
             var actionResult = agent.Move(gameMaster, MoveType.up);
 
             Assert.AreEqual(true, setPositionResult);
-            Assert.AreEqual(true, actionResult);
-            var temp = gameMaster.GetBoard.GetField(2, 4).GetFieldType;
             Assert.AreEqual(FieldType.Task, gameMaster.GetBoard.GetField(2, 4).GetFieldType);
             Assert.AreEqual(FieldType.Task, gameMaster.GetBoard.GetField(2, 5).GetFieldType);
             Assert.AreEqual(new Location(2, 5), agent.GetLocation);

@@ -97,6 +97,7 @@ namespace GameArea
             var response = new Data()
             {
                 playerId = agent.ID,
+                gameFinished = IsGameFinished
             };
 
             Monitor.Enter(lockObject);
@@ -123,7 +124,7 @@ namespace GameArea
                 }
                 // the field is task field and is claimed - action rejected
                 // or the player doesn't posses a piece
-                response.gameFinished = IsGameFinished;
+                ////response.gameFinished = IsGameFinished;
             }
             finally
             {
@@ -211,7 +212,7 @@ namespace GameArea
                 playerId = agent.ID,
                 TaskFields = new Messages.TaskField[] { },
                 GoalFields = null,
-                PlayerLocation = currentLocation
+                PlayerLocation = currentLocation,
             };
 
             //player tried to step out of the board or enetr wrong GoalArea
@@ -219,7 +220,9 @@ namespace GameArea
                 return response;
 
             Messages.Piece piece;
-            Messages.Field field;
+            //Messages.Field field;
+            Messages.Field responseField;
+            Field field = actualBoard.GetField((uint)futureLocation.x, (uint)futureLocation.y);
 
             Monitor.Enter(lockObject);
             try
@@ -228,25 +231,41 @@ namespace GameArea
                 // we set info about a FutureField
                 if (futureBoardField is GameArea.TaskField)
                 {
-                    TryMoveAgentToTaskField(response, futureLocation, playerGuid, out piece, out field);
+                    //TryMoveAgentToTaskField(response, futureLocation, playerGuid, out piece, out field);
+                    List<Messages.TaskField> tempList = new List<Messages.TaskField>();
+                    SetInfoAboutDiscoveredTaskField(futureLocation, 0, 0, field, tempList);
+                    response.TaskFields = tempList.ToArray();
+                    responseField = response.TaskFields[0];
                 }
                 else //if (futureBoardField is GameArea.GoalField)
                 {
-                    TryMoveAgentToGoalField(response, futureLocation, playerGuid, out field);
+                    //TryMoveAgentToGoalField(response, futureLocation, playerGuid, out field);
+                    response.GoalFields = new Messages.GoalField[] { };
+                    response.TaskFields = null;
+
+                    List<Messages.GoalField> tempList = new List<Messages.GoalField>();
+                    SetInfoAboutDiscoveredGoalField(futureLocation, 0, 0, field, tempList);
+                    response.GoalFields = tempList.ToArray();
+                    responseField = response.GoalFields[0];
                 }
 
                 // check if there is another agent on the field we're trying to enter
                 // if so, we don't actually move, just get an update on the field
-                if (futureBoardField.HasAgent())
-                {
-                    field.playerId = futureBoardField.Player.id;
-                    field.playerIdSpecified = true;
-                }
-                else    //there is no player, we can move
+                if (!responseField.playerIdSpecified)
                 {
                     // perform move action
                     PerformMoveAction(currentLocation, futureLocation, playerGuid, response);
                 }
+                //if (futureBoardField.HasAgent())
+                //{
+                //    field.playerId = futureBoardField.Player.id;
+                //    field.playerIdSpecified = true;
+                //}
+                //else    //there is no player, we can move
+                //{
+                //    // perform move action
+                //    PerformMoveAction(currentLocation, futureLocation, playerGuid, response);
+                //}
                 response.gameFinished = IsGameFinished;
             }
             finally
