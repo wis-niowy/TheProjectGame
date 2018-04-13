@@ -63,64 +63,64 @@ namespace Player
             if (responseMessage.gameFinished)
                 gameFinished = true;
 
-            //return MoveUpdate(responseMessage, direction); ---- dla tego sypia sie 3 testy - do sprawdzenia pozniej!
+            return MoveUpdate(responseMessage, direction); // ---- dla tego sypia sie 3 testy - do sprawdzenia pozniej!
 
-            var futureLocation = CalculateFutureLocation(this.location, direction);
+            //var futureLocation = CalculateFutureLocation(this.location, direction);
 
-            if (responseMessage.playerId == this.ID && !responseMessage.gameFinished)
-            {
-                // an attempt to exceed board's boundaries or to enter an opponent's GoalArea
-                if (responseMessage.TaskFields != null && responseMessage.TaskFields.Length == 0)
-                {
-                    this.location = responseMessage.PlayerLocation;
-                    return false;
-                }
-                // future position is a TaskField
-                else if (responseMessage.TaskFields != null && responseMessage.TaskFields.Length > 0)
-                {
-                    // an agent attempted to enter an occupied TaskField
-                    if (this.location.Equals(responseMessage.PlayerLocation))
-                    {
-                        // add encountered stranger agent to this agent's view
-                        var stranger = new Messages.Agent()
-                        {
-                            id = (ulong)responseMessage.TaskFields[0].playerId,
-                        };
-                        agentBoard.GetField(futureLocation.x, futureLocation.y).Player = stranger;
+            //if (responseMessage.playerId == this.ID && !responseMessage.gameFinished)
+            //{
+            //    // an attempt to exceed board's boundaries or to enter an opponent's GoalArea
+            //    if (responseMessage.TaskFields != null && responseMessage.TaskFields.Length == 0)
+            //    {
+            //        this.location = responseMessage.PlayerLocation;
+            //        return false;
+            //    }
+            //    // future position is a TaskField
+            //    else if (responseMessage.TaskFields != null && responseMessage.TaskFields.Length > 0)
+            //    {
+            //        // an agent attempted to enter an occupied TaskField
+            //        if (this.location.Equals(responseMessage.PlayerLocation))
+            //        {
+            //            // add encountered stranger agent to this agent's view
+            //            var stranger = new Messages.Agent()
+            //            {
+            //                id = (ulong)responseMessage.TaskFields[0].playerId,
+            //            };
+            //            agentBoard.GetField(futureLocation.x, futureLocation.y).Player = stranger;
 
-                        return false;
-                    }
-                    // an action was valid
-                    else
-                    {
-                        this.location = responseMessage.PlayerLocation;
-                        return true;
-                    }
-                }
-                // future position is a GoalField
-                else if (responseMessage.GoalFields != null && responseMessage.GoalFields.Length > 0)
-                {
-                    // an agent attempted to enter an occupied GoalField
-                    if (this.location.Equals(responseMessage.PlayerLocation))
-                    {
-                        // add encountered stranger agent to this agent's view
-                        var stranger = new Messages.Agent()
-                        {
-                            id = (ulong)responseMessage.GoalFields[0].playerId,
-                        };
-                        agentBoard.GetField(futureLocation.x, futureLocation.y).Player = stranger;
+            //            return false;
+            //        }
+            //        // an action was valid
+            //        else
+            //        {
+            //            this.location = responseMessage.PlayerLocation;
+            //            return true;
+            //        }
+            //    }
+            //    // future position is a GoalField
+            //    else if (responseMessage.GoalFields != null && responseMessage.GoalFields.Length > 0)
+            //    {
+            //        // an agent attempted to enter an occupied GoalField
+            //        if (this.location.Equals(responseMessage.PlayerLocation))
+            //        {
+            //            // add encountered stranger agent to this agent's view
+            //            var stranger = new Messages.Agent()
+            //            {
+            //                id = (ulong)responseMessage.GoalFields[0].playerId,
+            //            };
+            //            agentBoard.GetField(futureLocation.x, futureLocation.y).Player = stranger;
 
-                        return false;
-                    }
-                    // an action was valid
-                    else
-                    {
-                        this.location = responseMessage.PlayerLocation;
-                        return true;
-                    }
-                }
-            }
-            return false;
+            //            return false;
+            //        }
+            //        // an action was valid
+            //        else
+            //        {
+            //            this.location = responseMessage.PlayerLocation;
+            //            return true;
+            //        }
+            //    }
+            //}
+            //return false;
         }
 
 
@@ -165,7 +165,7 @@ namespace Player
                         result = PickUpPieceUpdate(responseMessage);
                         break;
                     case ActionType.Move:
-                        MoveUpdate(responseMessage, direction);
+                        result = MoveUpdate(responseMessage, direction);
                         break;
                     case ActionType.Discover:
                         DiscoverUpdate(responseMessage);
@@ -290,57 +290,54 @@ namespace Player
             var goalFieldsArray = responseMessage.GoalFields;
             var piecesArray = responseMessage.Pieces;
 
-            if (taskFieldsArray != null && taskFieldsArray.Length > 0)
+            // an attempt to exceed board's boundaries or to enter an opponent's GoalArea
+            if (responseMessage.TaskFields != null && responseMessage.TaskFields.Length == 0)
             {
-                // an attempt to exceed board's boundaries or to enter an opponent's GoalArea
-                if (responseMessage.TaskFields != null && responseMessage.TaskFields.Length == 0)
+                this.location = responseMessage.PlayerLocation;
+                resultValue = false;
+            }
+            // future position is a TaskField
+            else if (responseMessage.TaskFields != null && responseMessage.TaskFields.Length > 0)
+            {
+                // an agent attempted to enter an occupied TaskField
+                if (this.location.Equals(responseMessage.PlayerLocation))
                 {
-                    this.location = responseMessage.PlayerLocation;
+                    // add encountered stranger agent to this agent's view
+                    var stranger = new Messages.Agent()
+                    {
+                        id = (ulong)responseMessage.TaskFields[0].playerId,
+                    };
+                    agentBoard.GetField(futureLocation.x, futureLocation.y).Player = stranger;
+
                     resultValue = false;
                 }
-                // future position is a TaskField
-                else if (responseMessage.TaskFields != null && responseMessage.TaskFields.Length > 0)
+                // an action was valid
+                else
                 {
-                    // an agent attempted to enter an occupied TaskField
-                    if (this.location.Equals(responseMessage.PlayerLocation))
-                    {
-                        // add encountered stranger agent to this agent's view
-                        var stranger = new Messages.Agent()
-                        {
-                            id = (ulong)responseMessage.TaskFields[0].playerId,
-                        };
-                        agentBoard.GetField(futureLocation.x, futureLocation.y).Player = stranger;
-
-                        resultValue = false;
-                    }
-                    // an action was valid
-                    else
-                    {
-                        this.location = responseMessage.PlayerLocation;
-                        resultValue = true;
-                    }
+                    this.location = responseMessage.PlayerLocation;
+                    resultValue = true;
                 }
-                // future position is a GoalField
-                else if (responseMessage.GoalFields != null && responseMessage.GoalFields.Length > 0)
+            }
+            // future position is a GoalField
+            else if (responseMessage.GoalFields != null && responseMessage.GoalFields.Length > 0)
+            {
+                // an agent attempted to enter an occupied GoalField
+                if (this.location.Equals(responseMessage.PlayerLocation))
                 {
-                    // an agent attempted to enter an occupied GoalField
-                    if (this.location.Equals(responseMessage.PlayerLocation))
+                    // add encountered stranger agent to this agent's view
+                    var stranger = new Messages.Agent()
                     {
-                        // add encountered stranger agent to this agent's view
-                        var stranger = new Messages.Agent()
-                        {
-                            id = (ulong)responseMessage.GoalFields[0].playerId,
-                        };
-                        agentBoard.GetField(futureLocation.x, futureLocation.y).Player = stranger;
+                        id = (ulong)responseMessage.GoalFields[0].playerId,
+                    };
+                    agentBoard.GetField(futureLocation.x, futureLocation.y).Player = stranger;
 
-                        resultValue = false;
-                    }
-                    // an action was valid
-                    else
-                    {
-                        this.location = responseMessage.PlayerLocation;
-                        resultValue = true;
-                    }
+                    resultValue = false;
+                }
+                // an action was valid
+                else
+                {
+                    this.location = responseMessage.PlayerLocation;
+                    resultValue = true;
                 }
             }
             return resultValue;

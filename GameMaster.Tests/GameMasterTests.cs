@@ -347,11 +347,9 @@ namespace GameArea.Tests
         [TestMethod]
         public void GameMasterSetsInfoAboutDiscoveredGoalkField()
         {
-            List<Messages.TaskField> list = new List<Messages.TaskField>();
+            List<Messages.GoalField> list = new List<Messages.GoalField>();
             var agent = new Player.Agent(TeamColour.blue, "testGUID-0013");
-            var field = defaultGameMaster.GetBoard.GetTaskField(2, 2);
-            var piece = new Piece(PieceType.normal, 10);
-            field.SetPiece(piece);
+            var field = defaultGameMaster.GetBoard.GetGoalField(2, 2);
             agent.SetLocation(2, 2);
             defaultGameMaster.RegisterAgent(agent, agent.GUID, findFreeLocationAndPlacePlayer: false);
             // set an agent on a TaskField
@@ -360,7 +358,7 @@ namespace GameArea.Tests
             Assert.IsNotNull(defaultGameMaster.GetBoard.GetField(2, 2).Player);
             Assert.AreEqual(true, setPositionResult);
 
-            defaultGameMaster.SetInfoAboutDiscoveredTaskField(new Location(2, 2), 0, 0, field, list);
+            defaultGameMaster.SetInfoAboutDiscoveredGoalField(new Location(2, 2), 0, 0, field, list);
             var responseField = list[0];
 
             Assert.AreEqual(2u, responseField.x);
