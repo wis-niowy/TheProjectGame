@@ -148,6 +148,8 @@ namespace GameArea
         {
             pieceAdder = new System.Timers.Timer(GetGameDefinition.PlacingNewPiecesFrequency);
             pieceAdder.Elapsed += PieceAdder_Elapsed;
+            pieceAdder.AutoReset = true;
+            pieceAdder.Start();
         }
 
         private void InitBoard(GameMasterSettingsGameDefinition settings)
@@ -187,12 +189,14 @@ namespace GameArea
             if (field != null)
             {
                 field.SetPiece(piece);
+                UpdateDistancesFromAllPieces();
                 return true;
             }
             else
             {
                 return false;
             }
+            
 
         }
 

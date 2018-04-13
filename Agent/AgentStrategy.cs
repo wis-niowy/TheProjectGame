@@ -10,7 +10,7 @@ namespace Player
     {
         public void DoStrategy()
         {
-            if (!HasValidPiece)
+             if (!HasValidPiece)
             {
                 FindAndPickPiece();
             }
@@ -101,7 +101,7 @@ namespace Player
             var moved = TryMove(direction);
             if (!moved)
             {
-                TryMove(direction);
+                TryMove(direction,true);
             }
         }
 

@@ -30,7 +30,7 @@ namespace MainApp
             if (settings != null)
             {
                 ConsoleWriter.Show(Constants.SETTINGS_LOADED_SUCCES);
-                DoGame(settings,true);
+                DoGame(settings);
             }
             else
             {
