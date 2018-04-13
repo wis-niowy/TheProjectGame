@@ -22,7 +22,7 @@ namespace GameArea
                 this.player = value;
             }
         }
-        public Field(uint x, uint y):base(x,y)
+        public Field(int x, int y):base(x,y)
         {
         }
 

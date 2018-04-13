@@ -8,17 +8,17 @@ namespace GameArea
 {
     public class Board
     {
-        private uint width;
-        private uint taskAreaHeight;
-        private uint goalAreaHeight;
-        public uint BoardWidth
+        private int width;
+        private int taskAreaHeight;
+        private int goalAreaHeight;
+        public int BoardWidth
         {
             get
             {
                 return width;
             }
         }
-        public uint TaskAreaHeight
+        public int TaskAreaHeight
         {
             get
             {
@@ -26,11 +26,11 @@ namespace GameArea
             }
         }
 
-        public uint GoalAreaHeight
+        public int GoalAreaHeight
         {
             get { return goalAreaHeight; }
         }
-        public uint BoardHeight
+        public int BoardHeight
         {
             get
             {
@@ -53,9 +53,9 @@ namespace GameArea
             get
             {
                 var taskFields = new List<TaskField>();
-                for(uint i = goalAreaHeight;i<goalAreaHeight + taskAreaHeight;i++)
+                for(int i = goalAreaHeight;i<goalAreaHeight + taskAreaHeight;i++)
                 {
-                    for(uint j = 0; j<BoardWidth;j++)
+                    for(int j = 0; j<BoardWidth;j++)
                     {
                         taskFields.Add((TaskField)fields[j, i]);
                     }
@@ -67,9 +67,9 @@ namespace GameArea
         public List<GoalField> GoalFields(TeamColour team)
         {
             var goalFields = new List<GoalField>();
-            for (uint i = 0; i < BoardHeight; i++)
+            for (int i = 0; i < BoardHeight; i++)
             {
-                for (uint j = 0; j < BoardWidth; j++)
+                for (int j = 0; j < BoardWidth; j++)
                 {
                     if (fields[j, i] is GoalField && ((GoalField)fields[j, i]).GetOwner == team)
                         goalFields.Add((GoalField)fields[j, i]);
@@ -100,9 +100,9 @@ namespace GameArea
             get
             {
                 var goalFields = new List<GoalField>();
-                for (uint i = goalAreaHeight + taskAreaHeight; i < BoardHeight; i++)
+                for (int i = goalAreaHeight + taskAreaHeight; i < BoardHeight; i++)
                 {
-                    for (uint j = 0; j < BoardWidth; j++)
+                    for (int j = 0; j < BoardWidth; j++)
                     {
                         var field = (GoalField)fields[j, i];
                         goalFields.Add(field);
@@ -112,9 +112,9 @@ namespace GameArea
             }
         }
 
-        public Field GetField(uint x, uint y)
+        public Field GetField(int x, int y)
         {
-            if (x >= BoardWidth || y >= BoardHeight)
+            if (x >= BoardWidth || y >= BoardHeight || x < 0 || y < 0)
                 return null;
             return fields[x, y];
         }
@@ -124,9 +124,9 @@ namespace GameArea
             fields[goalField.x, goalField.y] = goalField;
         }
 
-        public TaskField GetTaskField(uint x, uint y)
+        public TaskField GetTaskField(int x, int y)
         {
-            if (y < GoalAreaHeight || y >=GoalAreaHeight+TaskAreaHeight || x >= BoardWidth)
+            if (y < GoalAreaHeight || y >=GoalAreaHeight+TaskAreaHeight || x >= BoardWidth || x < 0)
                 return null;
             return (TaskField)fields[x, y];
         }
@@ -138,9 +138,9 @@ namespace GameArea
             return GetTaskField(location.x,location.y);
         }
 
-        public GoalField GetGoalField(uint x, uint y)
+        public GoalField GetGoalField(int x, int y)
         {
-            if ((y >= GoalAreaHeight && y <GoalAreaHeight + TaskAreaHeight) || x >= BoardWidth)
+            if ((y >= GoalAreaHeight && y <GoalAreaHeight + TaskAreaHeight) || x >= BoardWidth || x < 0)
                 return null;
             return (GoalField)fields[x, y];
         }
@@ -153,23 +153,23 @@ namespace GameArea
         }
 
         private Field[,] fields;
-        public Board(uint width, uint pieceAreaHeight, uint goalAreaHeight, GoalFieldType defaultGoalType = GoalFieldType.unknown)
+        public Board(int width, int pieceAreaHeight, int goalAreaHeight, GoalFieldType defaultGoalType = GoalFieldType.unknown)
         {
             this.width = width;
             this.taskAreaHeight = pieceAreaHeight;
             this.goalAreaHeight = goalAreaHeight;
             fields = new Field[width,pieceAreaHeight + 2 * goalAreaHeight];
-            for (uint i = 0; i < GoalAreaHeight; i++)
+            for (int i = 0; i < GoalAreaHeight; i++)
             {
-                for (uint j = 0; j < BoardWidth; j++)
+                for (int j = 0; j < BoardWidth; j++)
                 {
                     fields[j, i] = new GoalField(j, i, TeamColour.blue, defaultGoalType);
                     fields[j, i + pieceAreaHeight + goalAreaHeight] = new GoalField(j, i + pieceAreaHeight + goalAreaHeight, TeamColour.red, defaultGoalType);
                 }
             }
-            for (uint i = GoalAreaHeight; i < BoardHeight - GoalAreaHeight; i++)
+            for (int i = GoalAreaHeight; i < BoardHeight - GoalAreaHeight; i++)
             {
-                for (uint j = 0; j < BoardWidth; j++)
+                for (int j = 0; j < BoardWidth; j++)
                 {
                     fields[j, i] = new TaskField(j, i);
                 }

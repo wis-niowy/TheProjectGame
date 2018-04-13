@@ -64,35 +64,35 @@ namespace MainApp
                 return "";
             return ValidatorMessages.INVALID_SHAM_PROBABILITY;
         }
-        public static string ValidatePiecesFrequency(uint piecesFrequency)
+        public static string ValidatePiecesFrequency(int piecesFrequency)
         {
             if (piecesFrequency > 0)
                 return "";
             return ValidatorMessages.INVALID_PIECES_FREQUENCY;
         }
 
-        public static string ValidateInitialNumberOfPieces(uint initialNumberOfPieces, uint length, uint width)
+        public static string ValidateInitialNumberOfPieces(int initialNumberOfPieces, int length, int width)
         {
             if (initialNumberOfPieces <= (length * width))
                 return "";
             return ValidatorMessages.INVALID_INITIAL_NUMBER;
         }
 
-        public static string ValidateBoardWidth(uint width, uint TaskArealength, uint playersPerTeam)
+        public static string ValidateBoardWidth(int width, int TaskArealength, int playersPerTeam)
         {
             if (width > 1 && width * TaskArealength >= playersPerTeam * 2)
                 return "";
             return ValidatorMessages.INVALID_BOARD_WIDTH;
         }
 
-        public static string ValidateTaskAreaLength(uint TaskArealength)
+        public static string ValidateTaskAreaLength(int TaskArealength)
         {
             if (TaskArealength >= 1)
                 return "";
             return ValidatorMessages.INVALID_TASK_AREA_LENGTH;
         }
 
-        public static string ValidateGoalAreaLength(uint GoalArealength)
+        public static string ValidateGoalAreaLength(int GoalArealength)
         {
             if (GoalArealength >= 1)
                 return "";
@@ -100,7 +100,7 @@ namespace MainApp
         }
 
         // players per team
-        public static string ValidatePlayers(uint PlayersNumber, uint taskAreaLength, uint boardWidth)
+        public static string ValidatePlayers(int PlayersNumber, int taskAreaLength, int boardWidth)
         {
             if (PlayersNumber == 0)
                 return ValidatorMessages.NUMBER_OF_PLAYERS_EQUALS_ZERO;
@@ -118,7 +118,7 @@ namespace MainApp
         }
 
         // goals
-        public static string ValidateGoals(GoalField[] goals, uint goalAreaLength, uint taskAreaLength, uint boardWidth)
+        public static string ValidateGoals(GoalField[] goals, int goalAreaLength, int taskAreaLength, int boardWidth)
         {
             if (goals == null)
                 return ValidatorMessages.NULL_GOALFIELD_ARRAY;
@@ -154,7 +154,7 @@ namespace MainApp
             return "";
         }
 
-        public static string ValidateNumberNumberOfGoals(uint numberOfGoals)
+        public static string ValidateNumberNumberOfGoals(int numberOfGoals)
         {
             if (numberOfGoals <= 0)
                 return ValidatorMessages.NUMBER_OF_GOALS_ZERO_OR_LESS;

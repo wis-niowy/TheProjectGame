@@ -17,8 +17,8 @@ namespace Player.Tests
         {
             var agent = new Agent(TeamColour.blue);
             Assert.IsNotNull(agent);
-            Assert.AreEqual(0u, agent.GetLocation.x);
-            Assert.AreEqual(0u, agent.GetLocation.y);
+            Assert.AreEqual(0, agent.GetLocation.x);
+            Assert.AreEqual(0, agent.GetLocation.y);
             Assert.AreEqual(TeamColour.blue, agent.GetTeam);
             Assert.AreEqual("TEST_GUID", agent.GUID);
         }
@@ -34,7 +34,7 @@ namespace Player.Tests
         [TestMethod]
         public void BoardSet()
         {
-            var board = new Board(2u, 2u, 2u);
+            var board = new Board(2, 2, 2);
             var agent = new Agent(TeamColour.blue);
             Assert.IsNull(agent.GetBoard);
             agent.SetBoard(board);
@@ -46,7 +46,7 @@ namespace Player.Tests
         public void SetLocation()
         {
             var agent = new Agent(TeamColour.blue);
-            var newLocation = new Location(2u, 3u);
+            var newLocation = new Location(2, 3);
             agent.SetLocation(newLocation);
             Assert.AreEqual(newLocation.x, agent.GetLocation.x);
             Assert.AreEqual(newLocation.y, agent.GetLocation.y);

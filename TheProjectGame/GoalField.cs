@@ -8,7 +8,7 @@ namespace GameArea
     public class GoalField : Field
     {
         private GoalFieldType type;
-        public GoalField(uint x, uint y, TeamColour owner, GoalFieldType goalType = GoalFieldType.unknown) :base(x,y)
+        public GoalField(int x, int y, TeamColour owner, GoalFieldType goalType = GoalFieldType.unknown) :base(x,y)
         {
             type = goalType;
             this.owner = owner;

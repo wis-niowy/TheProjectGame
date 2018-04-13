@@ -8,7 +8,7 @@ namespace GameArea
     public class GameMasterGoalField : GoalField
     {
         public bool IsFullfilled { get; set; }
-        public GameMasterGoalField(uint x, uint y, TeamColour owner, GoalFieldType goalType = GoalFieldType.unknown) : base(x, y, owner, goalType)
+        public GameMasterGoalField(int x, int y, TeamColour owner, GoalFieldType goalType = GoalFieldType.unknown) : base(x, y, owner, goalType)
         {
         }
     }

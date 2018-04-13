@@ -193,8 +193,8 @@ namespace GameArea
             //basic information
             Messages.TaskField responseField = new Messages.TaskField(location.x, location.y)
             {
-                x = (uint)(location.x + dx),
-                y = (uint)(location.y + dy),
+                x = location.x + dx,
+                y = location.y + dy,
                 timestamp = DateTime.Now,
                 distanceToPiece = (field as TaskField).Distance
             };
@@ -234,8 +234,8 @@ namespace GameArea
         {
             Messages.GoalField responseField = new Messages.GoalField(location.x, location.y, (field as GoalField).GetOwner)
             {
-                x = (uint)(location.x + dx),
-                y = (uint)(location.y + dy),
+                x = location.x + dx,
+                y = location.y + dy,
                 timestamp = DateTime.Now
             };
 
@@ -268,8 +268,8 @@ namespace GameArea
                     boardPrint.Append(" ");
                 boardPrint.Append("] ");
                 for (int x = 0; x < (int)GetBoard.BoardWidth; x++)
-                {
-                    var field = GetBoard.GetField((uint)x, (uint)y);
+                { 
+                    var field = GetBoard.GetField(x, y);
                     boardPrint.Append(field.ToString());
                 }
                 boardPrint.AppendLine();
@@ -308,10 +308,10 @@ namespace GameArea
                     break;
             }
 
-            if (!ValidateFieldPosition((int)currentLocation.x, (int)currentLocation.y, team))
+            if (!ValidateFieldPosition(currentLocation.x, currentLocation.y, team))
                 return currentLocation;
             else
-                return new Messages.Location((uint)(currentLocation.x + dx), (uint)(currentLocation.y + dy));
+                return new Messages.Location(currentLocation.x + dx, currentLocation.y + dy);
         }
 
         /// <summary>
@@ -354,12 +354,12 @@ namespace GameArea
         /// <param name="y"></param>
         /// <param name="guid"></param>
         /// <returns></returns>
-        public bool SetAbsoluteAgentLocation(uint x, uint y, string guid)
+        public bool SetAbsoluteAgentLocation(int x, int y, string guid)
         {
             var player = agents.Where(q => q.GUID == guid).First();
 
             var team = agents.Where(q => q.GUID == guid).First().GetTeam;
-            if (ValidateFieldPosition((int)x, (int)y, team))
+            if (ValidateFieldPosition(x, y, team))
             {
                 agents.Where(q => q.GUID == guid).First().SetLocation(x, y);
                 actualBoard.GetField(x, y).Player = agents.Where(q => q.GUID == guid).First().ConvertToMessageAgent();
@@ -376,7 +376,7 @@ namespace GameArea
         /// <param name="y"></param>
         /// <param name="guid"></param>
         /// <returns></returns>
-        public bool SetAbsoluteAgentLocation(uint x, uint y, Player.Agent agent)
+        public bool SetAbsoluteAgentLocation(int x, int y, Player.Agent agent)
         {
             bool result = false;
             var player = agents.Where(q => q.GUID == agent.GUID).First(); // znajdujemy agenta na liscie agentow Game Mastera -- czy jest zarejestrowany
@@ -409,10 +409,10 @@ namespace GameArea
         /// <param name="type"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        public bool SetPieceInLocation(uint x, uint y, TeamColour team, PieceType type, ulong id)
+        public bool SetPieceInLocation(int x, int y, TeamColour team, PieceType type, ulong id)
         {
             var piece = new Piece(type, id);
-            if (ValidateFieldPosition((int)x, (int)y, team) && actualBoard.GetField(x, y) is TaskField)
+            if (ValidateFieldPosition(x, y, team) && actualBoard.GetField(x, y) is TaskField)
             {
                 (actualBoard.GetField(x, y) as TaskField).SetPiece(piece);
                 UpdateDistancesFromAllPieces();

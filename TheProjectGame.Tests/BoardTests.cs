@@ -14,35 +14,35 @@ namespace TheProjectGame.Tests
         [TestMethod]
         public void BoardWidth()
         {
-            var board = new Board(5u, 5u, 3u);
-            Assert.AreEqual(5u, board.BoardWidth);
+            var board = new Board(5, 5, 3);
+            Assert.AreEqual(5, board.BoardWidth);
         }
 
         [TestMethod]
         public void BoardPieceAreaHeight()
         {
-            var board = new Board(5u, 5u, 3u);
-            Assert.AreEqual(5u, board.TaskAreaHeight);
+            var board = new Board(5, 5, 3);
+            Assert.AreEqual(5, board.TaskAreaHeight);
         }
 
         [TestMethod]
         public void BoardGoalAreaHeight()
         {
-            var board = new Board(5u, 5u, 3u);
-            Assert.AreEqual(3u, board.GoalAreaHeight);
+            var board = new Board(5, 5, 3);
+            Assert.AreEqual(3, board.GoalAreaHeight);
         }
 
         [TestMethod]
         public void BoardHeight()
         {
-            var board = new Board(5u, 5u, 3u);
-            Assert.AreEqual(5u + 2u * 3u, board.BoardHeight);
+            var board = new Board(5, 5, 3);
+            Assert.AreEqual(5 + 2 * 3, board.BoardHeight);
         }
 
         [TestMethod]
         public void BoardGetValidField()
         {
-            var board = new Board(5u, 5u, 3u);
+            var board = new Board(5, 5, 3);
             var field = board.GetField(0, 0);
             Assert.IsNotNull(field);
         }
@@ -50,7 +50,7 @@ namespace TheProjectGame.Tests
         [TestMethod]
         public void BoardGetFieldYBiggerThanIndex()
         {
-            var board = new Board(5u, 5u, 3u);
+            var board = new Board(5, 5, 3);
             var field = board.GetField(0, board.BoardHeight);
             Assert.IsNull(field);
         }
@@ -58,7 +58,7 @@ namespace TheProjectGame.Tests
         [TestMethod]
         public void BoardGetFieldXBiggerThanIndex()
         {
-            var board = new Board(5u, 5u, 3u);
+            var board = new Board(5, 5, 3);
             var field = board.GetField(board.BoardWidth, 0);
             Assert.IsNull(field);
         }
@@ -66,10 +66,10 @@ namespace TheProjectGame.Tests
         [TestMethod]
         public void BoardGoalAreaVerify()
         {
-            var board = new Board(5u, 5u, 3u);
-            for (uint i = 0; i < board.GoalAreaHeight; i++)
+            var board = new Board(5, 5, 3);
+            for (int i = 0; i < board.GoalAreaHeight; i++)
             {
-                for (uint j = 0; j < board.BoardWidth; j++)
+                for (int j = 0; j < board.BoardWidth; j++)
                 {
                     Assert.AreEqual(typeof(GameArea.GoalField), board.GetField(j, i).GetType());
                     Assert.AreEqual(TeamColour.blue, ((GameArea.GoalField)board.GetField(j, i)).GetOwner);
@@ -78,9 +78,9 @@ namespace TheProjectGame.Tests
                 }
             }
 
-            for (uint i = board.GoalAreaHeight; i < board.BoardHeight - board.GoalAreaHeight; i++)
+            for (int i = board.GoalAreaHeight; i < board.BoardHeight - board.GoalAreaHeight; i++)
             {
-                for (uint j = 0; j < board.BoardWidth; j++)
+                for (int j = 0; j < board.BoardWidth; j++)
                 {
                     Assert.AreEqual(typeof(GameArea.TaskField), board.GetField(j, i).GetType());
                     Assert.IsNull(((GameArea.TaskField)board.GetField(j, i)).GetPiece);
@@ -91,7 +91,7 @@ namespace TheProjectGame.Tests
         [TestMethod]
         public void BoardValidTaskField()
         {
-            var board = new Board(5u, 5u, 3u);
+            var board = new Board(5, 5, 3);
             var field = board.GetTaskField(4, 4);
             Assert.IsNotNull(field);
         }
@@ -99,7 +99,7 @@ namespace TheProjectGame.Tests
         [TestMethod]
         public void BoardInvalidYTaskField()
         {
-            var board = new Board(5u, 5u, 3u);
+            var board = new Board(5, 5, 3);
             var field = board.GetTaskField(4, 1);
             Assert.IsNull(field);
             field = board.GetTaskField(4, 9);
@@ -109,7 +109,7 @@ namespace TheProjectGame.Tests
         [TestMethod]
         public void BoardInvalidXTaskField()
         {
-            var board = new Board(5u, 5u, 3u);
+            var board = new Board(5, 5, 3);
             var field = board.GetTaskField(6, 4);
             Assert.IsNull(field);
         }
@@ -117,7 +117,7 @@ namespace TheProjectGame.Tests
         [TestMethod]
         public void BoardValidGoalField()
         {
-            var board = new Board(5u, 5u, 3u);
+            var board = new Board(5, 5, 3);
             var field = board.GetGoalField(1, 1);
             Assert.IsNotNull(field);
         }
@@ -125,7 +125,7 @@ namespace TheProjectGame.Tests
         [TestMethod]
         public void BoardInvalidXGoalField()
         {
-            var board = new Board(5u, 5u, 3u);
+            var board = new Board(5, 5, 3);
             var field = board.GetGoalField(5, 4);
             Assert.IsNull(field);
         }
@@ -133,7 +133,7 @@ namespace TheProjectGame.Tests
         [TestMethod]
         public void BoardInvalidYGoalField()
         {
-            var board = new Board(5u, 5u, 3u);
+            var board = new Board(5, 5, 3);
             var field = board.GetGoalField(1, 6);
             Assert.IsNull(field);
         }
@@ -141,9 +141,9 @@ namespace TheProjectGame.Tests
         [TestMethod]
         public void GetTaskFields()
         {
-            var board = new Board(5u, 5u, 3u);
+            var board = new Board(5, 5, 3);
             var taskFields = board.TaskFields;
-            Assert.AreEqual(board.TaskAreaHeight * board.BoardWidth, (uint)taskFields.Count);
+            Assert.AreEqual(board.TaskAreaHeight * board.BoardWidth, taskFields.Count);
             foreach (var field in taskFields)
             {
                 Assert.AreEqual(typeof(GameArea.TaskField), field.GetType());
@@ -153,10 +153,10 @@ namespace TheProjectGame.Tests
         [TestMethod]
         public void GetBlueTeamGoalAreaFields()
         {
-            var board = new Board(5u, 5u, 3u);
+            var board = new Board(5, 5, 3);
             var blueGoalAreaFields = board.GetBlueGoalAreaFields;
             Assert.IsNotNull(blueGoalAreaFields);
-            Assert.AreEqual((int)board.BoardWidth * board.GoalAreaHeight, blueGoalAreaFields.Count);
+            Assert.AreEqual(board.BoardWidth * board.GoalAreaHeight, blueGoalAreaFields.Count);
             foreach(var field in blueGoalAreaFields)
             {
                 Assert.AreEqual(FieldType.Goal, field.GetFieldType);
@@ -167,10 +167,10 @@ namespace TheProjectGame.Tests
         [TestMethod]
         public void GetRedTeamGoalAreaFields()
         {
-            var board = new Board(5u, 5u, 3u);
+            var board = new Board(5, 5, 3);
             var redGoalAreaFields = board.GetRedGoalAreaFields;
             Assert.IsNotNull(redGoalAreaFields);
-            Assert.AreEqual((int)board.BoardWidth * board.GoalAreaHeight, redGoalAreaFields.Count);
+            Assert.AreEqual(board.BoardWidth * board.GoalAreaHeight, redGoalAreaFields.Count);
             foreach (var field in redGoalAreaFields)
             {
                 Assert.AreEqual(FieldType.Goal, field.GetFieldType);

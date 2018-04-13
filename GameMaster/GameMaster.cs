@@ -21,7 +21,7 @@ namespace GameArea
         private Random random;
         private List<Player.Agent> agents;
         //private List<Piece> pieces;
-        private Dictionary<string, uint> agentIdDictionary;
+        private Dictionary<string, ulong> agentIdDictionary;
         private Board actualBoard;
         private GameMasterSettings gameSettings;
         private System.Timers.Timer pieceAdder;
@@ -138,7 +138,7 @@ namespace GameArea
             agents = new List<Player.Agent>();
             goalsRedLeft = (ulong)settings.GameDefinition.Goals.Where(q => q.team == TeamColour.red).Count();
             goalsBlueLeft = (ulong)settings.GameDefinition.Goals.Where(q => q.team == TeamColour.blue).Count();
-            agentIdDictionary = new Dictionary<string, uint>();
+            agentIdDictionary = new Dictionary<string, ulong>();
             gameSettings = settings;
             InitBoard(gameSettings.GameDefinition);
             InitPieceAdder();
@@ -152,7 +152,7 @@ namespace GameArea
 
         private void InitBoard(GameMasterSettingsGameDefinition settings)
         {
-            actualBoard = new Board((uint)settings.BoardWidth, settings.TaskAreaLength, settings.GoalAreaLength,GoalFieldType.nongoal);
+            actualBoard = new Board(settings.BoardWidth, settings.TaskAreaLength, settings.GoalAreaLength,GoalFieldType.nongoal);
             PlaceInitialPieces(settings.InitialNumberOfPieces);
             PlaceInitialGoals(settings.Goals);
         }
@@ -170,9 +170,9 @@ namespace GameArea
         /// Places a piece in TaskArea in a random way
         /// </summary>
         /// <param name="piecesCount"></param>
-        private void PlaceInitialPieces(uint piecesCount)
+        private void PlaceInitialPieces(int piecesCount)
         {
-            for (uint i = 0; i < piecesCount; i++)
+            for (int i = 0; i < piecesCount; i++)
             {
                 var piece = CreatePiece();
                 var field = GetEmptyFieldForPiece();
@@ -207,14 +207,14 @@ namespace GameArea
 
         private GameArea.TaskField GetEmptyFieldForPiece()
         {
-            uint x, y;
+            int x, y;
             GameArea.TaskField field;
             if (actualBoard.TaskFields.Where(q => q.GetPiece != null).Count() == (int)(actualBoard.BoardWidth * actualBoard.TaskAreaHeight))
                 return null;
             do
             {
-                y = (uint)random.Next() % actualBoard.TaskAreaHeight + actualBoard.GoalAreaHeight;
-                x = (uint)random.Next() % actualBoard.BoardWidth;
+                y = random.Next() % actualBoard.TaskAreaHeight + actualBoard.GoalAreaHeight;
+                x = random.Next() % actualBoard.BoardWidth;
                 field = actualBoard.GetTaskField(x, y);
             }
             while (field == null || field.GetPiece != null);
@@ -223,7 +223,7 @@ namespace GameArea
 
         private GameArea.TaskField GetEmptyFieldForPlayer(TeamColour team)
         {
-            uint x = 0, y = team == TeamColour.blue ? GetGameDefinition.GoalAreaLength : GetGameDefinition.GoalAreaLength + GetGameDefinition.TaskAreaLength - 1;
+            int x = 0, y = team == TeamColour.blue ? GetGameDefinition.GoalAreaLength : GetGameDefinition.GoalAreaLength + GetGameDefinition.TaskAreaLength - 1;
             GameArea.TaskField field = actualBoard.GetTaskField(x, y);
             while (field == null || field.Player != null)
             {
@@ -270,8 +270,8 @@ namespace GameArea
                 }
                 else    //no piece -> check if there is a piece 1, 2, 3... fields away
                 {
-                    uint currentDist = 1;
-                    uint x, y;
+                    int currentDist = 1;
+                    int x, y;
                     while (currentDist < field.Distance && currentDist < taskFields.Count)
                     {
                         for (x = 0; x <= currentDist; x++)
@@ -281,22 +281,22 @@ namespace GameArea
 
                             if (CheckIfNotOutOfTaskArea(field.x + x, field.y + y) && ((actualBoard.GetField(field.x + x, field.y + y)) as TaskField).GetPiece != null)
                             {
-                                field.Distance = (int)currentDist;
+                                field.Distance = currentDist;
                                 break;
                             }//first quarter
                             if (CheckIfNotOutOfTaskArea(field.x - x, field.y + y) && ((actualBoard.GetField(field.x - x, field.y + y)) as TaskField).GetPiece != null)
                             {
-                                field.Distance = (int)currentDist;
+                                field.Distance = currentDist;
                                 break;
                             }//second quarter
                             if (CheckIfNotOutOfTaskArea(field.x + x, field.y - y) && ((actualBoard.GetField(field.x + x, field.y - y)) as TaskField).GetPiece != null)
                             {
-                                field.Distance = (int)currentDist;
+                                field.Distance = currentDist;
                                 break;
                             }
                             if (CheckIfNotOutOfTaskArea(field.x - x, field.y - y) && ((actualBoard.GetField(field.x - x, field.y - y)) as TaskField).GetPiece != null)
                             {
-                                field.Distance = (int)currentDist;
+                                field.Distance = currentDist;
                                 break;
                             }//fourth quarter
 
@@ -308,7 +308,7 @@ namespace GameArea
             }
         }
 
-        private bool CheckIfNotOutOfTaskArea(uint x, uint y)
+        private bool CheckIfNotOutOfTaskArea(int x, int y)
         {
             if (x < 0 || x >= actualBoard.BoardWidth ||
                 y < actualBoard.GoalAreaHeight || y >= actualBoard.GoalAreaHeight + actualBoard.TaskAreaHeight)

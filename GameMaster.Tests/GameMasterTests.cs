@@ -20,7 +20,7 @@ namespace GameArea.Tests
         public void InitBoard()
         {
             var taskFields = defaultGameMaster.GetBoard.TaskFields;
-            Assert.AreEqual(defaultSettings.GameDefinition.InitialNumberOfPieces, (uint)taskFields.Where(q => q.GetPiece != null).Count());
+            Assert.AreEqual(defaultSettings.GameDefinition.InitialNumberOfPieces, taskFields.Where(q => q.GetPiece != null).Count());
             var ids = new List<ulong>();
             foreach (var piece in taskFields.Where(q=>q.GetPiece!= null).Select(q=> q.GetPiece))
             {
@@ -133,8 +133,8 @@ namespace GameArea.Tests
             var actionResult = defaultGameMaster.TryPlaceShamPieceOnGoalField(new Location(1,2), "testGUID-0001");
 
             Assert.AreEqual(true, setPositionResult);
-            Assert.AreEqual(1u, actionResult[0].x);
-            Assert.AreEqual(2u, actionResult[0].y);
+            Assert.AreEqual(1, actionResult[0].x);
+            Assert.AreEqual(2, actionResult[0].y);
             Assert.AreEqual(agent.ID, actionResult[0].playerId);
             Assert.IsTrue(defaultGameMaster.GetBoard.GetGoalField(1,2).HasAgent());
             Assert.AreEqual(GoalFieldType.unknown, actionResult[0].type);
@@ -165,8 +165,8 @@ namespace GameArea.Tests
             var actionResult = defaultGameMaster.TryPlaceNormalPieceOnGoalField(new Location(1, 1), "testGUID-0001");
 
             Assert.AreEqual(true, setPositionResult);
-            Assert.AreEqual(1u, actionResult[0].x);
-            Assert.AreEqual(1u, actionResult[0].y);
+            Assert.AreEqual(1, actionResult[0].x);
+            Assert.AreEqual(1, actionResult[0].y);
             Assert.AreEqual(agent.ID, actionResult[0].playerId);
             Assert.IsTrue(defaultGameMaster.GetBoard.GetGoalField(1, 1).HasAgent());
             Assert.AreEqual(GoalFieldType.goal, actionResult[0].type);
@@ -198,8 +198,8 @@ namespace GameArea.Tests
             var actionResult = defaultGameMaster.TryPlaceNormalPieceOnGoalField(new Location(2, 1), "testGUID-0001");
 
             Assert.AreEqual(true, setPositionResult);
-            Assert.AreEqual(2u, actionResult[0].x);
-            Assert.AreEqual(1u, actionResult[0].y);
+            Assert.AreEqual(2, actionResult[0].x);
+            Assert.AreEqual(1, actionResult[0].y);
             Assert.AreEqual(agent.ID, actionResult[0].playerId);
             Assert.IsTrue(defaultGameMaster.GetBoard.GetGoalField(2, 1).HasAgent());
             Assert.AreEqual(GoalFieldType.nongoal, actionResult[0].type);
@@ -234,8 +234,8 @@ namespace GameArea.Tests
             var agentGameMasterCopy = defaultGameMaster.GetAgents.Where(q => q.GUID == "testGUID-0003").First();
 
             Assert.AreEqual(true, setPositionResult);
-            Assert.AreEqual(1u, actionResult[0].x);
-            Assert.AreEqual(5u, actionResult[0].y);
+            Assert.AreEqual(1, actionResult[0].x);
+            Assert.AreEqual(5, actionResult[0].y);
             Assert.AreEqual(agent.ID, actionResult[0].playerId);
             Assert.IsTrue(defaultGameMaster.GetBoard.GetTaskField(1, 5).HasAgent());
             Assert.IsNotNull(defaultGameMaster.GetBoard.GetTaskField(1, 5).GetPiece);
@@ -336,8 +336,8 @@ namespace GameArea.Tests
             defaultGameMaster.SetInfoAboutDiscoveredTaskField(new Location(2, 5), 0, 0, field, list);
             var responseField = list[0];
 
-            Assert.AreEqual(2u, responseField.x);
-            Assert.AreEqual(5u, responseField.y);
+            Assert.AreEqual(2, responseField.x);
+            Assert.AreEqual(5, responseField.y);
             Assert.IsTrue(responseField.playerIdSpecified);
             Assert.AreEqual(agent.ID, responseField.playerId);
             Assert.IsTrue(responseField.pieceIdSpecified);
@@ -361,8 +361,8 @@ namespace GameArea.Tests
             defaultGameMaster.SetInfoAboutDiscoveredGoalField(new Location(2, 2), 0, 0, field, list);
             var responseField = list[0];
 
-            Assert.AreEqual(2u, responseField.x);
-            Assert.AreEqual(2u, responseField.y);
+            Assert.AreEqual(2, responseField.x);
+            Assert.AreEqual(2, responseField.y);
             Assert.IsTrue(responseField.playerIdSpecified);
             Assert.AreEqual(agent.ID, responseField.playerId);
         }

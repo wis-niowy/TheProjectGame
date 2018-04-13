@@ -216,13 +216,13 @@ namespace GameArea
             };
 
             //player tried to step out of the board or enetr wrong GoalArea
-            if (!ValidateFieldPosition((int)futureLocation.x, (int)futureLocation.y, team))
+            if (!ValidateFieldPosition(futureLocation.x, futureLocation.y, team))
                 return response;
 
             Messages.Piece piece;
             //Messages.Field field;
             Messages.Field responseField;
-            Field field = actualBoard.GetField((uint)futureLocation.x, (uint)futureLocation.y);
+            Field field = actualBoard.GetField(futureLocation.x, futureLocation.y);
 
             Monitor.Enter(lockObject);
             try
@@ -299,9 +299,9 @@ namespace GameArea
                     for (int dy = -1; dy <= 1; ++dy)
                     {
                         if (dx == 0 && dy == 0) continue;
-                        if (ValidateFieldPosition((int)(location.x + dx), (int)(location.y + dy), team))
+                        if (ValidateFieldPosition((location.x + dx),(location.y + dy), team))
                         {
-                            Field field = actualBoard.GetField((uint)(location.x + dx), (uint)(location.y + dy));
+                            Field field = actualBoard.GetField(location.x + dx, location.y + dy);
                             // discovered field is a TaskField - can contain players and pieces
                             if (field is TaskField)
                             {

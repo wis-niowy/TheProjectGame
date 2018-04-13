@@ -14,9 +14,9 @@ namespace TheProjectGame.Tests
         [TestMethod]
         public void NewTaskField()
         {
-            var field = new GameArea.TaskField(1u, 2u);
-            Assert.AreEqual(1u, field.x);
-            Assert.AreEqual(2u, field.y);
+            var field = new GameArea.TaskField(1, 2);
+            Assert.AreEqual(1, field.x);
+            Assert.AreEqual(2, field.y);
             Assert.IsNull(field.GetPiece);
         }
 
@@ -60,16 +60,16 @@ namespace TheProjectGame.Tests
         [TestMethod]
         public void NewGoalField()
         {
-            var field = new GameArea.GoalField(1u, 2u, TeamColour.blue);
-            Assert.AreEqual(1u, field.x);
-            Assert.AreEqual(2u, field.y);
+            var field = new GameArea.GoalField(1, 2, TeamColour.blue);
+            Assert.AreEqual(1, field.x);
+            Assert.AreEqual(2, field.y);
             Assert.AreEqual(TeamColour.blue, field.GetOwner);
         }
 
         [TestMethod]
         public void GoalFieldGetType()
         {
-            var field = new GameArea.GoalField(1u, 1u, TeamColour.blue);
+            var field = new GameArea.GoalField(1, 1, TeamColour.blue);
             Assert.AreEqual(FieldType.Goal, field.GetFieldType);
         }
 

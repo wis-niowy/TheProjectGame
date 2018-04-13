@@ -35,7 +35,7 @@ namespace GameArea
                 distance = 0;
         }
 
-        public TaskField(uint x, uint y, Piece piece = null) : base(x, y)
+        public TaskField(int x, int y, Piece piece = null) : base(x, y)
         {
             this.piece = piece;
             distance = int.MaxValue;

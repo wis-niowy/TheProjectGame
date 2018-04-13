@@ -127,7 +127,7 @@ namespace Messages
             }
         }
 
-        public TaskField(uint x, uint y) : base(x, y) { }
+        public TaskField(int x, int y) : base(x, y) { }
         public TaskField() : base() { }
     }
     
@@ -181,7 +181,7 @@ namespace Messages
             }
         }
 
-        public Field(uint x, uint y) : base(x, y) { }
+        public Field(int x, int y) : base(x, y) { }
 
         public override bool Equals(object obj)
         {
@@ -211,13 +211,13 @@ namespace Messages
     [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=true)]
     public partial class Location {
         
-        private uint xField;
+        private int xField;
         
-        private uint yField;
+        private int yField;
         
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public uint x {
+        public int x {
             get {
                 return this.xField;
             }
@@ -228,7 +228,7 @@ namespace Messages
         
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public uint y {
+        public int y {
             get {
                 return this.yField;
             }
@@ -237,7 +237,7 @@ namespace Messages
             }
         }
 
-        public Location(uint x, uint y)
+        public Location(int x, int y)
         {
             xField = x;
             yField = y;
@@ -295,7 +295,7 @@ namespace Messages
             }
         }
 
-        public GoalField(uint x, uint y, TeamColour team, GoalFieldType type = GoalFieldType.goal) : base(x, y)
+        public GoalField(int x, int y, TeamColour team, GoalFieldType type = GoalFieldType.goal) : base(x, y)
         {
             teamField = team;
             typeField = type;
@@ -840,15 +840,15 @@ namespace Messages
     [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="https://se2.mini.pw.edu.pl/17-results/")]
     public partial class GameBoard {
         
-        private uint widthField;
+        private int widthField;
         
-        private uint tasksHeightField;
+        private int tasksHeightField;
         
-        private uint goalsHeightField;
+        private int goalsHeightField;
         
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public uint width {
+        public int width {
             get {
                 return this.widthField;
             }
@@ -859,7 +859,7 @@ namespace Messages
         
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public uint tasksHeight {
+        public int tasksHeight {
             get {
                 return this.tasksHeightField;
             }
@@ -870,7 +870,7 @@ namespace Messages
         
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public uint goalsHeight {
+        public int goalsHeight {
             get {
                 return this.goalsHeightField;
             }

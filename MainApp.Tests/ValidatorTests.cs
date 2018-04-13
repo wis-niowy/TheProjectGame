@@ -340,7 +340,7 @@ namespace MainApp.Tests
         [TestMethod]
         public void BlueGoalInRedGoalArea()
         {
-            defaultSettings.GameDefinition.Goals = new GoalField[] { new GoalField(1, 2, TeamColour.blue), new GoalField(10, 3, TeamColour.blue), new GoalField(10, 2, TeamColour.red) };
+            defaultSettings.GameDefinition.Goals = new GoalField[] { new GoalField(1, 2, TeamColour.blue), new GoalField(1, 3, TeamColour.blue), new GoalField(10, 2, TeamColour.red) };
             var message = Validator.ValidateGoals(defaultSettings.GameDefinition.Goals,
                 defaultSettings.GameDefinition.GoalAreaLength,
                 defaultSettings.GameDefinition.TaskAreaLength,

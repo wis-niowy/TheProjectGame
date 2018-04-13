@@ -17,7 +17,7 @@ namespace GameArea
         private Random random;
         private List<Player.Agent> agents;
         //private List<Piece> pieces;
-        private Dictionary<string, uint> agentIdDictionary;
+        private Dictionary<string, ulong> agentIdDictionary;
         private Board actualBoard;
         private GameMasterSettings gameSettings;
 

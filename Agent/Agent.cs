@@ -173,7 +173,7 @@ namespace Player
             location = new Location(point.x, point.y);
         }
 
-        public void SetLocation(uint x, uint y)
+        public void SetLocation(int x, int y)
         {
             location = new Location(x, y);
         }
