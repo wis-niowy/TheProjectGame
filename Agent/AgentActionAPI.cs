@@ -283,7 +283,7 @@ namespace Player
         private bool MoveUpdate(Data responseMessage, MoveType direction)
         {
             bool resultValue = false;
-
+            // MoveUpdate oraz gameMaster.HandleMoveRequest updatuja lokacje agenta przez to potrafi ruszyc sie 2 razy
             var futureLocation = CalculateFutureLocation(this.location, direction);
             var currentLocation = responseMessage.PlayerLocation;
             var taskFieldsArray = responseMessage.TaskFields;

@@ -970,5 +970,209 @@ namespace Player.Tests
             Assert.IsNotNull(gameMaster.GetBoard.GetField(4, 9).Player);
             Assert.AreEqual(agent2.ID, gameMaster.GetBoard.GetField(4, 9).Player.id);
         }
+        [TestMethod]
+        public void GoToNearestPieceInGoalAreaForBlueAgent()
+        {
+            int x = 0, y = 0;
+            var agent1 = new Player.Agent(TeamColour.blue, "testGUID-0027",gameMaster);
+            agent1.SetLocation(x, y);
+
+            gameMaster.RegisterAgent(agent1, agent1.GUID, findFreeLocationAndPlacePlayer: false);
+            
+           
+            var setPositionResult1 = gameMaster.SetAbsoluteAgentLocation(x,y, "testGUID-0027"); // we change a location of GM's copy
+            agent1.GoToNearestPiece();
+            //rusza sie o 2 do gory cos jest nie tak z TryMove (pozwala na 2 ruchy do gory)
+
+            Location expectedLocationAgent = new Location(x, y+1);
+
+            Assert.AreEqual(expectedLocationAgent, agent1.GetLocation);
+
+        }
+
+        [TestMethod]
+        public void GoToNearestPieceInGoalAreaForRedAgent()
+        {
+            int x = 0, y = 12;
+            var agent1 = new Player.Agent(TeamColour.blue, "testGUID-0027", gameMaster);
+            agent1.SetLocation(x, y);
+
+            gameMaster.RegisterAgent(agent1, agent1.GUID, findFreeLocationAndPlacePlayer: false);
+
+
+            var setPositionResult1 = gameMaster.SetAbsoluteAgentLocation(x, y, "testGUID-0027"); // we change a location of GM's copy
+            agent1.GoToNearestPiece();
+            //rusza sie o 2 do gory cos jest nie tak z TryMove (pozwala na 2 ruchy do gory)
+
+            Location expectedLocationAgent = new Location(x, y-1);
+
+            Assert.AreEqual(expectedLocationAgent, agent1.GetLocation);
+
+        }
+        [TestMethod]
+        public void GoToNearestPieceInTaskAreaForBlueAgent()
+        {
+            Location pieceLocation = new Location(1, 5);
+            Location beforeMove = new Location(3, 6);
+            ulong pieceId = 51;
+
+            var agent1 = new Player.Agent(TeamColour.blue, "testGUID-0027", gameMaster);
+            agent1.SetLocation(beforeMove);
+
+            gameMaster.RegisterAgent(agent1, agent1.GUID, findFreeLocationAndPlacePlayer: false);
+            gameMaster.SetPieceInLocation(pieceLocation.x,pieceLocation.y, TeamColour.blue,PieceType.unknown, pieceId);
+
+            var setPositionResult1 = gameMaster.SetAbsoluteAgentLocation(beforeMove.x,beforeMove.y, "testGUID-0027"); // we change a location of GM's copy
+            agent1.GoToNearestPiece();
+            //rusza sie o 2 do gory cos jest nie tak z TryMove (pozwala na 2 ruchy do gory)
+
+            //Location expectedLocationAgent = new Location();
+            Location afterMove = agent1.GetLocation;
+            Assert.IsTrue(beforeMove.x - 1 == afterMove.x || beforeMove.y -1 == afterMove.y);
+        }
+        [TestMethod]
+        public void TryPickPieceTest()
+        {
+            Location pieceLocation = new Location(1, 5);
+            Location agentLocation = new Location(1, 5);
+            ulong pieceId = 51;
+
+            var agent1 = new Player.Agent(TeamColour.blue, "testGUID-0027", gameMaster);
+            agent1.SetLocation(agentLocation);
+
+            gameMaster.RegisterAgent(agent1, agent1.GUID, findFreeLocationAndPlacePlayer: false);
+            gameMaster.SetPieceInLocation(pieceLocation.x, pieceLocation.y, TeamColour.blue, PieceType.unknown, pieceId);
+
+            var setPositionResult1 = gameMaster.SetAbsoluteAgentLocation(agentLocation.x, agentLocation.y, "testGUID-0027"); // we change a location of GM's copy
+
+            Assert.IsTrue(agent1.GetPiece == null);
+            agent1.TryPickPiece();
+            Assert.IsTrue(agent1.GetPiece != null);
+        }
+        [TestMethod]
+        public void TryTestPieceShamTest()
+        {
+            Location pieceLocation = new Location(1, 5);
+            Location agentLocation = new Location(1, 5);
+            ulong pieceId = 51;
+
+            PieceType expectedPieceType = PieceType.sham;
+
+            var agent1 = new Player.Agent(TeamColour.blue, "testGUID-0027", gameMaster);
+            agent1.SetLocation(agentLocation);
+
+            gameMaster.RegisterAgent(agent1, agent1.GUID, findFreeLocationAndPlacePlayer: false);
+            gameMaster.SetPieceInLocation(pieceLocation.x, pieceLocation.y, TeamColour.blue, expectedPieceType, pieceId);
+
+            var setPositionResult1 = gameMaster.SetAbsoluteAgentLocation(agentLocation.x, agentLocation.y, "testGUID-0027"); // we change a location of GM's copy
+
+            agent1.PickUpPiece(gameMaster);
+
+            
+            Assert.IsTrue(agent1.TryTestPiece());
+            Assert.AreEqual(expectedPieceType, agent1.GetPiece.type);
+        }
+
+        [TestMethod]
+        public void TryTestPieceValidTest()
+        {
+            Location pieceLocation = new Location(1, 5);
+            Location agentLocation = new Location(1, 5);
+            ulong pieceId = 51;
+
+            PieceType expectedPieceType = PieceType.normal;
+
+            var agent1 = new Player.Agent(TeamColour.blue, "testGUID-0027", gameMaster);
+            agent1.SetLocation(agentLocation);
+
+            gameMaster.RegisterAgent(agent1, agent1.GUID, findFreeLocationAndPlacePlayer: false);
+            gameMaster.SetPieceInLocation(pieceLocation.x, pieceLocation.y, TeamColour.blue, expectedPieceType, pieceId);
+
+            var setPositionResult1 = gameMaster.SetAbsoluteAgentLocation(agentLocation.x, agentLocation.y, "testGUID-0027"); // we change a location of GM's copy
+
+            agent1.PickUpPiece(gameMaster);
+
+
+            Assert.IsTrue(agent1.TryTestPiece());
+            Assert.AreEqual(expectedPieceType, agent1.GetPiece.type);
+        }
+        [TestMethod]
+        public void GoToGoalAreaForBlueTeamTest()
+        {
+            Location agentLocation = new Location(1, 5);
+
+            var agent1 = new Player.Agent(TeamColour.blue, "testGUID-0027", gameMaster);
+            agent1.SetLocation(agentLocation);
+
+            gameMaster.RegisterAgent(agent1, agent1.GUID, findFreeLocationAndPlacePlayer: false);
+
+            var setPositionResult1 = gameMaster.SetAbsoluteAgentLocation(agentLocation.x, agentLocation.y, "testGUID-0027"); // we change a location of GM's copy
+
+
+            //powinno byc agent1.GoToGoalArea()
+            agent1.GoToGoalArea(agent1.GetTeam);
+            Location expectedLocationAgent = new Location(agentLocation.x,agentLocation.y-1);
+
+            Assert.AreEqual(expectedLocationAgent, agent1.GetLocation);
+        }
+        [TestMethod]
+        public void GoToGoalAreaForRedTeamTest()
+        {
+            Location agentLocation = new Location(1, 5);
+
+            var agent1 = new Player.Agent(TeamColour.red, "testGUID-0027", gameMaster);
+            agent1.SetLocation(agentLocation);
+
+            gameMaster.RegisterAgent(agent1, agent1.GUID, findFreeLocationAndPlacePlayer: false);
+
+            var setPositionResult1 = gameMaster.SetAbsoluteAgentLocation(agentLocation.x, agentLocation.y, "testGUID-0027"); // we change a location of GM's copy
+
+
+            //powinno byc agent1.GoToGoalArea()
+            agent1.GoToGoalArea(agent1.GetTeam);
+            Location expectedLocationAgent = new Location(agentLocation.x, agentLocation.y + 1);
+
+            Assert.AreEqual(expectedLocationAgent, agent1.GetLocation);
+        }
+        //slabo testowalny jest napisany default board z goalfieldami( za du¿o uknown field)
+        [TestMethod]
+        public void GetClosestUnknownGoalDirectionForRedTeamTestIfIsOnGoal()
+        {
+            Location agentLocation = new Location(12,12);
+
+            var agent1 = new Player.Agent(TeamColour.red, "testGUID-0027", gameMaster);
+            agent1.SetLocation(agentLocation);
+
+            gameMaster.RegisterAgent(agent1, agent1.GUID, findFreeLocationAndPlacePlayer: false);
+
+            var setPositionResult1 = gameMaster.SetAbsoluteAgentLocation(agentLocation.x, agentLocation.y, "testGUID-0027"); // we change a location of GM's copy
+
+
+            MoveType agentDirection = agent1.GetClosestUnknownGoalDirection();
+            //MoveType expectedAgentDirection = MoveType.down;
+
+
+            Assert.AreEqual(agentDirection , MoveType.left );
+        }
+
+        //slabo testowalny jest napisany default board z goalfieldami( za du¿o uknown field)
+        [TestMethod]
+        public void GetClosestUnknownGoalForBlueTeamTestIfIsOnGoal()
+        {
+            Location agentLocation = new Location(1, 1);
+
+            var agent1 = new Player.Agent(TeamColour.blue, "testGUID-0027", gameMaster);
+            agent1.SetLocation(agentLocation);
+
+            gameMaster.RegisterAgent(agent1, agent1.GUID, findFreeLocationAndPlacePlayer: false);
+
+            var setPositionResult1 = gameMaster.SetAbsoluteAgentLocation(agentLocation.x, agentLocation.y, "testGUID-0027"); // we change a location of GM's copy
+
+
+            MoveType agentDirection = agent1.GetClosestUnknownGoalDirection();
+
+            Assert.AreEqual(agentDirection, MoveType.left);
+        }
+
     }
 }

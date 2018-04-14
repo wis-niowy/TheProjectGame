@@ -208,6 +208,9 @@ namespace GameArea
             else
                 return new Piece(PieceType.normal, nextPieceId++);
         }
+        
+
+
 
         private GameArea.TaskField GetEmptyFieldForPiece()
         {
