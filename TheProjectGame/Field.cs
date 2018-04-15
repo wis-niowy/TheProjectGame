@@ -10,8 +10,8 @@ namespace GameArea
     public abstract class Field:Location
     {
         private DateTime timestamp;
-        private Agent player;
-        public Agent Player
+        private Player player;
+        public Player Player
         {
             get
             {
@@ -32,7 +32,7 @@ namespace GameArea
             timestamp = newTimeStamp;
         }
 
-        public bool HasAgent()
+        public bool HasPlayer()
         {
             return (player != null);
         }

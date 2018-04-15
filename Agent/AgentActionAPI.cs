@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Player
 {
-    public partial class Agent
+    public partial class Player
     {
        
 
@@ -78,15 +78,15 @@ namespace Player
             //    // future position is a TaskField
             //    else if (responseMessage.TaskFields != null && responseMessage.TaskFields.Length > 0)
             //    {
-            //        // an agent attempted to enter an occupied TaskField
+            //        // an Player attempted to enter an occupied TaskField
             //        if (this.location.Equals(responseMessage.PlayerLocation))
             //        {
-            //            // add encountered stranger agent to this agent's view
-            //            var stranger = new Messages.Agent()
+            //            // add encountered stranger Player to this Player's view
+            //            var stranger = new Messages.Player()
             //            {
             //                id = (ulong)responseMessage.TaskFields[0].playerId,
             //            };
-            //            agentBoard.GetField(futureLocation.x, futureLocation.y).Player = stranger;
+            //            PlayerBoard.GetField(futureLocation.x, futureLocation.y).Player = stranger;
 
             //            return false;
             //        }
@@ -100,15 +100,15 @@ namespace Player
             //    // future position is a GoalField
             //    else if (responseMessage.GoalFields != null && responseMessage.GoalFields.Length > 0)
             //    {
-            //        // an agent attempted to enter an occupied GoalField
+            //        // an Player attempted to enter an occupied GoalField
             //        if (this.location.Equals(responseMessage.PlayerLocation))
             //        {
-            //            // add encountered stranger agent to this agent's view
-            //            var stranger = new Messages.Agent()
+            //            // add encountered stranger Player to this Player's view
+            //            var stranger = new Messages.Player()
             //            {
             //                id = (ulong)responseMessage.GoalFields[0].playerId,
             //            };
-            //            agentBoard.GetField(futureLocation.x, futureLocation.y).Player = stranger;
+            //            PlayerBoard.GetField(futureLocation.x, futureLocation.y).Player = stranger;
 
             //            return false;
             //        }
@@ -222,32 +222,32 @@ namespace Player
             var goalFieldsArray = responseMessage.GoalFields;
             var piecesArray = responseMessage.Pieces;
 
-            if (taskFieldsArray != null && taskFieldsArray.Length > 0 && taskFieldsArray[0] != null) // agent kladzie kawalek na wolne pole
+            if (taskFieldsArray != null && taskFieldsArray.Length > 0 && taskFieldsArray[0] != null) // Player kladzie kawalek na wolne pole
                                                                                                      // jezeli taskFieldsArray[0] == null to probowano polozyc na zajetym TaskField
             {
                 var receivedField = taskFieldsArray[0];
-                var field = this.agentBoard.GetTaskField(location.x, location.y);
+                var field = this.PlayerBoard.GetTaskField(location.x, location.y);
                 field.SetPiece(this.GetPiece); // odkladamy kawalek
                 field.UpdateTimeStamp(DateTime.Now);
                 this.SetPiece(null);
                 resultValue = true;
             }
-            else if (goalFieldsArray != null && goalFieldsArray.Length > 0 && goalFieldsArray[0] != null) // agent kladzie kawalek na GoalField                                                                                              
+            else if (goalFieldsArray != null && goalFieldsArray.Length > 0 && goalFieldsArray[0] != null) // Player kladzie kawalek na GoalField                                                                                              
             {
                 var receivedField = goalFieldsArray[0];
-                if (receivedField.type == GoalFieldType.goal) // agent trafil gola - puszcza kawalek
+                if (receivedField.type == GoalFieldType.goal) // Player trafil gola - puszcza kawalek
                 {
                     this.SetPiece(null);
                     resultValue = true;
                 }
-                else if (receivedField.type == GoalFieldType.nongoal) // agent chybil probujac kawalkiem 'normal'
+                else if (receivedField.type == GoalFieldType.nongoal) // Player chybil probujac kawalkiem 'normal'
                 {
-                    var field = agentBoard.GetGoalField(location.x, location.y);
+                    var field = PlayerBoard.GetGoalField(location.x, location.y);
                     field.GoalType = GoalFieldType.nongoal;
                     field.UpdateTimeStamp(DateTime.Now);
                     resultValue = false;
                 }
-                else // (receivedField.type == GoalFieldType.unknown) -- polozono sham na GoalField - zadnych info o polu, wiec wiemy ze agent ma typ sham
+                else // (receivedField.type == GoalFieldType.unknown) -- polozono sham na GoalField - zadnych info o polu, wiec wiemy ze Player ma typ sham
                 {
                     this.GetPiece.type = PieceType.sham;
                     this.GetPiece.timestamp = DateTime.Now;
@@ -270,7 +270,7 @@ namespace Player
                 var receivedPiece = piecesArray[0];
                 this.SetPiece(receivedPiece);
                 this.GetPiece.timestamp = DateTime.Now;
-                agentBoard.GetTaskField(location.x, location.y).SetPiece(null);
+                PlayerBoard.GetTaskField(location.x, location.y).SetPiece(null);
                 resultValue = true;
             }
             else
@@ -283,7 +283,7 @@ namespace Player
         private bool MoveUpdate(Data responseMessage, MoveType direction)
         {
             bool resultValue = false;
-            // MoveUpdate oraz gameMaster.HandleMoveRequest updatuja lokacje agenta przez to potrafi ruszyc sie 2 razy
+            // MoveUpdate oraz gameMaster.HandleMoveRequest updatuja lokacje Playera przez to potrafi ruszyc sie 2 razy
             var futureLocation = CalculateFutureLocation(this.location, direction);
             var currentLocation = responseMessage.PlayerLocation;
             var taskFieldsArray = responseMessage.TaskFields;
@@ -299,15 +299,15 @@ namespace Player
             // future position is a TaskField
             else if (responseMessage.TaskFields != null && responseMessage.TaskFields.Length > 0)
             {
-                // an agent attempted to enter an occupied TaskField
+                // an Player attempted to enter an occupied TaskField
                 if (this.location.Equals(responseMessage.PlayerLocation))
                 {
-                    // add encountered stranger agent to this agent's view
-                    var stranger = new Messages.Agent()
+                    // add encountered stranger Player to this Player's view
+                    var stranger = new Messages.Player()
                     {
                         id = (ulong)responseMessage.TaskFields[0].playerId,
                     };
-                    agentBoard.GetField(futureLocation.x, futureLocation.y).Player = stranger;
+                    PlayerBoard.GetField(futureLocation.x, futureLocation.y).Player = stranger;
 
                     resultValue = false;
                 }
@@ -321,15 +321,15 @@ namespace Player
             // future position is a GoalField
             else if (responseMessage.GoalFields != null && responseMessage.GoalFields.Length > 0)
             {
-                // an agent attempted to enter an occupied GoalField
+                // an Player attempted to enter an occupied GoalField
                 if (this.location.Equals(responseMessage.PlayerLocation))
                 {
-                    // add encountered stranger agent to this agent's view
-                    var stranger = new Messages.Agent()
+                    // add encountered stranger Player to this Player's view
+                    var stranger = new Messages.Player()
                     {
                         id = (ulong)responseMessage.GoalFields[0].playerId,
                     };
-                    agentBoard.GetField(futureLocation.x, futureLocation.y).Player = stranger;
+                    PlayerBoard.GetField(futureLocation.x, futureLocation.y).Player = stranger;
 
                     resultValue = false;
                 }
@@ -357,13 +357,13 @@ namespace Player
                         var coordX = respField.x;
                         var coordY = respField.y;
 
-                        GameArea.TaskField updatedField = agentBoard.GetField(respField.x, respField.y) as GameArea.TaskField;
+                        GameArea.TaskField updatedField = PlayerBoard.GetField(respField.x, respField.y) as GameArea.TaskField;
                         updatedField.UpdateTimeStamp(respField.timestamp);
                         updatedField.Distance = respField.distanceToPiece;
 
 
                         if (respField.playerIdSpecified)
-                            updatedField.Player = new Messages.Agent()
+                            updatedField.Player = new Messages.Player()
                             {
                                 id = respField.playerId
 #warning Wymaga napisania metody do otrzymywania listy wszystkich graczy
@@ -385,11 +385,11 @@ namespace Player
                         var coordX = respField.x;
                         var coordY = respField.y;
 
-                        GameArea.GoalField updatedField = agentBoard.GetField(respField.x, respField.y) as GameArea.GoalField;
+                        GameArea.GoalField updatedField = PlayerBoard.GetField(respField.x, respField.y) as GameArea.GoalField;
                         updatedField.UpdateTimeStamp(respField.timestamp);
 
                         if (respField.playerIdSpecified)
-                            updatedField.Player = new Messages.Agent()
+                            updatedField.Player = new Messages.Player()
                             {
                                 id = respField.playerId
 #warning Wymaga napisania metody do otrzymywania listy wszystkich graczy

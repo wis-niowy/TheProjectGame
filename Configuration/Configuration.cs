@@ -1,82 +1,94 @@
-namespace Configuration {
+namespace Configuration
+{
     using Messages;
     using System;
     using System.Collections.Generic;
-    
-    
+
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/", IsNullable=false)]
-    public partial class PlayerSettings : Configuration {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/", IsNullable = false)]
+    public partial class PlayerSettings : Configuration
+    {
+
         private int retryJoinGameIntervalField;
-        
-        public PlayerSettings() {
+
+        public PlayerSettings()
+        {
             this.retryJoinGameIntervalField = (5000);
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         [System.ComponentModel.DefaultValueAttribute(typeof(int), "5000")]
-        public int RetryJoinGameInterval {
-            get {
+        public int RetryJoinGameInterval
+        {
+            get
+            {
                 return this.retryJoinGameIntervalField;
             }
-            set {
+            set
+            {
                 this.retryJoinGameIntervalField = value;
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/", IsNullable=true)]
-    public partial class Configuration {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/", IsNullable = true)]
+    public partial class Configuration
+    {
+
         private int keepAliveIntervalField;
-        
-        public Configuration() {
+
+        public Configuration()
+        {
             this.keepAliveIntervalField = 30000;
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         [System.ComponentModel.DefaultValueAttribute(typeof(int), "30000")]
-        public int KeepAliveInterval {
-            get {
+        public int KeepAliveInterval
+        {
+            get
+            {
                 return this.keepAliveIntervalField;
             }
-            set {
+            set
+            {
                 this.keepAliveIntervalField = value;
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/", IsNullable=false)]
-    public partial class GameMasterSettings : Configuration {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/", IsNullable = false)]
+    public partial class GameMasterSettings : Configuration
+    {
+
         private GameMasterSettingsGameDefinition gameDefinitionField;
-        
+
         private GameMasterSettingsActionCosts actionCostsField;
-        
+
         private int retryRegisterGameIntervalField;
 
         public GameMasterSettings() { }
-        
+
 
         public static GameMasterSettings GetDefaultGameMasterSettings()
         {
@@ -98,33 +110,42 @@ namespace Configuration {
         }
 
         /// <remarks/>
-        public GameMasterSettingsGameDefinition GameDefinition {
-            get {
+        public GameMasterSettingsGameDefinition GameDefinition
+        {
+            get
+            {
                 return this.gameDefinitionField;
             }
-            set {
+            set
+            {
                 this.gameDefinitionField = value;
             }
         }
-        
+
         /// <remarks/>
-        public GameMasterSettingsActionCosts ActionCosts {
-            get {
+        public GameMasterSettingsActionCosts ActionCosts
+        {
+            get
+            {
                 return this.actionCostsField;
             }
-            set {
+            set
+            {
                 this.actionCostsField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         [System.ComponentModel.DefaultValueAttribute(typeof(int), "5000")]
-        public int RetryRegisterGameInterval {
-            get {
+        public int RetryRegisterGameInterval
+        {
+            get
+            {
                 return this.retryRegisterGameIntervalField;
             }
-            set {
+            set
+            {
                 this.retryRegisterGameIntervalField = value;
             }
         }
@@ -189,21 +210,6 @@ namespace Configuration {
         {
             initialNumberOfPiecesField = number;
         }
-
-        //// ORIGINALLY GENERATED PART:
-        //this.goalsField = new GoalField[]
-        //    {
-        //        // set of GoalFields was invalid ...
-        //        // corrected
-        //    new GoalField() { x = 1, y = 1, type = GoalFieldType.goal, team = TeamColour.blue },
-        //    new GoalField() { x = 1, y = 2, type = GoalFieldType.goal, team = TeamColour.blue },
-        //    new GoalField() { x = 1, y = 0, type = GoalFieldType.goal, team = TeamColour.blue },
-        //    new GoalField() { x = 1, y = 1, type = GoalFieldType.goal, team = TeamColour.red },
-        //    new GoalField() { x = 11, y = 2, type = GoalFieldType.goal, team = TeamColour.red },
-        //    new GoalField() { x = 11, y = 0, type = GoalFieldType.goal, team = TeamColour.red }
-
-        //    };
-
 
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("Goals")]
@@ -273,7 +279,6 @@ namespace Configuration {
         }
 
         /// <remarks/>
-        //[System.Xml.Serialization.XmlElementAttribute(DataType="nonNegativeInteger")]
         public int TaskAreaLength
         {
             get
@@ -287,7 +292,6 @@ namespace Configuration {
         }
 
         /// <remarks/>
-        //[System.Xml.Serialization.XmlElementAttribute(DataType="nonNegativeInteger")]
         public int GoalAreaLength
         {
             get
@@ -301,7 +305,6 @@ namespace Configuration {
         }
 
         /// <remarks/>
-        //[System.Xml.Serialization.XmlElementAttribute(DataType="nonNegativeInteger")]
         public int NumberOfPlayersPerTeam
         {
             get
@@ -327,7 +330,7 @@ namespace Configuration {
             }
         }
     }
-    
+
     ///// <remarks/>
     //[System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     //[System.SerializableAttribute()]
@@ -336,11 +339,11 @@ namespace Configuration {
     //[System.Xml.Serialization.XmlTypeAttribute(Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/")]
     //[System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/", IsNullable=true)]
     //public partial class GoalField : Field {
-        
+
     //    private GoalFieldType typeField;
-        
+
     //    private TeamColour teamField;
-        
+
     //    /// <remarks/>
     //    [System.Xml.Serialization.XmlAttributeAttribute()]
     //    public GoalFieldType type {
@@ -351,7 +354,7 @@ namespace Configuration {
     //            this.typeField = value;
     //        }
     //    }
-        
+
     //    /// <remarks/>
     //    [System.Xml.Serialization.XmlAttributeAttribute()]
     //    public TeamColour team {
@@ -363,70 +366,75 @@ namespace Configuration {
     //        }
     //    }
     //}
-    
+
     ///// <remarks/>
     //[System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     //[System.SerializableAttribute()]
     //[System.Xml.Serialization.XmlTypeAttribute(Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/")]
     //[System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/", IsNullable=false)]
     //public enum GoalFieldType {
-        
+
     //    /// <remarks/>
     //    goal,
-        
+
     //    /// <remarks/>
     //    [System.Xml.Serialization.XmlEnumAttribute("non-goal")]
     //    nongoal,
     //}
-    
+
     ///// <remarks/>
     //[System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     //[System.SerializableAttribute()]
     //[System.Xml.Serialization.XmlTypeAttribute(Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/")]
     //[System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/", IsNullable=false)]
     //public enum TeamColour {
-        
+
     //    /// <remarks/>
     //    red,
-        
+
     //    /// <remarks/>
     //    blue,
     //}
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(GoalField))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/", IsNullable=true)]
-    public abstract partial class Field : Location {
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/", IsNullable = true)]
+    public abstract partial class Field : Location
+    {
     }
-    
-    
+
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/")]
-    public partial class GameMasterSettingsActionCosts {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/")]
+    public partial class GameMasterSettingsActionCosts
+    {
+
         private int moveDelayField;
-        
+
         private int discoverDelayField;
-        
+
         private int testDelayField;
-        
+
+        private int destroyDelayField;
+
         private int pickUpDelayField;
-        
+
         private int placingDelayField;
-        
+
         private int knowledgeExchangeDelayField;
-        
-        public GameMasterSettingsActionCosts() {
-           
+
+        public GameMasterSettingsActionCosts()
+        {
+
         }
 
         public static GameMasterSettingsActionCosts GetDefaultCosts()
@@ -441,75 +449,107 @@ namespace Configuration {
                 knowledgeExchangeDelayField = 1200
             };
         }
-        
+
         /// <remarks/>
-        public int MoveDelay {
-            get {
+        public int MoveDelay
+        {
+            get
+            {
                 return this.moveDelayField;
             }
-            set {
+            set
+            {
                 this.moveDelayField = value;
             }
         }
-        
+
         /// <remarks/>
-        public int DiscoverDelay {
-            get {
+        public int DiscoverDelay
+        {
+            get
+            {
                 return this.discoverDelayField;
             }
-            set {
+            set
+            {
                 this.discoverDelayField = value;
             }
         }
-        
+
         /// <remarks/>
-        public int TestDelay {
-            get {
+        public int TestDelay
+        {
+            get
+            {
                 return this.testDelayField;
             }
-            set {
+            set
+            {
                 this.testDelayField = value;
             }
         }
-        
+
         /// <remarks/>
-        public int PickUpDelay {
-            get {
+        public int DestroyDelay
+        {
+            get
+            {
+                return this.destroyDelayField;
+            }
+            set
+            {
+                this.destroyDelayField = value;
+            }
+        }
+
+        /// <remarks/>
+        public int PickUpDelay
+        {
+            get
+            {
                 return this.pickUpDelayField;
             }
-            set {
+            set
+            {
                 this.pickUpDelayField = value;
             }
         }
-        
+
         /// <remarks/>
-        public int PlacingDelay {
-            get {
+        public int PlacingDelay
+        {
+            get
+            {
                 return this.placingDelayField;
             }
-            set {
+            set
+            {
                 this.placingDelayField = value;
             }
         }
-        
+
         /// <remarks/>
-        public int KnowledgeExchangeDelay {
-            get {
+        public int KnowledgeExchangeDelay
+        {
+            get
+            {
                 return this.knowledgeExchangeDelayField;
             }
-            set {
+            set
+            {
                 this.knowledgeExchangeDelayField = value;
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/", IsNullable=false)]
-    public partial class CommunicationServerSettings : Configuration {
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/", IsNullable = false)]
+    public partial class CommunicationServerSettings : Configuration
+    {
     }
 }

@@ -19,9 +19,9 @@ namespace GameArea
         private ulong goalsRedLeft;
         private ulong goalsBlueLeft;
         private Random random;
-        private List<Player.Agent> agents;
+        private List<Player.Player> Players;
         //private List<Piece> pieces;
-        private Dictionary<string, ulong> agentIdDictionary;
+        private Dictionary<string, ulong> PlayerIdDictionary;
         private Board actualBoard;
         private GameMasterSettings gameSettings;
         private System.Timers.Timer pieceAdder;
@@ -48,11 +48,11 @@ namespace GameArea
                 return state == GameMasterState.GameOver;
             }
         }
-        public List<Player.Agent> GetAgents
+        public List<Player.Player> GetPlayers
         {
             get
             {
-                return agents;
+                return Players;
             }
         }
 
@@ -81,42 +81,42 @@ namespace GameArea
         }
 
 
-        public List<Player.Agent> GetAgentsByTeam(Messages.TeamColour team)
+        public List<Player.Player> GetPlayersByTeam(Messages.TeamColour team)
         {
-            return agents.Where(q => q.GetTeam == team).ToList();
+            return Players.Where(q => q.GetTeam == team).ToList();
         }
 
-        public Player.Agent GetAgentByGuid(string guid)
+        public Player.Player GetPlayerByGuid(string guid)
         {
-            return agents.Where(q => q.GUID == guid).FirstOrDefault();
+            return Players.Where(q => q.GUID == guid).FirstOrDefault();
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="agent"></param>
+        /// <param name="Player"></param>
         /// <param name="guid"></param>
         /// <param name="findFreeLocationAndPlacePlayer">Ustaw na false aby Game Master nie przydzielal znalezionego przez siebie miejsca i nie ustawial gracza na pozycji</param>
-        public void RegisterAgent(Player.Agent agent, string guid = null, bool findFreeLocationAndPlacePlayer = true)
+        public void RegisterPlayer(Player.Player Player, string guid = null, bool findFreeLocationAndPlacePlayer = true)
         {
-            var newId = agents.Count > 0 ? agents.Max(q => q.ID) + 1 : 1;
-            agent.ID = newId;
-            agent.SetGuid(guid != null ? guid : "Agent" + newId);
-            agent.SetBoard(new Board(GetGameDefinition.BoardWidth, GetGameDefinition.TaskAreaLength, GetGameDefinition.GoalAreaLength));
+            var newId = Players.Count > 0 ? Players.Max(q => q.ID) + 1 : 1;
+            Player.ID = newId;
+            Player.SetGuid(guid != null ? guid : "Player" + newId);
+            Player.SetBoard(new Board(GetGameDefinition.BoardWidth, GetGameDefinition.TaskAreaLength, GetGameDefinition.GoalAreaLength));
             if (findFreeLocationAndPlacePlayer)
             {
-                var playerField = GetEmptyFieldForPlayer(agent.GetTeam);
-                agent.SetLocation(playerField);
-                playerField.Player = new Messages.Agent()
+                var playerField = GetEmptyFieldForPlayer(Player.GetTeam);
+                Player.SetLocation(playerField);
+                playerField.Player = new Messages.Player()
                 {
-                    id = agent.ID,
-                    team = agent.GetTeam
+                    id = Player.ID,
+                    team = Player.GetTeam
                 };
             }
-            agents.Add(new Player.Agent(agent));
-            ConsoleWriter.Show("Registered agent with params: GUID: " + agent.GUID + ", ID: " + agent.ID + " , Location: " + agent.GetLocation + ", Team: " + agent.GetTeam);
+            Players.Add(new Player.Player(Player));
+            ConsoleWriter.Show("Registered Player with params: GUID: " + Player.GUID + ", ID: " + Player.ID + " , Location: " + Player.GetLocation + ", Team: " + Player.GetTeam);
 
-            if (agents.Count == 2 * GetGameDefinition.NumberOfPlayersPerTeam)
+            if (Players.Count == 2 * GetGameDefinition.NumberOfPlayersPerTeam)
             {
                 state = GameMasterState.GameInprogress;
                 PrintBoardState();
@@ -135,10 +135,10 @@ namespace GameArea
         {
             state = GameMasterState.AwaitingPlayers;
             random = new Random();
-            agents = new List<Player.Agent>();
+            Players = new List<Player.Player>();
             goalsRedLeft = (ulong)settings.GameDefinition.Goals.Where(q => q.team == TeamColour.red).Count();
             goalsBlueLeft = (ulong)settings.GameDefinition.Goals.Where(q => q.team == TeamColour.blue).Count();
-            agentIdDictionary = new Dictionary<string, ulong>();
+            PlayerIdDictionary = new Dictionary<string, ulong>();
             gameSettings = settings;
             InitBoard(gameSettings.GameDefinition);
             InitPieceAdder();
@@ -246,21 +246,21 @@ namespace GameArea
         }
 
         /// <summary>
-        /// method provides agent with lists myTeam and otherTeam
+        /// method provides Player with lists myTeam and otherTeam
         /// </summary>
-        /// <param name="agent"></param>
-        private void SetGameInfo(Player.Agent agent)
+        /// <param name="Player"></param>
+        private void SetGameInfo(Player.Player Player)
         {
-            foreach (var otherAgent in agents)
+            foreach (var otherPlayer in Players)
             {
-                agent.myTeam = new List<Messages.Agent>();
-                agent.otherTeam = new List<Messages.Agent>();
+                Player.myTeam = new List<Messages.Player>();
+                Player.otherTeam = new List<Messages.Player>();
                 //player from another team
-                if (otherAgent.GetTeam != agent.GetTeam)
-                    agent.otherTeam.Add(otherAgent.ConvertToMessageAgent());
+                if (otherPlayer.GetTeam != Player.GetTeam)
+                    Player.otherTeam.Add(otherPlayer.ConvertToMessagePlayer());
                 //player from the same team
                 else
-                    agent.myTeam.Add(otherAgent.ConvertToMessageAgent());
+                    Player.myTeam.Add(otherPlayer.ConvertToMessagePlayer());
             }
         }
 

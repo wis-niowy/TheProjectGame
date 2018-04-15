@@ -6,20 +6,20 @@ using System.Text;
 
 namespace Player
 {
-    public partial class Agent
+    public partial class Player
     {
         public GameArea.TaskField GetTaskFromDirection(MoveType direction)
         {
             switch (direction)
             {
                 case MoveType.left:
-                    return agentBoard.GetTaskField(location.x - 1, location.y);
+                    return PlayerBoard.GetTaskField(location.x - 1, location.y);
                 case MoveType.right:
-                    return agentBoard.GetTaskField(location.x + 1, location.y);
+                    return PlayerBoard.GetTaskField(location.x + 1, location.y);
                 case MoveType.up:
-                    return agentBoard.GetTaskField(location.x, location.y + 1);
+                    return PlayerBoard.GetTaskField(location.x, location.y + 1);
                 case MoveType.down:
-                    return agentBoard.GetTaskField(location.x, location.y - 1);
+                    return PlayerBoard.GetTaskField(location.x, location.y - 1);
             }
 
             return null;
@@ -30,7 +30,7 @@ namespace Player
         {
             get
             {
-                return agentBoard.GetTaskField(location);
+                return PlayerBoard.GetTaskField(location);
             }
         }
 
@@ -38,7 +38,7 @@ namespace Player
         {
             get
             {
-                return agentBoard.GetGoalField(location);
+                return PlayerBoard.GetGoalField(location);
             }
         }
 
@@ -46,7 +46,7 @@ namespace Player
         {
             get
             {
-                return agentBoard.GetField(location.x, location.y) is GameArea.GoalField;
+                return PlayerBoard.GetField(location.x, location.y) is GameArea.GoalField;
             }
         }
 
@@ -54,7 +54,7 @@ namespace Player
         {
             get
             {
-                return agentBoard.GetField(location.x, location.y) is GameArea.TaskField;
+                return PlayerBoard.GetField(location.x, location.y) is GameArea.TaskField;
             }
         }
 
@@ -62,7 +62,7 @@ namespace Player
         {
             get
             {
-                var field = agentBoard.GetField(location.x, location.y);
+                var field = PlayerBoard.GetField(location.x, location.y);
                 if (field is GameArea.TaskField)
                 {
                     return ((GameArea.TaskField)field).GetPiece != null;
@@ -199,7 +199,7 @@ namespace Player
 
         public MoveType GetClosestUnknownGoalDirection()
         {
-            return (new GoalDirectionInfo(agentBoard.GoalFields(team),team,location).GetClosestDirection());
+            return (new GoalDirectionInfo(PlayerBoard.GoalFields(team),team,location).GetClosestDirection());
         }
 
        
@@ -256,12 +256,12 @@ namespace Player
     public class GoalDirectionInfo
     {
         List<GameArea.GoalField> Goals { get; set; }
-        Location AgentLocation { get; set; }
+        Location PlayerLocation { get; set; }
         TeamColour Team { get; set; }
 
-        public GoalDirectionInfo(List<GameArea.GoalField> goals, TeamColour team, Location agentLocation)
+        public GoalDirectionInfo(List<GameArea.GoalField> goals, TeamColour team, Location _PlayerLocation)
         {
-            AgentLocation = agentLocation;
+            PlayerLocation = _PlayerLocation;
             Team = team;
             if (team == TeamColour.red)
             {
@@ -284,18 +284,18 @@ namespace Player
         }
         private int GetDistance(Location goalLocation)
         {
-            return (int)(Math.Abs((int)goalLocation.x - (int)AgentLocation.x) + Math.Abs((int)goalLocation.y - (int)AgentLocation.y));
+            return (int)(Math.Abs((int)goalLocation.x - (int)PlayerLocation.x) + Math.Abs((int)goalLocation.y - (int)PlayerLocation.y));
         }
 
         private MoveType GetDirectionToGoal(GameArea.GoalField goal)
         {
             MoveType direction = MoveType.left;
-            long xDiff = Math.Abs((int)goal.x - (int)AgentLocation.x);
-            long yDiff = Math.Abs((int)goal.y - (int)AgentLocation.y);
+            long xDiff = Math.Abs((int)goal.x - (int)PlayerLocation.x);
+            long yDiff = Math.Abs((int)goal.y - (int)PlayerLocation.y);
 
             if (xDiff < yDiff) //move in y axis
             {
-                if ((int)goal.y - (int)AgentLocation.y > 0)
+                if ((int)goal.y - (int)PlayerLocation.y > 0)
                 {
                     direction = MoveType.up;
                 }
@@ -304,7 +304,7 @@ namespace Player
             }
             else
             {
-                if ((int)goal.x - (int)AgentLocation.x > 0)
+                if ((int)goal.x - (int)PlayerLocation.x > 0)
                 {
                     direction = MoveType.right;
                 }

@@ -11,46 +11,46 @@ namespace MainApp
     public class GameController
     {
         public GameMaster GM { get; set; }
-        public List<IAgent> Agents { get; set; }
+        public List<IPlayer> Players { get; set; }
         private bool TestMode;
 
         public GameController(GameMasterSettings settings,bool testing = false)
         {
             GM = new GameMaster(settings);
-            Agents = new List<IAgent>();
+            Players = new List<IPlayer>();
             TestMode = testing;
         }
 
-        public void RegisterAgents()
+        public void RegisterPlayers()
         {
 
-            while (Agents.Count != 2 * GM.GetGameDefinition.NumberOfPlayersPerTeam)
+            while (Players.Count != 2 * GM.GetGameDefinition.NumberOfPlayersPerTeam)
             {
-                var agentBlue = new Agent(Messages.TeamColour.blue, gm: GM);
-                Agents.Add(agentBlue);
-                GM.RegisterAgent(agentBlue);
-                var agentRed = new Agent(Messages.TeamColour.red, gm: GM);
-                Agents.Add(agentRed);
-                GM.RegisterAgent(agentRed);
+                var PlayerBlue = new Player.Player(Messages.TeamColour.blue, gm: GM);
+                Players.Add(PlayerBlue);
+                GM.RegisterPlayer(PlayerBlue);
+                var PlayerRed = new Player.Player(Messages.TeamColour.red, gm: GM);
+                Players.Add(PlayerRed);
+                GM.RegisterPlayer(PlayerRed);
             }
-            ConsoleWriter.Show("Agents registeration succesfull.");
+            ConsoleWriter.Show("Players registeration succesfull.");
         }
 
         public void HandleGame()
         {
-            var tasks = new Task[Agents.Count];
+            var tasks = new Task[Players.Count];
             int actionsCount = 2000000;
             while (GM.GetState != GameMasterState.GameOver)
             {
-                for (int i = 0; i < Agents.Count; i++)
+                for (int i = 0; i < Players.Count; i++)
                 {
                     if (GM.GetState == GameMasterState.GameOver)
                         break;
                     var task = tasks[i];
-                    var agent = Agents[i];
+                    var Player = Players[i];
                     if (task == null)
                     {
-                        tasks[i] = Task<string>.Run(() => agent.DoStrategy());
+                        tasks[i] = Task<string>.Run(() => Player.DoStrategy());
                         while (TestMode && !tasks[i].IsCompleted)
                         {
                             //waiting for task to do its job
@@ -61,7 +61,7 @@ namespace MainApp
                     else if (task.IsCompleted)
                     {
                         task.Dispose();
-                        tasks[i] = Task<string>.Run(() => agent.DoStrategy());
+                        tasks[i] = Task<string>.Run(() => Player.DoStrategy());
                         while (TestMode && !tasks[i].IsCompleted)
                         {
                             //waiting for task to do its job
@@ -79,18 +79,18 @@ namespace MainApp
                     break;
                 }
             }
-            var agentsCount = Agents.Count;
-            while (agentsCount > 0)
+            var PlayersCount = Players.Count;
+            while (PlayersCount > 0)
             {
                 for (int i = 0; i < tasks.Length; i++)
                 {
                     var task = tasks[i];
                     if (task != null && task.IsCompletedSuccessfully)
                     {
-                        agentsCount--;
+                        PlayersCount--;
                         tasks[i] = null;
                     }
-                    if (agentsCount == 0)
+                    if (PlayersCount == 0)
                         break;
                 }
             }
