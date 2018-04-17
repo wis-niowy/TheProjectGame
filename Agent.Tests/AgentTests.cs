@@ -994,7 +994,7 @@ namespace Player.Tests
         public void GoToNearestPieceInGoalAreaForRedAgent()
         {
             int x = 0, y = 12;
-            var agent1 = new Player.Agent(TeamColour.blue, "testGUID-0027", gameMaster);
+            var agent1 = new Player.Agent(TeamColour.red, "testGUID-0027", gameMaster);
             agent1.SetLocation(x, y);
 
             gameMaster.RegisterAgent(agent1, agent1.GUID, findFreeLocationAndPlacePlayer: false);
@@ -1009,9 +1009,15 @@ namespace Player.Tests
             Assert.AreEqual(expectedLocationAgent, agent1.GetLocation);
 
         }
+
         [TestMethod]
         public void GoToNearestPieceInTaskAreaForBlueAgent()
         {
+            //sometimes not passed because of methods: PlaceInitialPieces, InitPieceAdder
+            //(it's not known where will be another new piece)
+            //to ensure that it will be passed we have to change constructor for game master
+            //(give choice for enabling pieceAdder
+            //
             Location pieceLocation = new Location(1, 5);
             Location beforeMove = new Location(3, 6);
             ulong pieceId = 51;

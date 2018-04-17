@@ -166,8 +166,8 @@ namespace Configuration {
             return new GameMasterSettingsGameDefinition()
             {
                 shamProbabilityField = 0.1D,
-                placingNewPiecesFrequencyField = 1000,
-                initialNumberOfPiecesField = 4,
+                placingNewPiecesFrequencyField = 100000,
+                initialNumberOfPiecesField = 0,
                 boardWidthField = 5,
                 taskAreaLengthField = 7,
                 goalAreaLengthField = 3,

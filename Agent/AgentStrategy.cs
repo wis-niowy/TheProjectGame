@@ -36,35 +36,39 @@ namespace Player
         {
             if (InGoalArea)
                 GoToTaskArea(team);
-            if(!OnPiece)
+            else
             {
-                if (gameFinished)
+                if (!OnPiece)
                 {
-                    return;
+                    if (gameFinished)
+                    {
+                        return;
+                    }
+                    Discover(gameMaster);
+                    if (OnPiece)
+                        return;
+                    MoveType direction = FindNearestPieceDirection();
+                    MoveType secondDirection = direction;
+                    var moved = TryMove(direction);
+                    if (!moved && !OnPiece)
+                    {
+                        TryMove(direction); //try again
+                    }
+                    else
+                        return; //something is blocking action, repeat discovery and move
+                    MoveType possibleDirection = GetSecondClosestDirection(direction);
+                    var possibleTask = GetTaskFromDirection(possibleDirection);
+                    if (possibleTask != null && possibleTask.Distance < GetCurrentTaksField.Distance)
+                        secondDirection = possibleDirection;
+                    moved = TryMove(secondDirection);
+                    if (!moved && !OnPiece)
+                    {
+                        TryMove(secondDirection); //try again
+                    }
+                    //end of loop, try move to piece again, until not on piece
                 }
-                Discover(gameMaster);
-                if (OnPiece)
-                    return;
-                MoveType direction = FindNearestPieceDirection();
-                MoveType secondDirection = direction;
-                var moved = TryMove(direction);
-                if (!moved && !OnPiece)
-                {
-                    TryMove(direction); //try again
-                }
-                else 
-                    return; //something is blocking action, repeat discovery and move
-                MoveType possibleDirection = GetSecondClosestDirection(direction);
-                var possibleTask = GetTaskFromDirection(possibleDirection);
-                if (possibleTask != null && possibleTask.Distance < GetCurrentTaksField.Distance)
-                    secondDirection = possibleDirection;
-                moved = TryMove(secondDirection);
-                if (!moved && !OnPiece)
-                {
-                    TryMove(secondDirection); //try again
-                }
-                //end of loop, try move to piece again, until not on piece
             }
+            
         }
 
         public bool TryPickPiece()
