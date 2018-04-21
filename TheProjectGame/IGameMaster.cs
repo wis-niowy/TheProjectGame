@@ -7,11 +7,13 @@ namespace GameArea
 {
     public interface IGameMaster
     {
-        Data HandleTestPieceRequest(string playerGuid, ulong gameId);
-        Data HandlePlacePieceRequest(string playerGuid, ulong gameId);
-        Data HandlePickUpPieceRequest(string playerGuid, ulong gameId);
-        Data HandleMoveRequest(MoveType direction, string playerGuid, ulong gameId);
-        Data HandleDiscoverRequest(string playerId, ulong gameGuid);
+        Data HandleTestPieceRequest(TestPiece msg);
+        Data HandlePlacePieceRequest(PlacePiece msg);
+        Data HandlePickUpPieceRequest(PickUpPiece msg);
+        Data HandleMoveRequest(Move msg);
+        Data HandleDiscoverRequest(Discover msg);
         Data HandleDestroyPieceRequest(string playerId, ulong gameGuid);
+
+        string HandleActionRequest(string s);
     }
 }

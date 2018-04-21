@@ -1,14 +1,61 @@
-﻿using Messages;
+﻿using GameArea.Parsers;
+using Messages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Xml;
 
 namespace GameArea
 {
     public partial class GameMaster : IGameMaster
     {
+
+        /// <summary>
+        /// Gets a request xml from an Agent and returns response xml with serialized Data object
+        /// </summary>
+        /// <param name="requestXml">Xml received from Agent</param>
+        /// <returns>Serialized Data object</returns>
+        public string HandleActionRequest(string requestXml)
+        {
+            Data responseData = null;
+            MessageParser messageParser = new MessageParser();
+
+            GameMessage msg = null;
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(requestXml);
+            switch(xmlDoc.DocumentElement.Name)
+            {
+                case "TestPiece":
+                    msg = messageParser.DeserializeXmlToObject<TestPiece>(requestXml);
+                    responseData = HandleTestPieceRequest(msg as TestPiece);
+                    break;
+                //case "Destroy":
+                //    msg = messageParser.DeserializeXmlToObject<DestroyPiece>(requestXml);
+                //    responseData = HandleDestroyPieceRequest(msg as DestroyPiece);
+                //    break;
+                case "PlacePiece":
+                    msg = messageParser.DeserializeXmlToObject<PlacePiece>(requestXml);
+                    responseData = HandlePlacePieceRequest(msg as PlacePiece);
+                    break;
+                case "PickUpPiece":
+                    msg = messageParser.DeserializeXmlToObject<PickUpPiece>(requestXml);
+                    responseData = HandlePickUpPieceRequest(msg as PickUpPiece);
+                    break;
+                case "Move":
+                    msg = messageParser.DeserializeXmlToObject<Move>(requestXml);
+                    responseData = HandleMoveRequest(msg as Move);
+                    break;
+                case "Discover":
+                    msg = messageParser.DeserializeXmlToObject<Discover>(requestXml);
+                    responseData = HandleDiscoverRequest(msg as Discover);
+                    break;
+            }
+
+            return messageParser.SerializeObjectToXml<Data>(responseData);
+        }
+
         // --------------------------------------    API
         #region API
         /// <summary>
@@ -17,8 +64,10 @@ namespace GameArea
         /// <param name="playerGuid">guid of player requesting an action</param>
         /// <param name="gameId">id of current game</param>
         /// <returns></returns>
-        public Data HandleTestPieceRequest(string playerGuid, ulong gameId)
+        public Data HandleTestPieceRequest(TestPiece msg)
         {
+            string playerGuid = msg.playerGuid;
+            ulong gameId = msg.gameId;
             Monitor.Enter(lockObject);
             Piece pieceDataToSend = null;
             var agent = agents.Where(q => q.GUID == playerGuid).First();
@@ -89,8 +138,10 @@ namespace GameArea
         /// <param name="playerGuid">guid of player requesting an action</param>
         /// <param name="gameId">id of current game</param>
         /// <returns></returns>
-        public Data HandlePlacePieceRequest(string playerGuid, ulong gameId)
+        public Data HandlePlacePieceRequest(PlacePiece msg)
         {
+            string playerGuid = msg.playerGuid;
+            ulong gameId = msg.gameId;
             var location = agents.Where(q => q.GUID == playerGuid).First().GetLocation;
             var agent = agents.Where(q => q.GUID == playerGuid).First();
             // basic information
@@ -142,8 +193,10 @@ namespace GameArea
         /// <param name="playerGuid">guid of player requesting an action</param>
         /// <param name="gameId">id of current game</param>
         /// <returns></returns>
-        public Data HandlePickUpPieceRequest(string playerGuid, ulong gameId)
+        public Data HandlePickUpPieceRequest(PickUpPiece msg)
         {
+            string playerGuid = msg.playerGuid;
+            ulong gameId = msg.gameId;
             var location = agents.Where(a => a.GUID == playerGuid).First().GetLocation;
             var agent = agents.Where(q => q.GUID == playerGuid).First();
             Piece[] pieces = new Piece[] { null };
@@ -196,8 +249,11 @@ namespace GameArea
         /// <param name="playerGuid">guid of player requesting an action</param>
         /// <param name="gameId">id of current game</param>
         /// <returns></returns>
-        public Data HandleMoveRequest(MoveType direction, string playerGuid, ulong gameId)
+        public Data HandleMoveRequest(Move msg)
         {
+            string playerGuid = msg.playerGuid;
+            ulong gameId = msg.gameId;
+            MoveType direction = msg.direction;
             var currentLocation = agents.Where(a => a.GUID == playerGuid).First().GetLocation;
             var team = agents.Where(a => a.GUID == playerGuid).First().GetTeam;
             var agent = agents.Where(q => q.GUID == playerGuid).First();
@@ -219,8 +275,6 @@ namespace GameArea
             if (!ValidateFieldPosition(futureLocation.x, futureLocation.y, team))
                 return response;
 
-            Messages.Piece piece;
-            //Messages.Field field;
             Messages.Field responseField;
             Field field = actualBoard.GetField(futureLocation.x, futureLocation.y);
 
@@ -256,16 +310,7 @@ namespace GameArea
                     // perform move action
                     PerformMoveAction(currentLocation, futureLocation, playerGuid, response);
                 }
-                //if (futureBoardField.HasAgent())
-                //{
-                //    field.playerId = futureBoardField.Player.id;
-                //    field.playerIdSpecified = true;
-                //}
-                //else    //there is no player, we can move
-                //{
-                //    // perform move action
-                //    PerformMoveAction(currentLocation, futureLocation, playerGuid, response);
-                //}
+
                 response.gameFinished = IsGameFinished;
             }
             finally
@@ -284,8 +329,10 @@ namespace GameArea
         /// <param name="playerGuid">guid of player requesting an action</param>
         /// <param name="gameId">id of current game</param>
         /// <returns></returns>
-        public Data HandleDiscoverRequest(string playerGuid, ulong gameId)
+        public Data HandleDiscoverRequest(Discover msg)
         {
+            string playerGuid = msg.playerGuid;
+            ulong gameId = msg.gameId;
             var location = agents.Where(a => a.GUID == playerGuid).First().GetLocation;
             var team = agents.Where(q => q.GUID == playerGuid).First().GetTeam;
             List<Messages.TaskField> TaskFieldList = new List<Messages.TaskField>();

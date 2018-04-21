@@ -1,4 +1,5 @@
 ﻿using GameArea;
+using GameArea.Parsers;
 using Messages;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,15 @@ namespace Player
 {
     public partial class Agent
     {
-       
+        public T PrepareMessageObject<T>(string guid, ulong gameId) where T: GameMessage, new()
+        {
+            T msg = new T
+            {
+                playerGuid = guid,
+                gameId = gameId
+            };
+            return msg;
+        }
 
         /// <summary>
         /// Method to send request to test the piece
@@ -18,9 +27,12 @@ namespace Player
         /// <returns>True - request was valid; False - request was not valid</returns>
         public bool TestPiece(IGameMaster gameMaster)
         {
+            MessageParser par = new MessageParser();
             if (GetPiece != null)
                 ConsoleWriter.Show(GUID + " tries to test piece: " + GetPiece.id + " on location: " + GetLocation);
-            Data responseMessage = gameMaster.HandleTestPieceRequest(this.GUID, this.GameId);
+            TestPiece msg = PrepareMessageObject<TestPiece>(this.GUID, this.gameId);
+            string xmlResponse = gameMaster.HandleActionRequest(par.SerializeObjectToXml<TestPiece>(msg));
+            Data responseMessage = par.DeserializeXmlToObject<Data>(xmlResponse);
             if (responseMessage.gameFinished)
                 gameFinished = true;
 
@@ -34,9 +46,12 @@ namespace Player
         /// <returns></returns>
         public bool PlacePiece(IGameMaster gameMaster)
         {
+            MessageParser par = new MessageParser();
             ConsoleWriter.Show(guid + " places piece: " + piece.id + " of type: " + piece.type + " on location: " + GetLocation);
             // should we check if received location is the same as the actual one?
-            Data responseMessage = gameMaster.HandlePlacePieceRequest(this.GUID, this.GameId);
+            PlacePiece msg = PrepareMessageObject<PlacePiece>(this.GUID, this.GameId);
+            string xmlResponse = gameMaster.HandleActionRequest(par.SerializeObjectToXml<PlacePiece>(msg));
+            Data responseMessage = par.DeserializeXmlToObject<Data>(xmlResponse);
             if (responseMessage.gameFinished)
                 gameFinished = true;
 
@@ -47,8 +62,11 @@ namespace Player
 
         public bool PickUpPiece(IGameMaster gameMaster)
         {
+            MessageParser par = new MessageParser();
             ConsoleWriter.Show(guid + " picks up piece on location: " + GetLocation);
-            Data responseMessage = gameMaster.HandlePickUpPieceRequest(this.GUID, this.GameId);
+            PickUpPiece msg = PrepareMessageObject<PickUpPiece>(this.GUID, this.GameId);
+            string xmlResponse = gameMaster.HandleActionRequest(par.SerializeObjectToXml<PickUpPiece>(msg));
+            Data responseMessage = par.DeserializeXmlToObject<Data>(xmlResponse);
             if (responseMessage.gameFinished)
                 gameFinished = true;
 
@@ -57,77 +75,27 @@ namespace Player
 
         public bool Move(IGameMaster gameMaster, MoveType direction)
         {
+            MessageParser par = new MessageParser();
             ConsoleWriter.Show(guid + " wants to move from: " + GetLocation + " in direction: " + direction);
-
-            Data responseMessage = gameMaster.HandleMoveRequest(direction, this.GUID, this.GameId);
+            Move msg = PrepareMessageObject<Move>(this.GUID, this.GameId);
+            msg.direction = direction;
+            msg.directionSpecified = true;
+            string xmlResponse = gameMaster.HandleActionRequest(par.SerializeObjectToXml<Move>(msg));
+            Data responseMessage = par.DeserializeXmlToObject<Data>(xmlResponse);
             if (responseMessage.gameFinished)
                 gameFinished = true;
 
             return MoveUpdate(responseMessage, direction); // ---- dla tego sypia sie 3 testy - do sprawdzenia pozniej!
-
-            //var futureLocation = CalculateFutureLocation(this.location, direction);
-
-            //if (responseMessage.playerId == this.ID && !responseMessage.gameFinished)
-            //{
-            //    // an attempt to exceed board's boundaries or to enter an opponent's GoalArea
-            //    if (responseMessage.TaskFields != null && responseMessage.TaskFields.Length == 0)
-            //    {
-            //        this.location = responseMessage.PlayerLocation;
-            //        return false;
-            //    }
-            //    // future position is a TaskField
-            //    else if (responseMessage.TaskFields != null && responseMessage.TaskFields.Length > 0)
-            //    {
-            //        // an agent attempted to enter an occupied TaskField
-            //        if (this.location.Equals(responseMessage.PlayerLocation))
-            //        {
-            //            // add encountered stranger agent to this agent's view
-            //            var stranger = new Messages.Agent()
-            //            {
-            //                id = (ulong)responseMessage.TaskFields[0].playerId,
-            //            };
-            //            agentBoard.GetField(futureLocation.x, futureLocation.y).Player = stranger;
-
-            //            return false;
-            //        }
-            //        // an action was valid
-            //        else
-            //        {
-            //            this.location = responseMessage.PlayerLocation;
-            //            return true;
-            //        }
-            //    }
-            //    // future position is a GoalField
-            //    else if (responseMessage.GoalFields != null && responseMessage.GoalFields.Length > 0)
-            //    {
-            //        // an agent attempted to enter an occupied GoalField
-            //        if (this.location.Equals(responseMessage.PlayerLocation))
-            //        {
-            //            // add encountered stranger agent to this agent's view
-            //            var stranger = new Messages.Agent()
-            //            {
-            //                id = (ulong)responseMessage.GoalFields[0].playerId,
-            //            };
-            //            agentBoard.GetField(futureLocation.x, futureLocation.y).Player = stranger;
-
-            //            return false;
-            //        }
-            //        // an action was valid
-            //        else
-            //        {
-            //            this.location = responseMessage.PlayerLocation;
-            //            return true;
-            //        }
-            //    }
-            //}
-            //return false;
         }
 
 
         public void Discover(IGameMaster gameMaster)
         {
+            MessageParser par = new MessageParser();
             ConsoleWriter.Show(guid + " discovers on location: " + GetLocation);
-            Data responseMessage = gameMaster.HandleDiscoverRequest(this.GUID, this.GameId);
+            Discover msg = PrepareMessageObject<Discover>(this.GUID, this.GameId);
+            string xmlResponse = gameMaster.HandleActionRequest(par.SerializeObjectToXml<Discover>(msg));
+            Data responseMessage = par.DeserializeXmlToObject<Data>(xmlResponse);
             if (responseMessage.gameFinished)
                 gameFinished = true;
             UpdateLocalBoard(responseMessage, ActionType.Discover);
@@ -136,6 +104,7 @@ namespace Player
         public bool Destroy(IGameMaster gameMaster)
         {
             ConsoleWriter.Show(guid + " tries to destroy piece: " + piece.id + " which is: " + piece.type + "on location: " + GetLocation);
+            //DestroyPiece msg = PrepareMessageObject<DestroyPiece>(this.GUID, this.GameId);
             Data responseMessage = gameMaster.HandleDestroyPieceRequest(GUID, GameId);
             if (responseMessage.gameFinished)
                 gameFinished = true;
