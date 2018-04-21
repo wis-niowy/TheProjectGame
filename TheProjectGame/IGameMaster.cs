@@ -12,7 +12,7 @@ namespace GameArea
         Data HandlePickUpPieceRequest(PickUpPiece msg);
         Data HandleMoveRequest(Move msg);
         Data HandleDiscoverRequest(Discover msg);
-        Data HandleDestroyPieceRequest(string playerId, ulong gameGuid);
+        Data HandleDestroyPieceRequest(DestroyPiece msg);
 
         string HandleActionRequest(string s);
     }

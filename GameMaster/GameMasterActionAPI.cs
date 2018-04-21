@@ -31,10 +31,10 @@ namespace GameArea
                     msg = messageParser.DeserializeXmlToObject<TestPiece>(requestXml);
                     responseData = HandleTestPieceRequest(msg as TestPiece);
                     break;
-                //case "Destroy":
-                //    msg = messageParser.DeserializeXmlToObject<DestroyPiece>(requestXml);
-                //    responseData = HandleDestroyPieceRequest(msg as DestroyPiece);
-                //    break;
+                case "Destroy":
+                    msg = messageParser.DeserializeXmlToObject<DestroyPiece>(requestXml);
+                    responseData = HandleDestroyPieceRequest(msg as DestroyPiece);
+                    break;
                 case "PlacePiece":
                     msg = messageParser.DeserializeXmlToObject<PlacePiece>(requestXml);
                     responseData = HandlePlacePieceRequest(msg as PlacePiece);
@@ -104,8 +104,10 @@ namespace GameArea
         /// <param name="playerGuid"></param>
         /// <param name="gameId"></param>
         /// <returns></returns>
-        public Data HandleDestroyPieceRequest(string playerGuid, ulong gameId)
+        public Data HandleDestroyPieceRequest(DestroyPiece msg)
         {
+            string playerGuid = msg.playerGuid;
+            ulong gameId = msg.gameId;
             Monitor.Enter(lockObject);
             Piece pieceDataToSend = null;
             var Player = Players.Where(q => q.GUID == playerGuid).First();

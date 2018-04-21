@@ -103,9 +103,11 @@ namespace Player
 
         public bool Destroy(IGameMaster gameMaster)
         {
+            MessageParser par = new MessageParser();
             ConsoleWriter.Show(guid + " tries to destroy piece: " + piece.id + " which is: " + piece.type + "on location: " + GetLocation);
-            //DestroyPiece msg = PrepareMessageObject<DestroyPiece>(this.GUID, this.GameId);
-            Data responseMessage = gameMaster.HandleDestroyPieceRequest(GUID, GameId);
+            DestroyPiece msg = PrepareMessageObject<DestroyPiece>(this.GUID, this.GameId);
+            string xmlResponse = gameMaster.HandleActionRequest(par.SerializeObjectToXml<DestroyPiece>(msg));
+            Data responseMessage = par.DeserializeXmlToObject<Data>(xmlResponse);
             if (responseMessage.gameFinished)
                 gameFinished = true;
             return UpdateLocalBoard(responseMessage, ActionType.Destroy);
