@@ -3,6 +3,7 @@ using GameArea;
 using Messages;
 using System;
 using Configuration;
+using System.Collections.Generic;
 
 namespace Player.Tests
 {
@@ -1016,7 +1017,7 @@ namespace Player.Tests
             //sometimes not passed because of methods: PlaceInitialPieces, InitPieceAdder
             //(it's not known where will be another new piece)
             //to ensure that it will be passed we have to change constructor for game master
-            //(give choice for enabling pieceAdder
+            //(give choice for enabling pieceAdder).Changing initial settings for game master makes high probability of passing the test
             //
             Location pieceLocation = new Location(1, 5);
             Location beforeMove = new Location(3, 6);
@@ -1179,6 +1180,119 @@ namespace Player.Tests
 
             Assert.AreEqual(agentDirection, MoveType.left);
         }
+
+        [TestMethod]
+        public void GetClosestUnknownGoalForBlueTeamTestAndThereIsOneUknownField()
+        {
+
+
+            GameMasterSettings settings2 = GameMasterSettings.GetDefaultGameMasterSettings();
+
+            List<Messages.GoalField> listGoalField = new List<Messages.GoalField>();
+
+            Location UknownFieldLocation = new Location(3, 1);
+
+            int goalAreaLength = settings.GameDefinition.GoalAreaLength;
+            int TaskAreaLength = settings.GameDefinition.TaskAreaLength;
+            int boardWidth = settings.GameDefinition.BoardWidth;
+
+
+            Board boardAgent = new Board(boardWidth, TaskAreaLength, goalAreaLength);
+            settings2.GameDefinition.Goals = listGoalField.ToArray();
+
+            List<GameArea.GoalField> fieldList = boardAgent.GetBlueGoalAreaFields;
+
+            
+
+            foreach(var goalField in fieldList)
+            {
+                if(goalField.x != UknownFieldLocation.x || goalField.y != UknownFieldLocation.y)
+                {
+                    goalField.GoalType = GoalFieldType.goal;
+                }
+            }
+
+            foreach(var gf in fieldList)
+            {
+                boardAgent.SetGoalField(new GameMasterGoalField(gf.x, gf.y, gf.GetOwner, gf.GoalType));
+            }
+
+            
+            Location agentLocation = new Location(1, 1);
+
+
+            var agent1 = new Player.Agent(TeamColour.blue, "testGUID-0027", gameMaster);
+            agent1.SetLocation(agentLocation);
+
+
+            agent1.SetBoard(boardAgent);
+          
+
+            MoveType agentDirection = agent1.GetClosestUnknownGoalDirection();
+
+            Assert.AreEqual(agentDirection, MoveType.right);
+
+        }
+
+        [TestMethod]
+        public void GetClosestUnknownGoalForBlueTeamTestAndThereIsTwoUknownField()
+        {
+
+
+            GameMasterSettings settings2 = GameMasterSettings.GetDefaultGameMasterSettings();
+
+            List<Messages.GoalField> listGoalField = new List<Messages.GoalField>();
+
+            Location UknownFieldLocation = new Location(4, 1);
+            Location UknownFieldLocation2 = new Location(1, 1);
+            Location agentLocation = new Location(2, 1);
+
+            int goalAreaLength = settings.GameDefinition.GoalAreaLength;
+            int TaskAreaLength = settings.GameDefinition.TaskAreaLength;
+            int boardWidth = settings.GameDefinition.BoardWidth;
+
+
+            Board boardAgent = new Board(boardWidth, TaskAreaLength, goalAreaLength,GoalFieldType.goal);
+            settings2.GameDefinition.Goals = listGoalField.ToArray();
+
+            List<GameArea.GoalField> fieldList = boardAgent.GetBlueGoalAreaFields;
+
+
+
+            foreach (var gf in fieldList)
+            {
+                if ((gf.x == UknownFieldLocation.x && gf.x == UknownFieldLocation.y)|| (gf.x == UknownFieldLocation2.x && gf.x == UknownFieldLocation2.y))
+                {
+                    gf.GoalType = GoalFieldType.unknown;
+                }
+                    
+            }
+
+            foreach (var gf in fieldList)
+            {
+                boardAgent.SetGoalField(new GameMasterGoalField(gf.x, gf.y, gf.GetOwner, gf.GoalType));
+            }
+
+
+            
+
+
+            var agent1 = new Player.Agent(TeamColour.blue, "testGUID-0027", gameMaster);
+            agent1.SetLocation(agentLocation);
+
+
+            agent1.SetBoard(boardAgent);
+
+
+            MoveType agentDirection = agent1.GetClosestUnknownGoalDirection();
+
+            Assert.AreEqual(agentDirection, MoveType.left);
+
+
+
+        }
+
+
 
     }
 }
