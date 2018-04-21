@@ -24,7 +24,7 @@ namespace ClientTester
 
             while (port <= 0)
             {
-                Console.WriteLine("Give me IP:");
+                Console.WriteLine("Give me port:");
                 var parsed = int.TryParse(Console.ReadLine(),out port);
                 if (!parsed || port <=0)
                     Console.WriteLine("Invalid port number!!!");
@@ -45,15 +45,28 @@ namespace ClientTester
             do
             {
                 input = Console.ReadLine();
+                switch (input)
+                {
+                    case "RegisterGame":
+                        input = System.IO.File.ReadAllText("../../../MessageTemplates/RegisterGame.xml");
+                        break;
+                    case "GetGames":
+                        input = System.IO.File.ReadAllText("../../../MessageTemplates/GetGames.xml");
+                        break;
+                    default:
+                        break;
+                }
+                if (input == "quit")
+                    break;
                 Byte[] dataToSend = System.Text.Encoding.ASCII.GetBytes(input);
                 stream.Write(dataToSend, 0, dataToSend.Length);
             }
-            while (input != "quit");
+            while (true);
         }
 
         public static void BeginRead()
         {
-            var buffer = new byte[4096];
+            var buffer = new byte[25000];
             var ns = client.GetStream();
             ns.BeginRead(buffer, 0, buffer.Length, EndRead, buffer);
         }

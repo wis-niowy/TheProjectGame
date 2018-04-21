@@ -1,11 +1,15 @@
-﻿namespace CommunicationServer.ServerObjects
+﻿using Messages;
+
+namespace CommunicationServer.ServerObjects
 {
     public interface IGMController
     {
-        bool SendMessageToAgent(uint playerId, string message);
-
+        bool SendMessageToAgent(ulong playerId, string message);
         bool SendMessageToClient(string message);
-
-        void RegisterClientAsAgent(string message, ulong playerId);
+        void RegisterClientAsAgent(ConfirmJoiningGame message);
+        void CloseGame();
+        void RejectJoin(RejectJoiningGame messageObject);
+        void DataSend(Data messageObject);
+        void BeginGame();
     }
 }

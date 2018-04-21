@@ -28,7 +28,7 @@ namespace CommunicationServer
 
             public static void Listen()
             {
-                MessageManager manager = new MessageManager();
+                ClientManager manager = new ClientManager();
                 if (listener != null && accept)
                 {
                     // Continue listening.  

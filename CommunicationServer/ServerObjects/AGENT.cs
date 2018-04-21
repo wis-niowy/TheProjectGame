@@ -7,15 +7,14 @@ namespace CommunicationServer.ServerObjects
 {
     public class AGENT
     {
-        public ulong PlayerId { get; }
+        public ulong PlayerId { get { return Client.ID; } }
         public DateTime TimeStamp { get; set; }
 
         public ClientHandle Client { get; }
 
-        public AGENT(ClientHandle client, ulong playerId)
+        public AGENT(ClientHandle client)
         {
             Client = client;
-            PlayerId = playerId;
         }
 
         internal void SendMessage(string message)

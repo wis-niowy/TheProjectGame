@@ -2,6 +2,6 @@
 {
     public interface IInterpreter
     {
-        void ReadMessage(string message, int clientId);
+        void ReadMessage(string message, ulong clientId);
     }
 }

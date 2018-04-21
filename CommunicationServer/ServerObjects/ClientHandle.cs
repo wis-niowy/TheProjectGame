@@ -1,43 +1,18 @@
-﻿using System;
+﻿using GameArea;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace CommunicationServer.ServerObjects
 {
-    public class MessageManager
-    {
-        int idMax = 0;
-        NewClientInterpreter defaultInterpreter;
-        ObjectsManager defaultManager;
-
-
-        public MessageManager()
-        {
-            defaultManager = new ObjectsManager();
-            defaultInterpreter = new NewClientInterpreter(defaultManager);
-        }
-
-        public bool AddClient(TcpClient client)
-        {
-            var newClient = new ClientHandle(client, idMax, defaultInterpreter);
-            defaultManager.AddClient(newClient);
-            idMax += 1;
-            newClient.BeginRead();
-            return true;
-        }
-    }
-
     public class ClientHandle
     {
-        public int ID { get; set; } 
+        public ulong ID { get; set; }
         TcpClient Client { get; }
         public IInterpreter MessageInterpreter { get; set; } //odpowiada za poprawny odczyt i wykonanie akcji na daną wiadomość
-
-        public ClientHandle(TcpClient me, int id, IInterpreter interpreter)
+        public bool IsAlive { get { return Client != null ? Client.Connected : false; } }
+        public ClientHandle(TcpClient me, ulong id, IInterpreter interpreter)
         {
             Client = me;
             ID = id;
@@ -46,7 +21,7 @@ namespace CommunicationServer.ServerObjects
 
         public void BeginRead()
         {
-            var buffer = new byte[4096];
+            var buffer = new byte[25000];
             var ns = Client.GetStream();
             ns.BeginRead(buffer, 0, buffer.Length, EndRead, buffer);
         }
@@ -54,14 +29,28 @@ namespace CommunicationServer.ServerObjects
         public void EndRead(IAsyncResult result)
         {
             var buffer = (byte[])result.AsyncState;
-            var ns = Client.GetStream();
-            var bytesAvailable = ns.EndRead(result);
-            var message = Encoding.ASCII.GetString(buffer);
-            message = message.Trim('\0');
-            MessageInterpreter.ReadMessage(message, ID);
-
-            Console.WriteLine("Read by Client " + ID + ": " +message);
-            BeginRead();
+            if (Client.Connected)
+            {
+                try
+                {
+                    var ns = Client.GetStream();
+                    var bytesAvailable = ns.EndRead(result);
+                    var message = Encoding.ASCII.GetString(buffer);
+                    message = message.Trim('\0');
+                    MessageInterpreter.ReadMessage(message, ID);
+                    BeginRead();
+                }
+                catch (Exception e)
+                {
+                    ConsoleWriter.Error("Error while handling message from socket for client: " + ID + "\n Error message: \n" + e.ToString());
+                    MessageInterpreter.ReadMessage("client disconnected", ID);
+                }
+            }
+            else
+            {
+                ConsoleWriter.Warning("Client disconnected: " + ID);
+                MessageInterpreter.ReadMessage("client disconnected", ID);
+            }
         }
 
         public void BeginSend(string message)
