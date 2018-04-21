@@ -995,8 +995,13 @@ namespace Player.Tests
         public void GoToNearestPieceInGoalAreaForRedPlayer()
         {
             int x = 0, y = 12;
-            var agent1 = new Player.Agent(TeamColour.red, "testGUID-0027", gameMaster);
+<<<<<<< HEAD
+            var Player1 = new Player(TeamColour.blue, "testGUID-0027", gameMaster);
             Player1.SetLocation(x, y);
+=======
+            var agent1 = new Player.Agent(TeamColour.red, "testGUID-0027", gameMaster);
+            agent1.SetLocation(x, y);
+>>>>>>> origin/API-amendments
 
             gameMaster.RegisterPlayer(Player1, Player1.GUID, findFreeLocationAndPlacePlayer: false);
 
