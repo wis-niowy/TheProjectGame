@@ -86,6 +86,66 @@ namespace Player
                 gameFinished = true;
 
             return MoveUpdate(responseMessage, direction); // ---- dla tego sypia sie 3 testy - do sprawdzenia pozniej!
+<<<<<<< HEAD
+=======
+
+            //var futureLocation = CalculateFutureLocation(this.location, direction);
+
+            //if (responseMessage.playerId == this.ID && !responseMessage.gameFinished)
+            //{
+            //    // an attempt to exceed board's boundaries or to enter an opponent's GoalArea
+            //    if (responseMessage.TaskFields != null && responseMessage.TaskFields.Length == 0)
+            //    {
+            //        this.location = responseMessage.PlayerLocation;
+            //        return false;
+            //    }
+            //    // future position is a TaskField
+            //    else if (responseMessage.TaskFields != null && responseMessage.TaskFields.Length > 0)
+            //    {
+            //        // an Player attempted to enter an occupied TaskField
+            //        if (this.location.Equals(responseMessage.PlayerLocation))
+            //        {
+            //            // add encountered stranger Player to this Player's view
+            //            var stranger = new Messages.Player()
+            //            {
+            //                id = (ulong)responseMessage.TaskFields[0].playerId,
+            //            };
+            //            PlayerBoard.GetField(futureLocation.x, futureLocation.y).Player = stranger;
+
+            //            return false;
+            //        }
+            //        // an action was valid
+            //        else
+            //        {
+            //            this.location = responseMessage.PlayerLocation;
+            //            return true;
+            //        }
+            //    }
+            //    // future position is a GoalField
+            //    else if (responseMessage.GoalFields != null && responseMessage.GoalFields.Length > 0)
+            //    {
+            //        // an Player attempted to enter an occupied GoalField
+            //        if (this.location.Equals(responseMessage.PlayerLocation))
+            //        {
+            //            // add encountered stranger Player to this Player's view
+            //            var stranger = new Messages.Player()
+            //            {
+            //                id = (ulong)responseMessage.GoalFields[0].playerId,
+            //            };
+            //            PlayerBoard.GetField(futureLocation.x, futureLocation.y).Player = stranger;
+
+            //            return false;
+            //        }
+            //        // an action was valid
+            //        else
+            //        {
+            //            this.location = responseMessage.PlayerLocation;
+            //            return true;
+            //        }
+            //    }
+            //}
+            //return false;
+>>>>>>> origin/SchemaUpdate
         }
 
 

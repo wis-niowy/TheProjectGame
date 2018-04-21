@@ -74,7 +74,7 @@ namespace MainApp
         public static void DoGame(GameMasterSettings settings,bool  testing = false)
         {
             var GameController = new GameController(settings, testing);
-            GameController.RegisterAgents();
+            GameController.RegisterPlayers();
             GameController.HandleGame();
         }
 

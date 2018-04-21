@@ -18,7 +18,7 @@ namespace Player
         Destroy
     }
 
-    public partial class Agent:IAgent
+    public partial class Player:IPlayer
     {
         private bool gameFinished;
         private IGameMaster gameMaster;
@@ -51,8 +51,8 @@ namespace Player
 
         private ulong gameId;
 
-        public List<Messages.Agent> myTeam;
-        public List<Messages.Agent> otherTeam;
+        public List<Messages.Player> myTeam;
+        public List<Messages.Player> otherTeam;
 
         public ulong GameId
         {
@@ -80,7 +80,7 @@ namespace Player
             team = newTeam;
         }
 
-        public Agent(TeamColour team, string _guid = "TEST_GUID", IGameMaster gm = null)
+        public Player(TeamColour team, string _guid = "TEST_GUID", IGameMaster gm = null)
         {
             this.gameMaster = gm;
             this.team = team;
@@ -88,29 +88,29 @@ namespace Player
             this.location = new Location(0, 0);
         }
 
-        public Agent(Agent original)
+        public Player(Player original)
         {
             this.team = original.GetTeam;
             this.guid = original.GUID;
             this.id = original.id;
             this.location = new Location(original.location.x, original.location.y);
             if (original.piece != null)
-                this.piece = new Piece(original.piece); // agent can't see original piece (sham or goal info must be hidden)
+                this.piece = new Piece(original.piece); // player can't see original piece (sham or goal info must be hidden)
         }
 
-        private Board agentBoard;
+        private Board PlayerBoard;
 
         public Board GetBoard
         {
             get
             {
-                return agentBoard;
+                return PlayerBoard;
             }
         }
 
         public void SetBoard(Board board) // setter?
         {
-            agentBoard = board;
+            PlayerBoard = board;
         }
 
         private Piece piece;
@@ -178,13 +178,13 @@ namespace Player
             location = new Location(x, y);
         }
 
-        public Messages.Agent ConvertToMessageAgent()
+        public Messages.Player ConvertToMessagePlayer()
         {
-            return new Messages.Agent()
+            return new Messages.Player()
             {
                 id = this.ID,
                 team = this.team,
-                type = PlayerType.member
+                role = PlayerRole.member
             };
         }
     }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GameArea
 {
-    public interface IAgent
+    public interface IPlayer
     {
         void DoStrategy();
     }

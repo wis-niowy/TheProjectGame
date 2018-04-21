@@ -6,7 +6,7 @@ using GameArea;
 
 namespace Player
 {
-    public class Leader : Agent
+    public class Leader : Player
     {
         public Leader(TeamColour team, string guid ) : base(team, guid)
         {

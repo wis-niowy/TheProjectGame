@@ -14,49 +14,49 @@ namespace GameArea
         #region addition api methods
         
         /// <summary>
-        /// Handles agent's request - place a Piece on a TaskField
+        /// Handles Player's request - place a Piece on a TaskField
         /// </summary>
         public Messages.TaskField[] TryPlacePieceOnTaskField(Location location, string playerGuid)
         {
             Messages.TaskField fieldMessage = null;
             var currentTaskField = actualBoard.GetField(location.x, location.y) as GameArea.TaskField;
-            var agent = agents.Where(q => q.GUID == playerGuid).First();
+            var Player = Players.Where(q => q.GUID == playerGuid).First();
 
             // if TaskField is not occupied
             if (currentTaskField.GetPiece == null)
             {
                 fieldMessage = new Messages.TaskField(location.x, location.y)
                 {
-                    playerId = agent.ID,
+                    playerId = Player.ID,
                     playerIdSpecified = true,
-                    pieceId = agent.GetPiece.id,
+                    pieceId = Player.GetPiece.id,
                     pieceIdSpecified = true,
                     timestamp = DateTime.Now
                 };
 
-                var piece = agent.GetPiece;
+                var piece = Player.GetPiece;
                 currentTaskField.SetPiece(piece); // the piece is put on the field
-                agent.SetPiece(null); // the piece is no longer possesed by an agent
+                Player.SetPiece(null); // the piece is no longer possesed by an Player
                 UpdateDistancesFromAllPieces();
             }
             return new Messages.TaskField[] { fieldMessage }; // fieldMessage is null if TaskField is occupied
         }
 
         /// <summary>
-        /// Handles agent's request - place a sham Piece on a GoalField
+        /// Handles Player's request - place a sham Piece on a GoalField
         /// </summary>
         /// <param name="location"></param>
         /// <param name="playerGuid"></param>
         /// <returns></returns>
         public Messages.GoalField[] TryPlaceShamPieceOnGoalField(Location location, string playerGuid)
         {
-            var teamColour = agents.Where(q => q.GUID == playerGuid).First().GetTeam;
-            var agent = agents.Where(q => q.GUID == playerGuid).First();
+            var teamColour = Players.Where(q => q.GUID == playerGuid).First().GetTeam;
+            var Player = Players.Where(q => q.GUID == playerGuid).First();
             var fieldMessage = new Messages.GoalField()
             {
                 x = location.x,
                 y = location.y,
-                playerId = agent.ID,
+                playerId = Player.ID,
                 playerIdSpecified = true,
                 timestamp = DateTime.Now,
                 team = teamColour
@@ -66,21 +66,21 @@ namespace GameArea
         }
 
         /// <summary>
-        /// Handles agent's request - place a normal Piece on a GoalField
+        /// Handles Player's request - place a normal Piece on a GoalField
         /// </summary>
         /// <param name="location"></param>
         /// <param name="playerGuid"></param>
         /// <returns></returns>
         public Messages.GoalField[] TryPlaceNormalPieceOnGoalField(Location location, string playerGuid)
         {
-            var teamColour = agents.Where(q => q.GUID == playerGuid).First().GetTeam;
+            var teamColour = Players.Where(q => q.GUID == playerGuid).First().GetTeam;
             var goalFieldType = actualBoard.GetGoalField(location.x, location.y).GoalType;
-            var agent = agents.Where(q => q.GUID == playerGuid).First();
+            var Player = Players.Where(q => q.GUID == playerGuid).First();
             var fieldMessage = new Messages.GoalField()
             {
                 x = location.x,
                 y = location.y,
-                playerId = agent.ID,
+                playerId = Player.ID,
                 playerIdSpecified = true,
                 timestamp = DateTime.Now,
                 type = goalFieldType,
@@ -108,7 +108,7 @@ namespace GameArea
                         state = GameMasterState.GameOver;
                         PrintEndGameState();
                     }
-                    agent.SetPiece(null); // the piece is no longer possesed by an agent
+                    Player.SetPiece(null); // the piece is no longer possesed by an Player
                 }
 
             }
@@ -117,12 +117,12 @@ namespace GameArea
         }
 
         ///// <summary>
-        ///// Handles agent's request - move towards TaskField - fills response message with data about futureField
+        ///// Handles Player's request - move towards TaskField - fills response message with data about futureField
         ///// </summary>
         ///// <param name="location"></param>
         ///// <param name="playerGuid"></param>
         ///// <returns>Info about future field</returns>
-        //public void TryMoveAgentToTaskField(Data response, Location futureLocation, string playerGuid,
+        //public void TryMovePlayerToTaskField(Data response, Location futureLocation, string playerGuid,
         //                                    out Messages.Piece piece, out Messages.Field field)
         //{
         //    GameArea.TaskField fieldFromBoard = actualBoard.GetField(futureLocation.x, futureLocation.y) as GameArea.TaskField;
@@ -145,12 +145,12 @@ namespace GameArea
         //}
 
         ///// <summary>
-        ///// Handles agent's request - move towards GoalField - fills response message with data about futureField
+        ///// Handles Player's request - move towards GoalField - fills response message with data about futureField
         ///// </summary>
         ///// <param name="location"></param>
         ///// <param name="playerGuid"></param>
         ///// <returns>Info about future field</returns>
-        //public void TryMoveAgentToGoalField(Data response, Location futureLocation, string playerGuid,
+        //public void TryMovePlayerToGoalField(Data response, Location futureLocation, string playerGuid,
         //                                    out Messages.Field field)
         //{
         //    GameArea.GoalField fieldFromBoard = actualBoard.GetField(futureLocation.x, futureLocation.y) as GameArea.GoalField;
@@ -163,7 +163,7 @@ namespace GameArea
         //} // najprawdopodobniej do wyrzucenia
 
         /// <summary>
-        /// Performs move action for an agent - called when action is valid
+        /// Performs move action for an Player - called when action is valid
         /// </summary>
         /// <param name="currentLocation"></param>
         /// <param name="futureLocation"></param>
@@ -172,11 +172,11 @@ namespace GameArea
         public void PerformMoveAction(Location currentLocation, Location futureLocation,
                                       string playerGuid, Data response)
         {
-            var agent = actualBoard.GetField(currentLocation.x, currentLocation.y).Player;
+            var Player = actualBoard.GetField(currentLocation.x, currentLocation.y).Player;
             actualBoard.GetField(currentLocation.x, currentLocation.y).Player = null;
-            actualBoard.GetField(futureLocation.x, futureLocation.y).Player = agent;
+            actualBoard.GetField(futureLocation.x, futureLocation.y).Player = Player;
             response.PlayerLocation = futureLocation;
-            agents.Where(q => q.GUID == playerGuid).First().SetLocation(futureLocation);
+            Players.Where(q => q.GUID == playerGuid).First().SetLocation(futureLocation);
         }
 
         /// <summary>
@@ -199,8 +199,8 @@ namespace GameArea
                 distanceToPiece = (field as TaskField).Distance
             };
 
-            //anoter agent on the field
-            if (field.HasAgent())
+            //anoter Player on the field
+            if (field.HasPlayer())
             {
                 responseField.playerId = field.Player.id;
                 responseField.playerIdSpecified = true;
@@ -239,7 +239,7 @@ namespace GameArea
                 timestamp = DateTime.Now
             };
 
-            if (field.HasAgent())
+            if (field.HasPlayer())
             {
                 responseField.playerId = field.Player.id;
                 responseField.playerIdSpecified = true;
@@ -315,7 +315,7 @@ namespace GameArea
         }
 
         /// <summary>
-        /// Validates if an agent can move on a given field or disvover it
+        /// Validates if an Player can move on a given field or disvover it
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
@@ -354,16 +354,16 @@ namespace GameArea
         /// <param name="y"></param>
         /// <param name="guid"></param>
         /// <returns></returns>
-        public bool SetAbsoluteAgentLocation(int x, int y, string guid)
+        public bool SetAbsolutePlayerLocation(int x, int y, string guid)
         {
-            var player = agents.Where(q => q.GUID == guid).First();
+            var player = Players.Where(q => q.GUID == guid).First();
 
-            var team = agents.Where(q => q.GUID == guid).First().GetTeam;
+            var team = Players.Where(q => q.GUID == guid).First().GetTeam;
             if (ValidateFieldPosition(x, y, team))
             {
-                agents.Where(q => q.GUID == guid).First().SetLocation(x, y);
-                actualBoard.GetField(x, y).Player = agents.Where(q => q.GUID == guid).First().ConvertToMessageAgent();
-                // rzutowanie wymuszone lekkim balaganem: w fieldzie jest typ Message.Agent, na liscie Player.Agent - laczymy ich po ID w razie potrzeby
+                Players.Where(q => q.GUID == guid).First().SetLocation(x, y);
+                actualBoard.GetField(x, y).Player = Players.Where(q => q.GUID == guid).First().ConvertToMessagePlayer();
+                // rzutowanie wymuszone lekkim balaganem: w fieldzie jest typ Message.Player, na liscie Player.Player - laczymy ich po ID w razie potrzeby
                 return true;
             }
             return false;
@@ -376,25 +376,25 @@ namespace GameArea
         /// <param name="y"></param>
         /// <param name="guid"></param>
         /// <returns></returns>
-        public bool SetAbsoluteAgentLocation(int x, int y, Player.Agent agent)
+        public bool SetAbsolutePlayerLocation(int x, int y, Player.Player Player)
         {
             bool result = false;
-            var player = agents.Where(q => q.GUID == agent.GUID).First(); // znajdujemy agenta na liscie agentow Game Mastera -- czy jest zarejestrowany
+            var player = Players.Where(q => q.GUID == Player.GUID).First(); // znajdujemy Playera na liscie Playerow Game Mastera -- czy jest zarejestrowany
 
             if (player != null)
             {
-                result = SetAbsoluteAgentLocation(x, y, agent.GUID);
+                result = SetAbsolutePlayerLocation(x, y, Player.GUID);
             }
 
             return result;
 
-            //var team = agent.GetTeam;
+            //var team = Player.GetTeam;
             //if (ValidateFieldPosition((int)x, (int)y, team))
             //{
-            //    agent.SetLocation(x, y);
-            //    actualBoard.GetField(x, y).Player = agent.ConvertToMessageAgent();
+            //    Player.SetLocation(x, y);
+            //    actualBoard.GetField(x, y).Player = Player.ConvertToMessagePlayer();
 
-            //    // rzutowanie wymuszone lekkim balaganem: w fieldzie jest typ Message.Agent, na liscie Player.Agent - laczymy ich po ID w razie potrzeby
+            //    // rzutowanie wymuszone lekkim balaganem: w fieldzie jest typ Message.Player, na liscie Player.Player - laczymy ich po ID w razie potrzeby
             //    return true;
             //}
 
