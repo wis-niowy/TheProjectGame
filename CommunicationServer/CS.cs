@@ -63,7 +63,7 @@ namespace CommunicationServer
             }
             else
             {
-                IP = IPAddress.Parse("123.0.0.1");
+                IP = IPAddress.Parse("127.0.0.1");
                 socket = Int32.Parse("5678");
             }
             TcpHelper.StartServer(IP, socket);

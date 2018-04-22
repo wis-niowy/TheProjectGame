@@ -41,7 +41,7 @@ namespace Player
             else
             {
                 ConsoleWriter.Warning("Invalid args, loading default!");
-                serverIP = IPAddress.Parse("123.0.0.1");
+                serverIP = IPAddress.Parse("127.0.0.1");
                 serverPort = Int32.Parse("5678");
                 colour = Messages.TeamColour.blue;
                 settings = new PlayerSettings();
@@ -57,7 +57,9 @@ namespace Player
 
         public static bool StartPlayer(IPAddress ip, Int32 port, PlayerSettings settings, Messages.TeamColour colour)
         {
-            PController = new PlayerController(new Player(colour));
+            var player = new Player(colour);
+            PController = new PlayerController(player);
+            player.Controller = PController;
             return PController.ConnectToServer(ip, port);
         }
 

@@ -18,5 +18,6 @@ namespace GameArea
         Data HandleDestroyPieceRequest(DestroyPiece msg);
 
         string[] HandleActionRequest(string s);
+        RegisterGame RegisterGame();
     }
 }

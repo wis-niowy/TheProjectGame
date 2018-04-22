@@ -10,7 +10,8 @@ namespace Player
 
     public partial class Player:IPlayer
     {
-        private PlayerController controller;
+        public PlayerRole Role { get; set; }
+        public PlayerController Controller { get; set; }
         private List<GameInfo> GamesList { get; set; }
         private bool gameFinished;
         private IGameMaster gameMaster;
@@ -83,7 +84,7 @@ namespace Player
             this.SetGuid(_guid);
             this.location = new Location(0, 0);
             State = AgentState.SearchingForGame;
-            controller = gameController;
+            Controller = gameController;
         }
 
         public Player(Player original)
@@ -192,11 +193,13 @@ namespace Player
             State = AgentState.Joining;
         }
 
-        public void ConfirmJoiningGame(ConfirmJoiningGame messageObject)
+        public void ConfirmJoiningGame(ConfirmJoiningGame info)
         {
             State = AgentState.AwaitingForStart;
-            //TODO: zaktualziować playerId -> serwerowy !!!!, gameId, rolę oraz team,  oraz definicje jako Agenta w grze (czyli id jako gracza na planszy)
-            throw new NotImplementedException("ConfirmJoiningGame - patrz komentarz");
+            gameId = info.gameId;
+            ID = info.playerId; //u nas serwerowe ID i playerId na planszy to jedno i to samo
+            guid = info.privateGuid;
+            team = info.PlayerDefinition.team;
         }
 
         public void GameStarted(Game messageObject)

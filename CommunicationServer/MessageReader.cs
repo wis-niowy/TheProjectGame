@@ -1,4 +1,6 @@
-﻿using Messages;
+﻿using GameArea;
+using GameArea.Parsers;
+using Messages;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,8 +15,16 @@ namespace CommunicationServer
         public static object GetObjectFromXML(string message)
         {
             var xmlDoc = new XmlDocument();
-            xmlDoc.LoadXml(message);
-            switch(xmlDoc.DocumentElement.Name)
+            try
+            {
+                xmlDoc.LoadXml(message);
+            }
+            catch (Exception e)
+            {
+                ConsoleWriter.Error("Could not load message to XML. \nMessage content: \n" + message);
+                xmlDoc = null;
+            }
+            switch (xmlDoc.DocumentElement.Name)
             {
                 case "Data":
                     return Deserialize<Data>(message);
@@ -32,6 +42,10 @@ namespace CommunicationServer
                     return Deserialize<GetGames>(message);
                 case "JoinGame":
                     return Deserialize<JoinGame>(message);
+                case "GameMasterDisconnected":
+                    return Deserialize<GameMasterDisconnected>(message);
+                case "PlayerDisconnected":
+                    return Deserialize<PlayerDisconnected>(message);
                 default:
                     return xmlDoc; //xmlDoc as default for other actions
             }
@@ -55,10 +69,14 @@ namespace CommunicationServer
 
         public static string Serialize<T>(T obj)
         {
-            var stringwriter = new System.IO.StringWriter();
+            var stringWriter = new Utf8Writer();
             var serializer = new XmlSerializer(typeof(T));
-            serializer.Serialize(stringwriter, obj);
-            return stringwriter.ToString();
+
+            using (var writer = XmlWriter.Create(stringWriter, new XmlWriterSettings() { Encoding = Encoding.UTF8 }))
+            {
+                serializer.Serialize(writer, obj);
+                return stringWriter.ToString();
+            }
         }
     }
 }

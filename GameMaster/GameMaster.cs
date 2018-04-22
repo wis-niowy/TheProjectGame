@@ -13,6 +13,7 @@ namespace GameArea
     public partial class GameMaster : IGameMaster
     {
         static readonly object lockObject = new object();
+        public ulong GameId { get; set; }
         public GameMasterState State { get; set; }
         private ulong nextPieceId = 0;
         private ulong goalsRedLeft;
@@ -112,7 +113,7 @@ namespace GameArea
                     team = Player.GetTeam
                 };
             }
-            Players.Add(new Player.Player(Player));
+            Players.Add(Player);
             ConsoleWriter.Show("Registered Player with params: GUID: " + Player.GUID + ", ID: " + Player.ID + " , Location: " + Player.GetLocation + ", Team: " + Player.GetTeam);
 
             if (Players.Count == 2 * GetGameDefinition.NumberOfPlayersPerTeam)

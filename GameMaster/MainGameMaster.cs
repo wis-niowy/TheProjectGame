@@ -39,9 +39,9 @@ namespace GameMaster
             else
             {
                 ConsoleWriter.Warning("Invalid args, loading default!");
-                serverIP = IPAddress.Parse("123.0.0.1");
+                serverIP = IPAddress.Parse("127.0.0.1");
                 serverPort = Int32.Parse("5678");
-                settings = new GameMasterSettings();
+                settings = GameMasterSettings.GetDefaultGameMasterSettings();
             }
 
             ConsoleWriter.Show("Settings loaded. Establishing connection to server.");

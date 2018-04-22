@@ -1286,6 +1286,10 @@ namespace Messages
 
         private bool playerIdFieldSpecified;
 
+        public JoinGame()
+        {
+            playerIdFieldSpecified = true; //haksior na dodawanie playerId do serialziacji ZAWSZE !!!
+        }
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public string gameName

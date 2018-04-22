@@ -1,5 +1,6 @@
 ﻿using GameArea;
 using GameArea.Parsers;
+using Messages;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -52,6 +53,7 @@ namespace GameMasterMain
         {
             ConsoleWriter.Show("GameMaster is ready ...");
             BeginRead();
+            BeginSend(MessageParser.Serialize(gameMaster.RegisterGame()));
             while (gameMaster.State != GameMasterState.GameOver);
         }
 
@@ -74,22 +76,24 @@ namespace GameMasterMain
                     var bytesAvailable = ns.EndRead(result);
                     var message = Encoding.ASCII.GetString(buffer);
                     message = message.Trim('\0');
+                    ConsoleWriter.Show("GameMaster read: \n" + message + "\n");
                     Task.Run(() =>
                     {
                         var responseMsgs = gameMaster.HandleActionRequest(message);
-                        foreach(var msg in responseMsgs)
-                            BeginSend(msg);
+                        if(responseMsgs!= null)
+                            foreach (var msg in responseMsgs)
+                                BeginSend(msg);
                     });
                     BeginRead();
                 }
                 catch (Exception e)
                 {
-                    ConsoleWriter.Error("Error while handling message from communication server." + "\n Error message: \n" + e.ToString());
+                    ConsoleWriter.Error("Error while handling message from communication server." + "\n Error message: \n" + e.ToString() + "\n");
                 }
             }
             else
             {
-                ConsoleWriter.Warning("Communication server connection lost");
+                ConsoleWriter.Warning("Communication server connection lost\n");
             }
         }
 
@@ -102,14 +106,14 @@ namespace GameMasterMain
                 ns.BeginWrite(bytes, 0, bytes.Length, EndSend, bytes);
             }
             else
-                ConsoleWriter.Warning("GameMaster tries to send null message.");
+                ConsoleWriter.Warning("GameMaster tries to send null message.\n");
         }
 
         public void EndSend(IAsyncResult result)
         {
             var bytes = (byte[])result.AsyncState;
-            ConsoleWriter.Show("Sent  " + bytes.Length + " bytes to server:");
-            ConsoleWriter.Show("Sent: " + Encoding.ASCII.GetString(bytes).Trim('\0'));
+            ConsoleWriter.Show("GameMaster sent  " + bytes.Length + " bytes to server");
+            ConsoleWriter.Show("GameMaster sent: \n" + Encoding.ASCII.GetString(bytes).Trim('\0') + "\n");
         }
     }
 

@@ -14,7 +14,7 @@ namespace Player
             switch (State)
             {
                 case AgentState.SearchingForGame:
-                    controller.BeginSend(MessageParser.SerializeObjectToXml(new GetGames()));
+                    Controller.BeginSend(MessageParser.Serialize(new GetGames()));
                     break;
                 case AgentState.Joining:
                     TryJoinGame();
@@ -47,7 +47,7 @@ namespace Player
             }
             var game = GamesList[0];
             GamesList.RemoveAt(0);
-            controller.BeginSend(MessageParser.SerializeObjectToXml(new JoinGame()
+            Controller.BeginSend(MessageParser.Serialize(new JoinGame()
             {
                 gameName = game.gameName,
                 preferredRole = PlayerRole.member,

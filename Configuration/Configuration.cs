@@ -186,6 +186,7 @@ namespace Configuration
         {
             return new GameMasterSettingsGameDefinition()
             {
+                gameNameField = "DefaultGame" + DateTime.Now.Ticks,
                 shamProbabilityField = 0.1D,
                 placingNewPiecesFrequencyField = 100000,
                 initialNumberOfPiecesField = 0,

@@ -27,10 +27,10 @@ namespace Player
             }
         }
 
-        public PlayerController(IPlayer p)
+        public PlayerController(IPlayer player)
         {
             clientSocket = new TcpClient();
-            Player = p;
+            Player = player;
         }
 
         public bool ConnectToServer(IPAddress ip, Int32 port)
@@ -78,17 +78,18 @@ namespace Player
                     var bytesAvailable = ns.EndRead(result);
                     var message = Encoding.ASCII.GetString(buffer);
                     message = message.Trim('\0');
+                    ConsoleWriter.Show("Agent read: \n" + message + "\n");
                     DoAgentLogic(message);
                     BeginRead();
                 }
                 catch (Exception e)
                 {
-                    ConsoleWriter.Error("Error while handling message from communication server." + "\n Error message: \n" + e.ToString());
+                    ConsoleWriter.Error("Error while handling message from communication server." + "\n Error message: \n" + e.ToString() + "\n");
                 }
             }
             else
             {
-                ConsoleWriter.Warning("Communication server connection lost");
+                ConsoleWriter.Warning("Communication server connection lost\n");
             }
         }
 
@@ -96,7 +97,7 @@ namespace Player
         {
             object messageObject = new object();
 
-            messageObject = MessageParser.DeserializeXML(message);//message must be without any \0 characters
+            messageObject = MessageParser.Deserialize(message);//message must be without any \0 characters
 
             switch (messageObject.GetType().Name)
             {
@@ -124,10 +125,10 @@ namespace Player
                     break;
 
                 default:
-                    ConsoleWriter.Warning("Unknown message received by Player \nReceived message:\n" + message);
+                    ConsoleWriter.Warning("Unknown message received by Player \nReceived message:\n" + message + "\n");
                     break;
             }
-            ConsoleWriter.Show("Player received message of type: " + messageObject.GetType().Name);
+            ConsoleWriter.Show("Player received message of type: " + messageObject.GetType().Name + "\n");
         }
 
         public void BeginSend(string message)
@@ -139,14 +140,14 @@ namespace Player
                 ns.BeginWrite(bytes, 0, bytes.Length, EndSend, bytes);
             }
             else
-                ConsoleWriter.Warning("GameMaster tries to send null message.");
+                ConsoleWriter.Warning("Agent tries to send null message. \n");
         }
 
         public void EndSend(IAsyncResult result)
         {
             var bytes = (byte[])result.AsyncState;
-            ConsoleWriter.Show("Sent  " + bytes.Length + " bytes to server:");
-            ConsoleWriter.Show("Sent: " + Encoding.ASCII.GetString(bytes).Trim('\0'));
+            ConsoleWriter.Show("Agent sent  " + bytes.Length + " bytes to server\n");
+            ConsoleWriter.Show("Agent message: \n" + Encoding.ASCII.GetString(bytes).Trim('\0') + "\n");
         }
     }
 }

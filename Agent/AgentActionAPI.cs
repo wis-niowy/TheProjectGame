@@ -30,14 +30,18 @@ namespace Player
             if (GetPiece != null)
                 ConsoleWriter.Show(GUID + " tries to test piece: " + GetPiece.id + " on location: " + GetLocation);
             TestPiece msg = PrepareMessageObject<TestPiece>(this.GUID, this.gameId);
-            controller.BeginSend(MessageParser.SerializeObjectToXml(msg)); //każda akcja od razu się wysyła, ustawia również LastActionTaken i dla move LastMoveTaken !!!!!
-            //TODO: aktualizacja last action taken
-            string xmlResponse = gameMaster.HandleActionRequest(MessageParser.SerializeObjectToXml<TestPiece>(msg));
-            Data responseMessage = MessageParser.DeserializeXmlToObject<Data>(xmlResponse);
-            if (responseMessage.gameFinished)
-                gameFinished = true;
-
-            return UpdateLocalBoard(responseMessage, ActionType.TestPiece);
+            LastActionTaken = ActionType.TestPiece;
+            try
+            {
+                Controller.BeginSend(MessageParser.Serialize(msg)); //każda akcja od razu się wysyła, ustawia również LastActionTaken i dla move LastMoveTaken !!!!!
+            }
+            catch (Exception e)
+            {
+                ConsoleWriter.Error("Error occured when writing message to socket.\n Error text: \n" + e.ToString());
+                State = AgentState.Dead;
+                return false;
+            }
+            return true;
         }
 
         /// <summary>
@@ -50,26 +54,36 @@ namespace Player
             ConsoleWriter.Show(guid + " places piece: " + piece.id + " of type: " + piece.type + " on location: " + GetLocation);
             // should we check if received location is the same as the actual one?
             PlacePiece msg = PrepareMessageObject<PlacePiece>(this.GUID, this.GameId);
-            string xmlResponse = gameMaster.HandleActionRequest(MessageParser.SerializeObjectToXml<PlacePiece>(msg));
-            Data responseMessage = MessageParser.DeserializeXmlToObject<Data>(xmlResponse);
-            if (responseMessage.gameFinished)
-                gameFinished = true;
-
-            var receivedLocation = responseMessage.PlayerLocation;
-
-            return UpdateLocalBoard(responseMessage, ActionType.PlacePiece);
+            LastActionTaken = ActionType.PlacePiece;
+            try
+            {
+                Controller.BeginSend(MessageParser.Serialize(msg)); //każda akcja od razu się wysyła, ustawia również LastActionTaken i dla move LastMoveTaken !!!!!
+            }
+            catch (Exception e)
+            {
+                ConsoleWriter.Error("Error occured when writing message to socket.\n Error text: \n" + e.ToString());
+                State = AgentState.Dead;
+                return false;
+            }
+            return true;
         }
 
         public bool PickUpPiece(IGameMaster gameMaster)
         {
             ConsoleWriter.Show(guid + " picks up piece on location: " + GetLocation);
             PickUpPiece msg = PrepareMessageObject<PickUpPiece>(this.GUID, this.GameId);
-            string xmlResponse = gameMaster.HandleActionRequest(MessageParser.SerializeObjectToXml<PickUpPiece>(msg));
-            Data responseMessage = MessageParser.DeserializeXmlToObject<Data>(xmlResponse);
-            if (responseMessage.gameFinished)
-                gameFinished = true;
-
-            return UpdateLocalBoard(responseMessage, ActionType.PickUpPiece);
+            LastActionTaken = ActionType.PickUpPiece;
+            try
+            {
+                Controller.BeginSend(MessageParser.Serialize(msg)); //każda akcja od razu się wysyła, ustawia również LastActionTaken i dla move LastMoveTaken !!!!!
+            }
+            catch (Exception e)
+            {
+                ConsoleWriter.Error("Error occured when writing message to socket.\n Error text: \n" + e.ToString());
+                State = AgentState.Dead;
+                return false;
+            }
+            return true;
         }
 
         public bool Move(IGameMaster gameMaster, MoveType direction)
@@ -78,35 +92,56 @@ namespace Player
             Move msg = PrepareMessageObject<Move>(this.GUID, this.GameId);
             msg.direction = direction;
             msg.directionSpecified = true;
-            string xmlResponse = gameMaster.HandleActionRequest(MessageParser.SerializeObjectToXml<Move>(msg));
-            Data responseMessage = MessageParser.DeserializeXmlToObject<Data>(xmlResponse);
-            if (responseMessage.gameFinished)
-                gameFinished = true;
-
-            return MoveUpdate(responseMessage, direction); // ---- dla tego sypia sie 3 testy - do sprawdzenia pozniej!
+            LastActionTaken = ActionType.Move;
+            LastMoveTaken = direction;
+            try
+            {
+                Controller.BeginSend(MessageParser.Serialize(msg)); //każda akcja od razu się wysyła, ustawia również LastActionTaken i dla move LastMoveTaken !!!!!
+            }
+            catch (Exception e)
+            {
+                ConsoleWriter.Error("Error occured when writing message to socket.\n Error text: \n" + e.ToString());
+                State = AgentState.Dead;
+                return false;
+            }
+            return true;
         }
 
 
-        public void Discover(IGameMaster gameMaster)
+        public bool Discover(IGameMaster gameMaster)
         {
             ConsoleWriter.Show(guid + " discovers on location: " + GetLocation);
             Discover msg = PrepareMessageObject<Discover>(this.GUID, this.GameId);
-            string xmlResponse = gameMaster.HandleActionRequest(MessageParser.SerializeObjectToXml<Discover>(msg));
-            Data responseMessage = MessageParser.DeserializeXmlToObject<Data>(xmlResponse);
-            if (responseMessage.gameFinished)
-                gameFinished = true;
-            UpdateLocalBoard(responseMessage, ActionType.Discover);
+            LastActionTaken = ActionType.Discover;
+            try
+            {
+                Controller.BeginSend(MessageParser.Serialize(msg)); //każda akcja od razu się wysyła, ustawia również LastActionTaken i dla move LastMoveTaken !!!!!
+            }
+            catch (Exception e)
+            {
+                ConsoleWriter.Error("Error occured when writing message to socket.\n Error text: \n" + e.ToString());
+                State = AgentState.Dead;
+                return false;
+            }
+            return true;
         }
 
         public bool Destroy(IGameMaster gameMaster)
         {
             ConsoleWriter.Show(guid + " tries to destroy piece: " + piece.id + " which is: " + piece.type + "on location: " + GetLocation);
             DestroyPiece msg = PrepareMessageObject<DestroyPiece>(this.GUID, this.GameId);
-            string xmlResponse = gameMaster.HandleActionRequest(MessageParser.SerializeObjectToXml<DestroyPiece>(msg));
-            Data responseMessage = MessageParser.DeserializeXmlToObject<Data>(xmlResponse);
-            if (responseMessage.gameFinished)
-                gameFinished = true;
-            return UpdateLocalBoard(responseMessage, ActionType.Destroy);
+            LastActionTaken = ActionType.Destroy;
+            try
+            {
+                Controller.BeginSend(MessageParser.Serialize(msg)); //każda akcja od razu się wysyła, ustawia również LastActionTaken i dla move LastMoveTaken !!!!!
+            }
+            catch (Exception e)
+            {
+                ConsoleWriter.Error("Error occured when writing message to socket.\n Error text: \n" + e.ToString());
+                State = AgentState.Dead;
+                return false;
+            }
+            return true;
         }
         
         // additional methods
@@ -250,6 +285,8 @@ namespace Player
         private bool MoveUpdate(Data responseMessage, MoveType direction)
         {
             bool resultValue = false;
+            if (direction != LastMoveTaken)
+                ConsoleWriter.Warning("MoveUpdate updates for direction: " + direction + " while LastMoveTaken is: " + LastMoveTaken);
             // MoveUpdate oraz gameMaster.HandleMoveRequest updatuja lokacje Playera przez to potrafi ruszyc sie 2 razy
             var futureLocation = CalculateFutureLocation(this.location, direction);
             var currentLocation = responseMessage.PlayerLocation;

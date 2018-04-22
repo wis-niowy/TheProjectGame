@@ -73,6 +73,7 @@ namespace CommunicationServer.ServerObjects
         {
             JoiningAgents.Add(client);
             message.playerId = client.ID;
+            message.playerIdSpecified = true;
             SendMessageToGameMaster(MessageReader.Serialize(message));
         }
 

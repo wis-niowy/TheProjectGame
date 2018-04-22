@@ -11,6 +11,16 @@ namespace GameArea
 {
     public partial class GameMaster : IGameMaster
     {
+        public bool GameReady
+        {
+            get
+            {
+                var redPlayersNumber = GetPlayersByTeam(TeamColour.red).Count;
+                var bluePlayersNumber = GetPlayersByTeam(TeamColour.blue).Count;
+
+                return redPlayersNumber + bluePlayersNumber == 2 * gameSettings.GameDefinition.NumberOfPlayersPerTeam;
+            }
+        }
 
         /// <summary>
         /// Gets a request xml from an Agent and returns response xml with serialized Data object
@@ -27,50 +37,85 @@ namespace GameArea
             switch(xmlDoc.DocumentElement.Name)
             {
                 case nameof(TestPiece):
-                    msg = MessageParser.DeserializeXmlToObject<TestPiece>(requestXml);
-                    responseData = new string[] { MessageParser.SerializeObjectToXml(HandleTestPieceRequest(msg as TestPiece)) };
+                    msg = MessageParser.Deserialize<TestPiece>(requestXml);
+                    responseData = new string[] { MessageParser.Serialize(HandleTestPieceRequest(msg as TestPiece)) };
                     break;
                 case nameof(DestroyPiece):
-                    msg = MessageParser.DeserializeXmlToObject<DestroyPiece>(requestXml);
-                    responseData = new string[] { MessageParser.SerializeObjectToXml(HandleDestroyPieceRequest(msg as DestroyPiece)) };
+                    msg = MessageParser.Deserialize<DestroyPiece>(requestXml);
+                    responseData = new string[] { MessageParser.Serialize(HandleDestroyPieceRequest(msg as DestroyPiece)) };
                     break;
                 case nameof(PlacePiece):
-                    msg = MessageParser.DeserializeXmlToObject<PlacePiece>(requestXml);
-                    responseData = new string[] { MessageParser.SerializeObjectToXml(HandlePlacePieceRequest(msg as PlacePiece)) };
+                    msg = MessageParser.Deserialize<PlacePiece>(requestXml);
+                    responseData = new string[] { MessageParser.Serialize(HandlePlacePieceRequest(msg as PlacePiece)) };
                     break;
                 case nameof(PickUpPiece):
-                    msg = MessageParser.DeserializeXmlToObject<PickUpPiece>(requestXml);
-                    responseData = new string[] { MessageParser.SerializeObjectToXml(HandlePickUpPieceRequest(msg as PickUpPiece)) };
+                    msg = MessageParser.Deserialize<PickUpPiece>(requestXml);
+                    responseData = new string[] { MessageParser.Serialize(HandlePickUpPieceRequest(msg as PickUpPiece)) };
                     break;
                 case nameof(Move):
-                    msg = MessageParser.DeserializeXmlToObject<Move>(requestXml);
-                    responseData = new string[] { MessageParser.SerializeObjectToXml(HandleMoveRequest(msg as Move)) };
+                    msg = MessageParser.Deserialize<Move>(requestXml);
+                    responseData = new string[] { MessageParser.Serialize(HandleMoveRequest(msg as Move)) };
                     break;
                 case nameof(Discover):
-                    msg = MessageParser.DeserializeXmlToObject<Discover>(requestXml);
-                    responseData = new string[] { MessageParser.SerializeObjectToXml(HandleDiscoverRequest(msg as Discover)) };
+                    msg = MessageParser.Deserialize<Discover>(requestXml);
+                    responseData = new string[] { MessageParser.Serialize(HandleDiscoverRequest(msg as Discover)) };
                     break;
                 case nameof(RejectGameRegistration):
                     ConsoleWriter.Show("Server reject for registering game with given name.");
                     State = GameMasterState.GameOver;
                     break;
                 case nameof(ConfirmGameRegistration):
-                    ConsoleWriter.Show("Server confirmed game registration. Awaiting for palyers...");
-                    State = GameMasterState.AwaitingPlayers;
+                    ConsoleWriter.Show("Server confirmed game registration. Awaiting for players...");
+                    msg = MessageParser.Deserialize<ConfirmGameRegistration>(requestXml);
+                    HandleConfirmGameRegistration(msg as ConfirmGameRegistration);
                     break;
                 case nameof(JoinGame):
-                    msg = MessageParser.DeserializeXmlToObject<JoinGame>(requestXml);
+                    msg = MessageParser.Deserialize<JoinGame>(requestXml);
                     responseData = new string[] {HandleJoinGameRequest(msg as JoinGame) }; //HandleJoin zwraca od razu tresc wiadomosci, bo moga byc 2 rozne typy COnfirm lub Reject
-                    //if komplet graczy,
-                    //do responseData dodaj listę wiadomości z broadcastu o rozpoczęciu gry oraz o informacji dla serwera
+                    if (GameReady)
+                    {
+                        State = GameMasterState.GameInprogress;
+                        var additionalData = PrepareGameReadyMessages();
+                        responseData = responseData.Union(additionalData).ToArray();
+                    }
                     break;
                 case nameof(PlayerDisconnected):
-                    msg = MessageParser.DeserializeXmlToObject<PlayerDisconnected>(requestXml);
-                    responseData = new string[] { MessageParser.SerializeObjectToXml(HandlePlayerDisconnectedRequest(msg as PlayerDisconnected)};
+                    msg = MessageParser.Deserialize<PlayerDisconnected>(requestXml);
+                    responseData = new string[] { MessageParser.Serialize(HandlePlayerDisconnectedRequest(msg as PlayerDisconnected)) };
                     break;
             }
 
             return responseData;
+        }
+
+        private void HandleConfirmGameRegistration(ConfirmGameRegistration msg)
+        {
+            State = GameMasterState.AwaitingPlayers;
+            GameId = msg.gameId;
+        }
+
+        private string[] PrepareGameReadyMessages()
+        {
+            List<string> msgs = new List<string>();
+            msgs.Add(MessageParser.Serialize(new GameStarted() { gameId = GameId }));
+            foreach (var player in Players)
+                msgs.Add(MessageParser.Serialize(PrepareGameMessageForPlayer(player)));
+            return msgs.ToArray();
+        }
+
+        private Game PrepareGameMessageForPlayer(Player.Player player)
+        {
+            return new Game()
+            {
+                playerId = player.ID,
+                PlayerLocation = player.GetLocation,
+                Players = Players.Select(q => new Messages.Player()
+                {
+                    id = q.ID,
+                    role = q.Role,
+                    team = q.GetTeam
+                }).ToArray()
+            };
         }
 
         private string GetUniqueGUID()
@@ -109,8 +154,6 @@ namespace GameArea
 
         public string HandleJoinGameRequest(JoinGame joinGame)
         {
-            PlayerMessage returnMessage = null;
-
             var expectedPlayersNumberPerTeam = gameSettings.GameDefinition.NumberOfPlayersPerTeam;
             var redPlayersNumber = GetPlayersByTeam(TeamColour.red).Count;
             var bluePlayersNumber = GetPlayersByTeam(TeamColour.blue).Count;
@@ -134,35 +177,30 @@ namespace GameArea
                     prefferedTeam = prefferedTeam == TeamColour.red ? TeamColour.blue : TeamColour.red;
                     player = PreparePlayerObject(prefferedTeam, playerId);
                 }
-                RegisterPlayer(player); // GameMaster rejestruje playera i umieszcza na boardzie
+                
                 var messagePlayerObject = player.ConvertToMessagePlayer();
-                var leaders = GetPlayersByTeam(prefferedTeam).Where(p => p is Player.Leader);
+                var leaders = GetPlayersByTeam(prefferedTeam).Where(p => p.Role == PlayerRole.leader);
                 var canBeLeader = prefferedRole == PlayerRole.leader && leaders.Count() == 0;
                 if (canBeLeader)
                 {
                     messagePlayerObject.role = PlayerRole.leader;
+                    player.Role = PlayerRole.leader;
                 }
                 else
                 {
                     messagePlayerObject.role = PlayerRole.member;
+                    player.Role = PlayerRole.member;
                 }
+                RegisterPlayer(player); // GameMaster rejestruje playera i umieszcza na boardzie
 
-                returnMessage = PrepareConfirmationMsg(playerId, messagePlayerObject);
+                return  MessageParser.Serialize(PrepareConfirmationMsg(playerId, messagePlayerObject));
             }
             else
             // player cannot join any of two teams
             {
-                returnMessage = PrepareRejectionMsg(joinGame.gameName, playerId);
+                return MessageParser.Serialize(PrepareRejectionMsg(joinGame.gameName, playerId));
             }
 
-            // na koniec sprawdzic, czy jest komplet !!!!
-            redPlayersNumber = GetPlayersByTeam(TeamColour.red).Count;
-            bluePlayersNumber = GetPlayersByTeam(TeamColour.blue).Count;
-
-            if (redPlayersNumber + bluePlayersNumber == 2 * expectedPlayersNumberPerTeam)
-            {
-                // 
-            }
 
 
             //jeżeli jest już komplet graczy to zwróc rejectjoininggame
@@ -180,8 +218,6 @@ namespace GameArea
             //wysyłamy na serwer wiadomość GameStarted
             //zmieniamy stan GameMastera na Inprogress z GameMasterState
             //}
-            throw new NotImplementedException("poprawic obiekt wiadomości, teraz ma być to string gotowy już xml, ponieważ obiekty są 2 różne");
-            return returnMessage;
         }
 
         public PlayerMessage HandlePlayerDisconnectedRequest(PlayerDisconnected playerDisconnected)
@@ -513,6 +549,19 @@ namespace GameArea
                 playerId = Players.Where(q => q.GUID == playerGuid).First().ID,
                 TaskFields = TaskFieldList.ToArray(),
                 GoalFields = GoalFieldList.ToArray()
+            };
+        }
+
+        public RegisterGame RegisterGame()
+        {
+            return new RegisterGame()
+            {
+                NewGameInfo = new GameInfo()
+                {
+                    blueTeamPlayers = (ulong)gameSettings.GameDefinition.NumberOfPlayersPerTeam,
+                    redTeamPlayers = (ulong)gameSettings.GameDefinition.NumberOfPlayersPerTeam,
+                    gameName = gameSettings.GameDefinition.GameName
+                }
             };
         }
 
