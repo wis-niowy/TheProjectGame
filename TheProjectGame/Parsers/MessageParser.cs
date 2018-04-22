@@ -8,12 +8,12 @@ using System.Xml.Serialization;
 
 namespace GameArea.Parsers
 {
-    public class MessageParser : IParser
+    public class MessageParser
     {
         public MessageParser()
         { }
 
-        public string SerializeObjectToXml<T>(T msg)
+        public static string SerializeObjectToXml<T>(T msg)
             where T: class
         {
             if (msg == null)
@@ -36,7 +36,7 @@ namespace GameArea.Parsers
             }
         }
 
-        public T DeserializeXmlToObject<T>(string xml)
+        public static T DeserializeXmlToObject<T>(string xml)
             where T: class
         {
             XmlSerializer ser = new XmlSerializer(typeof(T));

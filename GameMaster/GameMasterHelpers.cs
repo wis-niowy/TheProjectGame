@@ -92,7 +92,7 @@ namespace GameArea
             if (currentGoalField.GoalType == GoalFieldType.goal)
             {
                 var goal = actualBoard.GetField(location.x, location.y) as GameMasterGoalField;
-                if (goal != null && !goal.IsFullfilled && state != GameMasterState.GameOver)
+                if (goal != null && !goal.IsFullfilled && State != GameMasterState.GameOver)
                 {
                     switch (goal.GetOwner)
                     {
@@ -105,7 +105,7 @@ namespace GameArea
                     }
                     if (goalsBlueLeft == 0 || goalsRedLeft == 0)
                     {
-                        state = GameMasterState.GameOver;
+                        State = GameMasterState.GameOver;
                         PrintEndGameState();
                     }
                     Player.SetPiece(null); // the piece is no longer possesed by an Player
@@ -427,7 +427,7 @@ namespace GameArea
             Monitor.Enter(lockObject);
             try
             {
-                if (state == GameMasterState.GameInprogress)
+                if (State == GameMasterState.GameInprogress)
                 {
                     PlaceNewPiece();
                 }

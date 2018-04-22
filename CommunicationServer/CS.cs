@@ -44,25 +44,6 @@ namespace CommunicationServer
                             var client = clientTask.Result;
 
                             manager.AddClient(client);
-
-                            //string message = "";
-
-                            //while (message != null && !message.StartsWith("quit"))
-                            //{
-                            //    byte[] data = Encoding.ASCII.GetBytes("Send next data: [enter 'quit' to terminate] ");
-                            //    NetworkStream nwStream = client.GetStream();
-                            //    nwStream.Write(data, 0, data.Length);
-
-                                
-                            //    byte[] buffer = new byte[client.ReceiveBufferSize];
-                            //    nwStream.Read(buffer, 0, client.ReceiveBufferSize);
-
-
-                            //    message = Encoding.ASCII.GetString(buffer);
-                            //    Console.WriteLine(message);
-                            //}
-                            //Console.WriteLine("Closing connection.");
-                            //client.GetStream().Dispose();
                         }
                     }
                 }
@@ -82,7 +63,7 @@ namespace CommunicationServer
             }
             else
             {
-                IP = IPAddress.Parse("127.0.0.1");
+                IP = IPAddress.Parse("123.0.0.1");
                 socket = Int32.Parse("5678");
             }
             TcpHelper.StartServer(IP, socket);

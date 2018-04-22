@@ -19,41 +19,75 @@ namespace GameArea
         /// <returns>Serialized Data object</returns>
         public string HandleActionRequest(string requestXml)
         {
-            Data responseData = null;
-            MessageParser messageParser = new MessageParser();
+            string responseData = null;
 
-            GameMessage msg = null;
+            object msg = null;
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(requestXml);
             switch(xmlDoc.DocumentElement.Name)
             {
-                case "TestPiece":
-                    msg = messageParser.DeserializeXmlToObject<TestPiece>(requestXml);
-                    responseData = HandleTestPieceRequest(msg as TestPiece);
+                case nameof(TestPiece):
+                    msg = MessageParser.DeserializeXmlToObject<TestPiece>(requestXml);
+                    responseData = MessageParser.SerializeObjectToXml(HandleTestPieceRequest(msg as TestPiece));
                     break;
-                case "Destroy":
-                    msg = messageParser.DeserializeXmlToObject<DestroyPiece>(requestXml);
-                    responseData = HandleDestroyPieceRequest(msg as DestroyPiece);
+                case nameof(DestroyPiece):
+                    msg = MessageParser.DeserializeXmlToObject<DestroyPiece>(requestXml);
+                    responseData = MessageParser.SerializeObjectToXml(HandleDestroyPieceRequest(msg as DestroyPiece));
                     break;
-                case "PlacePiece":
-                    msg = messageParser.DeserializeXmlToObject<PlacePiece>(requestXml);
-                    responseData = HandlePlacePieceRequest(msg as PlacePiece);
+                case nameof(PlacePiece):
+                    msg = MessageParser.DeserializeXmlToObject<PlacePiece>(requestXml);
+                    responseData = MessageParser.SerializeObjectToXml(HandlePlacePieceRequest(msg as PlacePiece));
                     break;
-                case "PickUpPiece":
-                    msg = messageParser.DeserializeXmlToObject<PickUpPiece>(requestXml);
-                    responseData = HandlePickUpPieceRequest(msg as PickUpPiece);
+                case nameof(PickUpPiece):
+                    msg = MessageParser.DeserializeXmlToObject<PickUpPiece>(requestXml);
+                    responseData = MessageParser.SerializeObjectToXml(HandlePickUpPieceRequest(msg as PickUpPiece));
                     break;
-                case "Move":
-                    msg = messageParser.DeserializeXmlToObject<Move>(requestXml);
-                    responseData = HandleMoveRequest(msg as Move);
+                case nameof(Move):
+                    msg = MessageParser.DeserializeXmlToObject<Move>(requestXml);
+                    responseData = MessageParser.SerializeObjectToXml(HandleMoveRequest(msg as Move));
                     break;
-                case "Discover":
-                    msg = messageParser.DeserializeXmlToObject<Discover>(requestXml);
-                    responseData = HandleDiscoverRequest(msg as Discover);
+                case nameof(Discover):
+                    msg = MessageParser.DeserializeXmlToObject<Discover>(requestXml);
+                    responseData = MessageParser.SerializeObjectToXml(HandleDiscoverRequest(msg as Discover));
+                    break;
+                case nameof(RejectGameRegistration):
+                    ConsoleWriter.Show("Server reject for registering game with given name.");
+                    State = GameMasterState.GameOver;
+                    break;
+                case nameof(ConfirmGameRegistration):
+                    ConsoleWriter.Show("Server confirmed game registration. Awaiting for palyers...");
+                    State = GameMasterState.AwaitingPlayers;
+                    break;
+                case nameof(JoinGame):
+                    msg = MessageParser.DeserializeXmlToObject<JoinGame>(requestXml);
+                    responseData = MessageParser.SerializeObjectToXml(HandleJoinGameRequest(msg as JoinGame));
+                    break;
+                case nameof(PlayerDisconnected):
+                    throw new NotImplementedException(); //do zrobienia: napisac handle, usunąć gracza z listy graczy, usunąć gracza z planszy,zweryfikować czy nie potrzeba dodatkowych usunięć/wysyłek wiadomości
                     break;
             }
 
-            return messageParser.SerializeObjectToXml<Data>(responseData);
+            return responseData;
+        }
+
+        public ConfirmJoiningGame HandleJoinGameRequest(JoinGame joinGame)
+        {
+            //jeżeli jest już komplet graczy to zwróc rejectjoininggame
+            //dopasuj gracza do jego preferencji w miare możliwości
+            //doczytac w dokumentacji czy w razie jak nikt nie chciał być liderem to nie ma lidera w team (sprawdzić, ajkby co to ustalamy że ostatni z dołączających do teamu zostaje liderem, jeżeli jeszcze go nie ma)
+            //np. jeżeli chce być red i np. Lider to sprawdź czy jest wolne miejsce w red, a potem sprawdź czy nie ma lidera (najpierw dopasowanie po team, potem po roli)
+            //dajmy na to że red jest full ale blue nie ma lidera więc ten agent trafia do blue team jako lider
+            //dodajemy gracza do listy agentów gry 
+            //nadajemy mu unikalne GUID, playerId jest przekazywane z serwera
+            //wysyłamy do gracza ConfirmJoiningGame
+
+                //sprawdzamy czy mamy komplet graczy
+                //{
+                //wysyłamy do każdeggo z gracza wiadomość Game z danymi gry
+                //wysyłamy na serwer wiadomość GameStarted
+                //zmieniamy stan GameMastera na Inprogress z GameMasterState
+                //}
+            return null;
         }
 
         // --------------------------------------    API

@@ -27,12 +27,11 @@ namespace Player
         /// <returns>True - request was valid; False - request was not valid</returns>
         public bool TestPiece(IGameMaster gameMaster)
         {
-            MessageParser par = new MessageParser();
             if (GetPiece != null)
                 ConsoleWriter.Show(GUID + " tries to test piece: " + GetPiece.id + " on location: " + GetLocation);
             TestPiece msg = PrepareMessageObject<TestPiece>(this.GUID, this.gameId);
-            string xmlResponse = gameMaster.HandleActionRequest(par.SerializeObjectToXml<TestPiece>(msg));
-            Data responseMessage = par.DeserializeXmlToObject<Data>(xmlResponse);
+            string xmlResponse = gameMaster.HandleActionRequest(MessageParser.SerializeObjectToXml<TestPiece>(msg));
+            Data responseMessage = MessageParser.DeserializeXmlToObject<Data>(xmlResponse);
             if (responseMessage.gameFinished)
                 gameFinished = true;
 
@@ -46,12 +45,11 @@ namespace Player
         /// <returns></returns>
         public bool PlacePiece(IGameMaster gameMaster)
         {
-            MessageParser par = new MessageParser();
             ConsoleWriter.Show(guid + " places piece: " + piece.id + " of type: " + piece.type + " on location: " + GetLocation);
             // should we check if received location is the same as the actual one?
             PlacePiece msg = PrepareMessageObject<PlacePiece>(this.GUID, this.GameId);
-            string xmlResponse = gameMaster.HandleActionRequest(par.SerializeObjectToXml<PlacePiece>(msg));
-            Data responseMessage = par.DeserializeXmlToObject<Data>(xmlResponse);
+            string xmlResponse = gameMaster.HandleActionRequest(MessageParser.SerializeObjectToXml<PlacePiece>(msg));
+            Data responseMessage = MessageParser.DeserializeXmlToObject<Data>(xmlResponse);
             if (responseMessage.gameFinished)
                 gameFinished = true;
 
@@ -62,11 +60,10 @@ namespace Player
 
         public bool PickUpPiece(IGameMaster gameMaster)
         {
-            MessageParser par = new MessageParser();
             ConsoleWriter.Show(guid + " picks up piece on location: " + GetLocation);
             PickUpPiece msg = PrepareMessageObject<PickUpPiece>(this.GUID, this.GameId);
-            string xmlResponse = gameMaster.HandleActionRequest(par.SerializeObjectToXml<PickUpPiece>(msg));
-            Data responseMessage = par.DeserializeXmlToObject<Data>(xmlResponse);
+            string xmlResponse = gameMaster.HandleActionRequest(MessageParser.SerializeObjectToXml<PickUpPiece>(msg));
+            Data responseMessage = MessageParser.DeserializeXmlToObject<Data>(xmlResponse);
             if (responseMessage.gameFinished)
                 gameFinished = true;
 
@@ -75,13 +72,12 @@ namespace Player
 
         public bool Move(IGameMaster gameMaster, MoveType direction)
         {
-            MessageParser par = new MessageParser();
             ConsoleWriter.Show(guid + " wants to move from: " + GetLocation + " in direction: " + direction);
             Move msg = PrepareMessageObject<Move>(this.GUID, this.GameId);
             msg.direction = direction;
             msg.directionSpecified = true;
-            string xmlResponse = gameMaster.HandleActionRequest(par.SerializeObjectToXml<Move>(msg));
-            Data responseMessage = par.DeserializeXmlToObject<Data>(xmlResponse);
+            string xmlResponse = gameMaster.HandleActionRequest(MessageParser.SerializeObjectToXml<Move>(msg));
+            Data responseMessage = MessageParser.DeserializeXmlToObject<Data>(xmlResponse);
             if (responseMessage.gameFinished)
                 gameFinished = true;
 
@@ -91,11 +87,10 @@ namespace Player
 
         public void Discover(IGameMaster gameMaster)
         {
-            MessageParser par = new MessageParser();
             ConsoleWriter.Show(guid + " discovers on location: " + GetLocation);
             Discover msg = PrepareMessageObject<Discover>(this.GUID, this.GameId);
-            string xmlResponse = gameMaster.HandleActionRequest(par.SerializeObjectToXml<Discover>(msg));
-            Data responseMessage = par.DeserializeXmlToObject<Data>(xmlResponse);
+            string xmlResponse = gameMaster.HandleActionRequest(MessageParser.SerializeObjectToXml<Discover>(msg));
+            Data responseMessage = MessageParser.DeserializeXmlToObject<Data>(xmlResponse);
             if (responseMessage.gameFinished)
                 gameFinished = true;
             UpdateLocalBoard(responseMessage, ActionType.Discover);
@@ -103,11 +98,10 @@ namespace Player
 
         public bool Destroy(IGameMaster gameMaster)
         {
-            MessageParser par = new MessageParser();
             ConsoleWriter.Show(guid + " tries to destroy piece: " + piece.id + " which is: " + piece.type + "on location: " + GetLocation);
             DestroyPiece msg = PrepareMessageObject<DestroyPiece>(this.GUID, this.GameId);
-            string xmlResponse = gameMaster.HandleActionRequest(par.SerializeObjectToXml<DestroyPiece>(msg));
-            Data responseMessage = par.DeserializeXmlToObject<Data>(xmlResponse);
+            string xmlResponse = gameMaster.HandleActionRequest(MessageParser.SerializeObjectToXml<DestroyPiece>(msg));
+            Data responseMessage = MessageParser.DeserializeXmlToObject<Data>(xmlResponse);
             if (responseMessage.gameFinished)
                 gameFinished = true;
             return UpdateLocalBoard(responseMessage, ActionType.Destroy);

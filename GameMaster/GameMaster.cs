@@ -10,11 +10,10 @@ using System.Timers;
 
 namespace GameArea
 {
-    public enum GameMasterState { AwaitingPlayers, GameInprogress, GameOver };
     public partial class GameMaster : IGameMaster
     {
         static readonly object lockObject = new object();
-        private GameMasterState state;
+        public GameMasterState State { get; set; }
         private ulong nextPieceId = 0;
         private ulong goalsRedLeft;
         private ulong goalsBlueLeft;
@@ -45,7 +44,7 @@ namespace GameArea
         {
             get
             {
-                return state == GameMasterState.GameOver;
+                return State == GameMasterState.GameOver;
             }
         }
         public List<Player.Player> GetPlayers
@@ -60,7 +59,7 @@ namespace GameArea
         {
             get
             {
-                return state;
+                return State;
             }
         }
 
@@ -118,7 +117,7 @@ namespace GameArea
 
             if (Players.Count == 2 * GetGameDefinition.NumberOfPlayersPerTeam)
             {
-                state = GameMasterState.GameInprogress;
+                State = GameMasterState.GameInprogress;
                 PrintBoardState();
             }
         }
@@ -133,7 +132,7 @@ namespace GameArea
 
         public GameMaster(GameMasterSettings settings)
         {
-            state = GameMasterState.AwaitingPlayers;
+            State = GameMasterState.RegisteringGame;
             random = new Random();
             Players = new List<Player.Player>();
             goalsRedLeft = (ulong)settings.GameDefinition.Goals.Where(q => q.team == TeamColour.red).Count();
