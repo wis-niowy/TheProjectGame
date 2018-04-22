@@ -121,6 +121,15 @@ namespace GameArea
                 PrintBoardState();
             }
         }
+        public void UnregisterPlayer(ulong id)
+        {
+            var player = Players.Where(p => p.ID == id).FirstOrDefault();
+            if (player != null)
+            {
+                GetBoard.GetField(player.GetLocation.x, player.GetLocation.y).Player = null;
+                Players.Remove(player);
+            }
+        }
 
         public Board GetBoard
         {

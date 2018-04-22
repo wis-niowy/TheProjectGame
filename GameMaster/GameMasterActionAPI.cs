@@ -17,9 +17,9 @@ namespace GameArea
         /// </summary>
         /// <param name="requestXml">Xml received from Agent</param>
         /// <returns>Serialized Data object</returns>
-        public string HandleActionRequest(string requestXml)
+        public string[] HandleActionRequest(string requestXml)
         {
-            string responseData = null;
+            string [] responseData = null;
 
             object msg = null;
             XmlDocument xmlDoc = new XmlDocument();
@@ -28,27 +28,27 @@ namespace GameArea
             {
                 case nameof(TestPiece):
                     msg = MessageParser.DeserializeXmlToObject<TestPiece>(requestXml);
-                    responseData = MessageParser.SerializeObjectToXml(HandleTestPieceRequest(msg as TestPiece));
+                    responseData = new string[] { MessageParser.SerializeObjectToXml(HandleTestPieceRequest(msg as TestPiece)) };
                     break;
                 case nameof(DestroyPiece):
                     msg = MessageParser.DeserializeXmlToObject<DestroyPiece>(requestXml);
-                    responseData = MessageParser.SerializeObjectToXml(HandleDestroyPieceRequest(msg as DestroyPiece));
+                    responseData = new string[] { MessageParser.SerializeObjectToXml(HandleDestroyPieceRequest(msg as DestroyPiece)) };
                     break;
                 case nameof(PlacePiece):
                     msg = MessageParser.DeserializeXmlToObject<PlacePiece>(requestXml);
-                    responseData = MessageParser.SerializeObjectToXml(HandlePlacePieceRequest(msg as PlacePiece));
+                    responseData = new string[] { MessageParser.SerializeObjectToXml(HandlePlacePieceRequest(msg as PlacePiece)) };
                     break;
                 case nameof(PickUpPiece):
                     msg = MessageParser.DeserializeXmlToObject<PickUpPiece>(requestXml);
-                    responseData = MessageParser.SerializeObjectToXml(HandlePickUpPieceRequest(msg as PickUpPiece));
+                    responseData = new string[] { MessageParser.SerializeObjectToXml(HandlePickUpPieceRequest(msg as PickUpPiece)) };
                     break;
                 case nameof(Move):
                     msg = MessageParser.DeserializeXmlToObject<Move>(requestXml);
-                    responseData = MessageParser.SerializeObjectToXml(HandleMoveRequest(msg as Move));
+                    responseData = new string[] { MessageParser.SerializeObjectToXml(HandleMoveRequest(msg as Move)) };
                     break;
                 case nameof(Discover):
                     msg = MessageParser.DeserializeXmlToObject<Discover>(requestXml);
-                    responseData = MessageParser.SerializeObjectToXml(HandleDiscoverRequest(msg as Discover));
+                    responseData = new string[] { MessageParser.SerializeObjectToXml(HandleDiscoverRequest(msg as Discover)) };
                     break;
                 case nameof(RejectGameRegistration):
                     ConsoleWriter.Show("Server reject for registering game with given name.");
@@ -60,18 +60,111 @@ namespace GameArea
                     break;
                 case nameof(JoinGame):
                     msg = MessageParser.DeserializeXmlToObject<JoinGame>(requestXml);
-                    responseData = MessageParser.SerializeObjectToXml(HandleJoinGameRequest(msg as JoinGame));
+                    responseData = new string[] {HandleJoinGameRequest(msg as JoinGame) }; //HandleJoin zwraca od razu tresc wiadomosci, bo moga byc 2 rozne typy COnfirm lub Reject
+                    //if komplet graczy,
+                    //do responseData dodaj listę wiadomości z broadcastu o rozpoczęciu gry oraz o informacji dla serwera
                     break;
                 case nameof(PlayerDisconnected):
-                    throw new NotImplementedException(); //do zrobienia: napisac handle, usunąć gracza z listy graczy, usunąć gracza z planszy,zweryfikować czy nie potrzeba dodatkowych usunięć/wysyłek wiadomości
+                    msg = MessageParser.DeserializeXmlToObject<PlayerDisconnected>(requestXml);
+                    responseData = new string[] { MessageParser.SerializeObjectToXml(HandlePlayerDisconnectedRequest(msg as PlayerDisconnected)};
                     break;
             }
 
             return responseData;
         }
 
-        public ConfirmJoiningGame HandleJoinGameRequest(JoinGame joinGame)
+        private string GetUniqueGUID()
         {
+            return "TEMP-GUID-" + (new Random()).Next(1000);
+        }
+
+        private ConfirmJoiningGame PrepareConfirmationMsg(ulong id, Messages.Player player)
+        {
+            return new ConfirmJoiningGame()
+            {
+                gameId = id,
+                PlayerDefinition = player,
+                playerId = player.id,
+                privateGuid = GetUniqueGUID()
+            };
+        }
+
+        private RejectJoiningGame PrepareRejectionMsg(string name, ulong id)
+        {
+            return new RejectJoiningGame()
+            {
+                gameName = name,
+                playerId = id,
+            };
+        }
+
+        private Player.Player PreparePlayerObject(TeamColour colour, ulong id)
+        {
+            return new Player.Player(colour)
+            {
+                ID = id,
+                GameId = 0
+            };
+        }
+
+        public string HandleJoinGameRequest(JoinGame joinGame)
+        {
+            PlayerMessage returnMessage = null;
+
+            var expectedPlayersNumberPerTeam = gameSettings.GameDefinition.NumberOfPlayersPerTeam;
+            var redPlayersNumber = GetPlayersByTeam(TeamColour.red).Count;
+            var bluePlayersNumber = GetPlayersByTeam(TeamColour.blue).Count;
+            var prefferedTeam = joinGame.preferredTeam;
+            var prefferedRole = joinGame.preferredRole;
+            var playerId = joinGame.playerId;
+
+            Player.Player player = null;
+
+            if (redPlayersNumber + bluePlayersNumber < 2 * expectedPlayersNumberPerTeam)
+            // player can join one of two teams
+            {
+                if (GetPlayersByTeam(prefferedTeam).Count < expectedPlayersNumberPerTeam)
+                // player can join the team he prefers
+                {
+                    player = PreparePlayerObject(prefferedTeam, playerId);
+                }
+                else
+                // player joins another team
+                {
+                    prefferedTeam = prefferedTeam == TeamColour.red ? TeamColour.blue : TeamColour.red;
+                    player = PreparePlayerObject(prefferedTeam, playerId);
+                }
+                RegisterPlayer(player); // GameMaster rejestruje playera i umieszcza na boardzie
+                var messagePlayerObject = player.ConvertToMessagePlayer();
+                var leaders = GetPlayersByTeam(prefferedTeam).Where(p => p is Player.Leader);
+                var canBeLeader = prefferedRole == PlayerRole.leader && leaders.Count() == 0;
+                if (canBeLeader)
+                {
+                    messagePlayerObject.role = PlayerRole.leader;
+                }
+                else
+                {
+                    messagePlayerObject.role = PlayerRole.member;
+                }
+
+                returnMessage = PrepareConfirmationMsg(playerId, messagePlayerObject);
+            }
+            else
+            // player cannot join any of two teams
+            {
+                returnMessage = PrepareRejectionMsg(joinGame.gameName, playerId);
+            }
+
+            // na koniec sprawdzic, czy jest komplet !!!!
+            redPlayersNumber = GetPlayersByTeam(TeamColour.red).Count;
+            bluePlayersNumber = GetPlayersByTeam(TeamColour.blue).Count;
+
+            if (redPlayersNumber + bluePlayersNumber == 2 * expectedPlayersNumberPerTeam)
+            {
+                // 
+            }
+
+
             //jeżeli jest już komplet graczy to zwróc rejectjoininggame
             //dopasuj gracza do jego preferencji w miare możliwości
             //doczytac w dokumentacji czy w razie jak nikt nie chciał być liderem to nie ma lidera w team (sprawdzić, ajkby co to ustalamy że ostatni z dołączających do teamu zostaje liderem, jeżeli jeszcze go nie ma)
@@ -81,12 +174,20 @@ namespace GameArea
             //nadajemy mu unikalne GUID, playerId jest przekazywane z serwera
             //wysyłamy do gracza ConfirmJoiningGame
 
-                //sprawdzamy czy mamy komplet graczy
-                //{
-                //wysyłamy do każdeggo z gracza wiadomość Game z danymi gry
-                //wysyłamy na serwer wiadomość GameStarted
-                //zmieniamy stan GameMastera na Inprogress z GameMasterState
-                //}
+            //sprawdzamy czy mamy komplet graczy
+            //{
+            //wysyłamy do każdeggo z gracza wiadomość Game z danymi gry
+            //wysyłamy na serwer wiadomość GameStarted
+            //zmieniamy stan GameMastera na Inprogress z GameMasterState
+            //}
+            throw new NotImplementedException("poprawic obiekt wiadomości, teraz ma być to string gotowy już xml, ponieważ obiekty są 2 różne");
+            return returnMessage;
+        }
+
+        public PlayerMessage HandlePlayerDisconnectedRequest(PlayerDisconnected playerDisconnected)
+        {
+            UnregisterPlayer(playerDisconnected.playerId);
+
             return null;
         }
 

@@ -7,22 +7,18 @@ using System.Threading;
 
 namespace Player
 {
-    enum ActionType
-    {
-        none,
-        TestPiece,
-        PlacePiece,
-        PickUpPiece,
-        Move,
-        Discover,
-        Destroy
-    }
 
     public partial class Player:IPlayer
     {
+        private PlayerController controller;
+        private List<GameInfo> GamesList { get; set; }
         private bool gameFinished;
         private IGameMaster gameMaster;
+        // pole uzywane przy czytaniu xml Data od servera - obiekt wie, jakiej akcji przed chwila zadal
+        public ActionType? LastActionTaken { get; set; } //ustawiana przy wykonywaniu dowolnej akcji związanej z grą
+        public MoveType? LastMoveTaken{ get; set; } //ustawiany przy każdym wykonaniu ruchu
         private ulong id;
+        public AgentState State { get; set; }
         public ulong ID
         {
             get
@@ -80,12 +76,14 @@ namespace Player
             team = newTeam;
         }
 
-        public Player(TeamColour team, string _guid = "TEST_GUID", IGameMaster gm = null)
+        public Player(TeamColour team, PlayerController gameController = null, string _guid = "TEST_GUID", IGameMaster gm = null)
         {
             this.gameMaster = gm;
             this.team = team;
             this.SetGuid(_guid);
             this.location = new Location(0, 0);
+            State = AgentState.SearchingForGame;
+            controller = gameController;
         }
 
         public Player(Player original)
@@ -186,6 +184,31 @@ namespace Player
                 team = this.team,
                 role = PlayerRole.member
             };
+        }
+
+        public void RegisteredGames(RegisteredGames messageObject)
+        {
+            GamesList = messageObject.GameInfo.ToList();
+            State = AgentState.Joining;
+        }
+
+        public void ConfirmJoiningGame(ConfirmJoiningGame messageObject)
+        {
+            State = AgentState.AwaitingForStart;
+            //TODO: zaktualziować playerId -> serwerowy !!!!, gameId, rolę oraz team,  oraz definicje jako Agenta w grze (czyli id jako gracza na planszy)
+            throw new NotImplementedException("ConfirmJoiningGame - patrz komentarz");
+        }
+
+        public void GameStarted(Game messageObject)
+        {
+            State = AgentState.Playing;
+            throw new NotImplementedException("Otrzymano wiadomość Game - zaktualizować struktury lokalne Agenta o dane gry");
+        }
+
+        public void GameMasterDisconnected(GameMasterDisconnected messageObject)
+        {
+            State = AgentState.SearchingForGame;
+            throw new NotImplementedException("Wypsiać stan agenta jaki jest aktualny, wyczyścić struktury lokalne Agenta związane z grą - ona już nie istnieje, została zakończona");
         }
     }
 }

@@ -10,13 +10,13 @@ namespace MainApp
 {
     public class GameController
     {
-        public GameMaster GM { get; set; }
+        public GameArea.GameMaster GM { get; set; }
         public List<IPlayer> Players { get; set; }
         private bool TestMode;
 
         public GameController(GameMasterSettings settings,bool testing = false)
         {
-            GM = new GameMaster(settings);
+            GM = new GameArea.GameMaster(settings);
             Players = new List<IPlayer>();
             TestMode = testing;
         }

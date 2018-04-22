@@ -7,11 +7,11 @@ namespace MainApp
 {
     public class GameObjectContainer
     {
-        public GameMaster GameMaster { get; set; }
+        public GameArea.GameMaster GameMaster { get; set; }
 
         public GameObjectContainer(GameMasterSettings settings)
         {
-            GameMaster = new GameMaster(settings);
+            GameMaster = new GameArea.GameMaster(settings);
         }
     }
 }

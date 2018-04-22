@@ -34,7 +34,7 @@ namespace GameMasterMain
 
         public bool ConnectToServer(IPAddress ip, Int32 port)
         {
-            Console.WriteLine("GameMaster connecting to server ...");
+            ConsoleWriter.Show("GameMaster connecting to server ...");
             try
             {
                 clientSocket.Connect(ip, port);
@@ -50,7 +50,7 @@ namespace GameMasterMain
 
         public void StartPerformance()
         {
-            Console.WriteLine("GameMaster is ready ...");
+            ConsoleWriter.Show("GameMaster is ready ...");
             BeginRead();
             while (gameMaster.State != GameMasterState.GameOver);
         }
@@ -76,8 +76,9 @@ namespace GameMasterMain
                     message = message.Trim('\0');
                     Task.Run(() =>
                     {
-                        var responseMsg = gameMaster.HandleActionRequest(message);
-                        BeginSend(responseMsg);
+                        var responseMsgs = gameMaster.HandleActionRequest(message);
+                        foreach(var msg in responseMsgs)
+                            BeginSend(msg);
                     });
                     BeginRead();
                 }
@@ -107,8 +108,8 @@ namespace GameMasterMain
         public void EndSend(IAsyncResult result)
         {
             var bytes = (byte[])result.AsyncState;
-            Console.WriteLine("Sent  {0} bytes to server:", bytes.Length);
-            Console.WriteLine("Sent: {0}", Encoding.ASCII.GetString(bytes).Trim('\0'));
+            ConsoleWriter.Show("Sent  " + bytes.Length + " bytes to server:");
+            ConsoleWriter.Show("Sent: " + Encoding.ASCII.GetString(bytes).Trim('\0'));
         }
     }
 

@@ -10,7 +10,7 @@ namespace Player.Tests
     public class PlayerTests
     {
         GameMasterSettings settings = GameMasterSettings.GetDefaultGameMasterSettings();
-        GameMaster gameMaster = new GameArea.GameMaster(GameMasterSettings.GetDefaultGameMasterSettings());
+        GameArea.GameMaster gameMaster = new GameArea.GameMaster(GameMasterSettings.GetDefaultGameMasterSettings());
 
         [TestMethod]
         public void NewPlayer()

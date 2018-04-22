@@ -13,6 +13,14 @@ namespace GameArea.Parsers
         public MessageParser()
         { }
 
+        public static object DeserializeXML(string xml)
+        {
+            //napisac tu analogicznie aprsowanie każdego typu wiadomości na podstawie MessageReader z communication server
+
+            throw new NotImplementedException("deserializeXML - na object analogicznie do communication server");
+            return null;
+        }
+
         public static string SerializeObjectToXml<T>(T msg)
             where T: class
         {
@@ -45,6 +53,17 @@ namespace GameArea.Parsers
             {
                 return (T)ser.Deserialize(sr);
             }
+        }
+
+        public static string[] SerializeObjectsToXml<T>(IEnumerable<T> msgs)
+            where T:class
+        {
+            List<string> xmls = new List<string>();
+            foreach(var msg in msgs)
+            {
+                xmls.Add(SerializeObjectToXml(msg));
+            }
+            return xmls.ToArray();
         }
     }
 }

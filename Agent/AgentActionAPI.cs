@@ -30,6 +30,8 @@ namespace Player
             if (GetPiece != null)
                 ConsoleWriter.Show(GUID + " tries to test piece: " + GetPiece.id + " on location: " + GetLocation);
             TestPiece msg = PrepareMessageObject<TestPiece>(this.GUID, this.gameId);
+            controller.BeginSend(MessageParser.SerializeObjectToXml(msg)); //każda akcja od razu się wysyła, ustawia również LastActionTaken i dla move LastMoveTaken !!!!!
+            //TODO: aktualizacja last action taken
             string xmlResponse = gameMaster.HandleActionRequest(MessageParser.SerializeObjectToXml<TestPiece>(msg));
             Data responseMessage = MessageParser.DeserializeXmlToObject<Data>(xmlResponse);
             if (responseMessage.gameFinished)
@@ -109,7 +111,7 @@ namespace Player
         
         // additional methods
 
-        private bool UpdateLocalBoard(Data responseMessage, ActionType action, MoveType direction = MoveType.up)
+        public bool UpdateLocalBoard(Data responseMessage, ActionType action, MoveType direction = MoveType.up)
         {
             bool result = false;
 

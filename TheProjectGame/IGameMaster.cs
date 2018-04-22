@@ -17,6 +17,6 @@ namespace GameArea
         Data HandleDiscoverRequest(Discover msg);
         Data HandleDestroyPieceRequest(DestroyPiece msg);
 
-        string HandleActionRequest(string s);
+        string[] HandleActionRequest(string s);
     }
 }

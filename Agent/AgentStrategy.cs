@@ -1,4 +1,5 @@
 ﻿using GameArea;
+using GameArea.Parsers;
 using Messages;
 using System;
 using System.Collections.Generic;
@@ -10,14 +11,48 @@ namespace Player
     {
         public void DoStrategy()
         {
-             if (!HasValidPiece)
+            switch (State)
             {
-                FindAndPickPiece();
+                case AgentState.SearchingForGame:
+                    controller.BeginSend(MessageParser.SerializeObjectToXml(new GetGames()));
+                    break;
+                case AgentState.Joining:
+                    TryJoinGame();
+                    break;
+                case AgentState.AwaitingForStart:
+                    //nic nie rób, czekaj na wiadomość Game
+                    break;
+                case AgentState.Playing:
+                    if (!HasValidPiece)
+                    {
+                        FindAndPickPiece();
+                    }
+                    if (HasValidPiece)
+                    {
+                        FullfillGoal();
+                    }
+                    break;
+                case AgentState.Dead:
+                    //agent martwy
+                    break;
             }
-            if(HasValidPiece)
+        }
+
+        private void TryJoinGame()
+        {
+            if(GamesList == null || GamesList.Count == 0)
             {
-                FullfillGoal();
+                State = AgentState.SearchingForGame;
+                DoStrategy(); //sprobuj wysuzkac gry
             }
+            var game = GamesList[0];
+            GamesList.RemoveAt(0);
+            controller.BeginSend(MessageParser.SerializeObjectToXml(new JoinGame()
+            {
+                gameName = game.gameName,
+                preferredRole = PlayerRole.member,
+                preferredTeam = TeamColour.red
+            }));
         }
 
         public void FindAndPickPiece()
