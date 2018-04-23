@@ -193,7 +193,7 @@ namespace Configuration
                 boardWidthField = 5,
                 taskAreaLengthField = 7,
                 goalAreaLengthField = 3,
-                numberOfPlayersPerTeamField = 4,
+                numberOfPlayersPerTeamField = 1,
                 numberOfGoalsPerGame = 10,
                 goalsField = new GoalField[]
                 {

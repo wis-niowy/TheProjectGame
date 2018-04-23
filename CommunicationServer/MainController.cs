@@ -195,7 +195,7 @@ namespace CommunicationServer
                 clientIds = clientIds.Union(new List<ulong>() { game.GameMaster.Client.ID });
             }
 
-            return clientIds.Distinct();
+            return clientIds.Distinct().OrderBy(q=>q);
             
 
         }

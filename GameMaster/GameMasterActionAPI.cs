@@ -193,7 +193,7 @@ namespace GameArea
                 }
                 RegisterPlayer(player); // GameMaster rejestruje playera i umieszcza na boardzie
 
-                return  MessageParser.Serialize(PrepareConfirmationMsg(playerId, messagePlayerObject));
+                return  MessageParser.Serialize(PrepareConfirmationMsg(GameId, messagePlayerObject));
             }
             else
             // player cannot join any of two teams

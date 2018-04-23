@@ -34,6 +34,9 @@ namespace CommunicationServer
                     case nameof(GameStarted):
                         GameController.BeginGame();
                         break;
+                    case nameof(Game):
+                        GameController.SendMessageToAgent(((Game)messageObject).playerId, message);
+                        break;
                     default:
                         ConsoleWriter.Warning("Unknown message received from GM with clientId: " + clientId + "\nReceived message:\n" + message);
                         break;
