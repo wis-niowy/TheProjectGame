@@ -1,4 +1,5 @@
-﻿using Messages;
+﻿using GameArea.AppMessages;
+using Messages;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -31,10 +32,10 @@ namespace GameArea
         MoveType? LastMoveTaken { get; set; }
 
         void DoStrategy();
-        bool UpdateLocalBoard(Data receivedData, ActionType action, MoveType direction = MoveType.up);
-        void RegisteredGames(RegisteredGames messageObject);
-        void ConfirmJoiningGame(ConfirmJoiningGame messageObject);
-        void GameStarted(Game messageObject);
-        void GameMasterDisconnected(GameMasterDisconnected messageObject);
+        bool UpdateLocalBoard(DataMessage receivedData, ActionType action, MoveType direction = MoveType.up);
+        void RegisteredGames(RegisteredGamesMessage messageObject);
+        void ConfirmJoiningGame(ConfirmJoiningGameMessage messageObject);
+        void GameStarted(AppMessages.GameMessage messageObject);
+        void GameMasterDisconnected(AppMessages.GameMasterDisconnectedMessage messageObject);
     }
 }

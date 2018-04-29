@@ -225,19 +225,6 @@ namespace Messages
         }
 
         public Location() { }
-
-        public override bool Equals(object obj)
-        {
-            if (obj == null)
-                return false;
-            var location = (Location)obj;
-            return location.xField == xField && location.yField == yField;
-        }
-
-        public override string ToString()
-        {
-            return "(" + x + "," + y + ")";
-        }
     }
 
     /// <remarks/>
@@ -1605,7 +1592,7 @@ namespace Messages
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
     [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
-    public partial class GameMasterDisconnected
+    public partial class GameMasterDisconnectedMessage
     {
 
         private ulong gameIdField;

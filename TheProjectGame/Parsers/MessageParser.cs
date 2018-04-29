@@ -6,7 +6,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace GameArea.Parsers
+namespace GameArea
 {
     public static class MessageParser
     {
@@ -70,7 +70,7 @@ namespace GameArea.Parsers
                 case "RegisteredGames":
                     return Deserialize<RegisteredGames>(message);
                 case "GameMasterDisconnected":
-                    return Deserialize<GameMasterDisconnected>(message);
+                    return Deserialize<GameMasterDisconnectedMessage>(message);
                 case "PlayerDisconnected":
                     return Deserialize<PlayerDisconnected>(message);
                 default:

@@ -4,6 +4,7 @@ using GameArea;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using GameArea.AppMessages;
 
 namespace Player
 {
@@ -12,7 +13,7 @@ namespace Player
     {
         public PlayerRole Role { get; set; }
         public PlayerController Controller { get; set; }
-        private List<GameInfo> GamesList { get; set; }
+        private List<GameArea.GameObjects.GameInfo> GamesList { get; set; }
         private bool gameFinished;
         private IGameMaster gameMaster;
         // pole uzywane przy czytaniu xml Data od servera - obiekt wie, jakiej akcji przed chwila zadal
@@ -48,8 +49,8 @@ namespace Player
 
         private ulong gameId;
 
-        public List<Messages.Player> myTeam;
-        public List<Messages.Player> otherTeam;
+        public List<GameArea.GameObjects.Player> myTeam;
+        public List<GameArea.GameObjects.Player> otherTeam;
 
         public ulong GameId
         {
@@ -82,7 +83,7 @@ namespace Player
             this.gameMaster = gm;
             this.team = team;
             this.SetGuid(_guid);
-            this.location = new Location(0, 0);
+            this.location = new GameArea.GameObjects.Location(0, 0);
             State = AgentState.SearchingForGame;
             Controller = gameController;
         }
@@ -92,14 +93,14 @@ namespace Player
             this.team = original.GetTeam;
             this.guid = original.GUID;
             this.id = original.id;
-            this.location = new Location(original.location.x, original.location.y);
+            this.location = new GameArea.GameObjects.Location(original.location.X, original.location.Y);
             if (original.piece != null)
-                this.piece = new Piece(original.piece); // player can't see original piece (sham or goal info must be hidden)
+                this.piece = new GameArea.GameObjects.Piece(original.piece.ID, original.piece.TimeStamp, original.piece.Type, original.piece.PlayerId); // player can't see original piece (sham or goal info must be hidden)
         }
 
-        private Board PlayerBoard;
+        private GameArea.GameObjects.GameBoard PlayerBoard;
 
-        public Board GetBoard
+        public GameArea.GameObjects.GameBoard GetBoard
         {
             get
             {
@@ -107,13 +108,13 @@ namespace Player
             }
         }
 
-        public void SetBoard(Board board) // setter?
+        public void SetBoard(GameArea.GameObjects.GameBoard board) // setter?
         {
             PlayerBoard = board;
         }
 
-        private Piece piece;
-        public Piece GetPiece
+        private GameArea.GameObjects.Piece piece;
+        public GameArea.GameObjects.Piece GetPiece
         {
             get
             {
@@ -121,7 +122,7 @@ namespace Player
             }
         }
 
-        public void SetPiece(Piece piece)
+        public void SetPiece(GameArea.GameObjects.Piece piece)
         {
             this.piece = piece;
         }
@@ -138,7 +139,7 @@ namespace Player
         {
             get
             {
-                return piece != null && piece.type == PieceType.normal;
+                return piece != null && piece.Type == PieceType.normal;
             }
         }
 
@@ -146,7 +147,7 @@ namespace Player
         {
             get
             {
-                return piece != null && piece.type == PieceType.unknown;
+                return piece != null && piece.Type == PieceType.unknown;
             }
         }
 
@@ -154,12 +155,12 @@ namespace Player
         {
             get
             {
-                return piece != null && piece.type == PieceType.sham;
+                return piece != null && piece.Type == PieceType.sham;
             }
         }
 
-        private Location location;
-        public Location GetLocation
+        private GameArea.GameObjects.Location location;
+        public GameArea.GameObjects.Location GetLocation
         {
             get
             {
@@ -167,48 +168,43 @@ namespace Player
             }
         }
 
-        public void SetLocation(Location point)
+        public void SetLocation(GameArea.GameObjects.Location point)
         {
-            location = new Location(point.x, point.y);
+            location = new GameArea.GameObjects.Location(point.X, point.Y);
         }
 
         public void SetLocation(int x, int y)
         {
-            location = new Location(x, y);
+            location = new GameArea.GameObjects.Location(x, y);
         }
 
-        public Messages.Player ConvertToMessagePlayer()
+        public GameArea.GameObjects.Player ConvertToMessagePlayer()
         {
-            return new Messages.Player()
-            {
-                id = this.ID,
-                team = this.team,
-                role = PlayerRole.member
-            };
+            return new GameArea.GameObjects.Player(ID, team, PlayerRole.member);
         }
 
-        public void RegisteredGames(RegisteredGames messageObject)
+        public void RegisteredGames(RegisteredGamesMessage messageObject)
         {
-            GamesList = messageObject.GameInfo.ToList();
+            GamesList = messageObject.Games.ToList();
             State = AgentState.Joining;
         }
 
-        public void ConfirmJoiningGame(ConfirmJoiningGame info)
+        public void ConfirmJoiningGame(ConfirmJoiningGameMessage info)
         {
             State = AgentState.AwaitingForStart;
-            gameId = info.gameId;
-            ID = info.playerId; //u nas serwerowe ID i playerId na planszy to jedno i to samo
-            guid = info.privateGuid;
-            team = info.PlayerDefinition.team;
+            gameId = info.GameId;
+            ID = info.PlayerId; //u nas serwerowe ID i playerId na planszy to jedno i to samo
+            guid = info.GUID;
+            team = info.PlayerDefinition.Team;
         }
 
-        public void GameStarted(Game messageObject)
+        public void GameStarted(GameArea.AppMessages.GameMessage messageObject)
         {
             State = AgentState.Playing;
             throw new NotImplementedException("Otrzymano wiadomość Game - zaktualizować struktury lokalne Agenta o dane gry");
         }
 
-        public void GameMasterDisconnected(GameMasterDisconnected messageObject)
+        public void GameMasterDisconnected(GameArea.AppMessages.GameMasterDisconnectedMessage messageObject)
         {
             State = AgentState.SearchingForGame;
             throw new NotImplementedException("Wypsiać stan agenta jaki jest aktualny, wyczyścić struktury lokalne Agenta związane z grą - ona już nie istnieje, została zakończona");

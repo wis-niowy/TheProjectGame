@@ -53,7 +53,7 @@ namespace GameMasterMain
         {
             ConsoleWriter.Show("GameMaster is ready ...");
             BeginRead();
-            BeginSend(MessageParser.Serialize(gameMaster.RegisterGame()));
+            BeginSend(gameMaster.RegisterGame().Serialize());
             while (gameMaster.State != GameMasterState.GameOver);
         }
 

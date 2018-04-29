@@ -49,7 +49,7 @@ namespace Player
             GamesList.RemoveAt(0);
             Controller.BeginSend(MessageParser.Serialize(new JoinGame()
             {
-                gameName = game.gameName,
+                gameName = game.GameName,
                 preferredRole = PlayerRole.member,
                 preferredTeam = TeamColour.red
             }));
@@ -93,7 +93,7 @@ namespace Player
                         return; //something is blocking action, repeat discovery and move
                     MoveType possibleDirection = GetSecondClosestDirection(direction);
                     var possibleTask = GetTaskFromDirection(possibleDirection);
-                    if (possibleTask != null && possibleTask.Distance < GetCurrentTaksField.Distance)
+                    if (possibleTask != null && possibleTask.DistanceToPiece < GetCurrentTaksField.DistanceToPiece)
                         secondDirection = possibleDirection;
                     moved = TryMove(secondDirection);
                     if (!moved && !OnPiece)
@@ -125,16 +125,16 @@ namespace Player
         {
             if (InTaskArea)
                 GoToGoalArea(team);
-            else if(InGoalArea && GetCurrentGoalField.GoalType != GoalFieldType.unknown)
+            else if(InGoalArea && GetCurrentGoalField.Type != GoalFieldType.unknown)
                 GoToNotFullfilledGoal();
-            else if(InGoalArea && GetCurrentGoalField.GoalType == GoalFieldType.unknown)
+            else if(InGoalArea && GetCurrentGoalField.Type == GoalFieldType.unknown)
                 TryPlacePiece();
         }
 
         public void GoToNotFullfilledGoal()
         {
             var currentGoal = GetCurrentGoalField;
-            if (currentGoal.GoalType == GoalFieldType.unknown)
+            if (currentGoal.Type == GoalFieldType.unknown)
                 return;
             MoveType direction = GetClosestUnknownGoalDirection();
             var moved = TryMove(direction);
@@ -149,8 +149,8 @@ namespace Player
             var goalFullfilled = PlacePiece(gameMaster);
             if(!goalFullfilled) //found non-goal field in goalarea
             {
-                GetCurrentGoalField.GoalType = GoalFieldType.nongoal;
-                GetCurrentGoalField.UpdateTimeStamp(DateTime.Now.AddYears(100));
+                GetCurrentGoalField.Type = GoalFieldType.nongoal;
+                GetCurrentGoalField.TimeStamp = DateTime.Now.AddYears(100);
             }
             return goalFullfilled;
         }

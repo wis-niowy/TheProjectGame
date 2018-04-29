@@ -1,4 +1,5 @@
-﻿using Messages;
+﻿using GameArea.AppMessages;
+using Messages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,30 +17,28 @@ namespace GameArea
         /// <summary>
         /// Handles Player's request - place a Piece on a TaskField
         /// </summary>
-        public Messages.TaskField[] TryPlacePieceOnTaskField(Location location, string playerGuid)
+        public GameObjects.TaskField[] TryPlacePieceOnTaskField(GameObjects.Location location, string playerGuid)
         {
-            Messages.TaskField fieldMessage = null;
-            var currentTaskField = actualBoard.GetField(location.x, location.y) as GameArea.TaskField;
+            GameObjects.TaskField fieldMessage = null;
+            var currentTaskField = actualBoard.GetField(location.X, location.Y) as GameObjects.TaskField;
             var Player = Players.Where(q => q.GUID == playerGuid).First();
 
             // if TaskField is not occupied
-            if (currentTaskField.GetPiece == null)
+            if (currentTaskField.Piece == null)
             {
-                fieldMessage = new Messages.TaskField(location.x, location.y)
+                fieldMessage = new GameObjects.TaskField(location.X, location.Y)
                 {
-                    playerId = Player.ID,
-                    playerIdSpecified = true,
-                    pieceId = Player.GetPiece.id,
-                    pieceIdSpecified = true,
-                    timestamp = DateTime.Now
+                    PlayerId = (long)Player.ID,
+                    Piece = Player.GetPiece,
+                    TimeStamp = DateTime.Now
                 };
 
                 var piece = Player.GetPiece;
-                currentTaskField.SetPiece(piece); // the piece is put on the field
+                currentTaskField.Piece = piece; // the piece is put on the field
                 Player.SetPiece(null); // the piece is no longer possesed by an Player
                 UpdateDistancesFromAllPieces();
             }
-            return new Messages.TaskField[] { fieldMessage }; // fieldMessage is null if TaskField is occupied
+            return new GameObjects.TaskField[] { fieldMessage }; // fieldMessage is null if TaskField is occupied
         }
 
         /// <summary>
@@ -48,21 +47,13 @@ namespace GameArea
         /// <param name="location"></param>
         /// <param name="playerGuid"></param>
         /// <returns></returns>
-        public Messages.GoalField[] TryPlaceShamPieceOnGoalField(Location location, string playerGuid)
+        public GameObjects.GoalField[] TryPlaceShamPieceOnGoalField(GameObjects.Location location, string playerGuid)
         {
             var teamColour = Players.Where(q => q.GUID == playerGuid).First().GetTeam;
             var Player = Players.Where(q => q.GUID == playerGuid).First();
-            var fieldMessage = new Messages.GoalField()
-            {
-                x = location.x,
-                y = location.y,
-                playerId = Player.ID,
-                playerIdSpecified = true,
-                timestamp = DateTime.Now,
-                team = teamColour
-            };
+            var fieldMessage = new GameObjects.GoalField(location.X, location.Y, teamColour);
 
-            return new Messages.GoalField[] { fieldMessage };
+            return new GameObjects.GoalField[] { fieldMessage };
         }
 
         /// <summary>
@@ -71,30 +62,24 @@ namespace GameArea
         /// <param name="location"></param>
         /// <param name="playerGuid"></param>
         /// <returns></returns>
-        public Messages.GoalField[] TryPlaceNormalPieceOnGoalField(Location location, string playerGuid)
+        public GameObjects.GoalField[] TryPlaceNormalPieceOnGoalField(GameObjects.Location location, string playerGuid)
         {
             var teamColour = Players.Where(q => q.GUID == playerGuid).First().GetTeam;
-            var goalFieldType = actualBoard.GetGoalField(location.x, location.y).GoalType;
+            var goalFieldType = actualBoard.GetGoalField(location.X, location.Y).Type;
             var Player = Players.Where(q => q.GUID == playerGuid).First();
-            var fieldMessage = new Messages.GoalField()
+            var fieldMessage = new GameObjects.GoalField(location.X, location.Y, teamColour, goalFieldType)
             {
-                x = location.x,
-                y = location.y,
-                playerId = Player.ID,
-                playerIdSpecified = true,
-                timestamp = DateTime.Now,
-                type = goalFieldType,
-                team = teamColour
+                PlayerId = (long)Player.ID
             };
 
             // if GoalField is of type 'goal' we update data and notify point score
-            var currentGoalField = actualBoard.GetField(location.x, location.y) as GameArea.GoalField;
-            if (currentGoalField.GoalType == GoalFieldType.goal)
+            var currentGoalField = actualBoard.GetField(location.X, location.Y) as GameObjects.GoalField;
+            if (currentGoalField.Type == GoalFieldType.goal)
             {
-                var goal = actualBoard.GetField(location.x, location.y) as GameMasterGoalField;
+                var goal = actualBoard.GetField(location.X, location.Y) as GameMasterGoalField;
                 if (goal != null && !goal.IsFullfilled && State != GameMasterState.GameOver)
                 {
-                    switch (goal.GetOwner)
+                    switch (goal.Team)
                     {
                         case TeamColour.red:
                             goalsRedLeft--;    // one goal less before the game is over
@@ -113,7 +98,7 @@ namespace GameArea
 
             }
 
-            return new Messages.GoalField[] { fieldMessage };
+            return new GameObjects.GoalField[] { fieldMessage };
         }
 
         ///// <summary>
@@ -169,12 +154,12 @@ namespace GameArea
         /// <param name="futureLocation"></param>
         /// <param name="playerGuid"></param>
         /// <param name="response"></param>
-        public void PerformMoveAction(Location currentLocation, Location futureLocation,
-                                      string playerGuid, Data response)
+        public void PerformMoveAction(GameObjects.Location currentLocation, GameObjects.Location futureLocation,
+                                      string playerGuid, DataMessage response)
         {
-            var Player = actualBoard.GetField(currentLocation.x, currentLocation.y).Player;
-            actualBoard.GetField(currentLocation.x, currentLocation.y).Player = null;
-            actualBoard.GetField(futureLocation.x, futureLocation.y).Player = Player;
+            var Player = actualBoard.GetField(currentLocation.X, currentLocation.Y).Player;
+            actualBoard.GetField(currentLocation.X, currentLocation.Y).Player = null;
+            actualBoard.GetField(futureLocation.X, futureLocation.Y).Player = Player;
             response.PlayerLocation = futureLocation;
             Players.Where(q => q.GUID == playerGuid).First().SetLocation(futureLocation);
         }
@@ -187,36 +172,36 @@ namespace GameArea
         /// <param name="dy"></param>
         /// <param name="field"></param>
         /// <param name="TaskFieldList"></param>
-        public void SetInfoAboutDiscoveredTaskField(Location location, int dx, int dy,
-                                                    Field field, List<Messages.TaskField> TaskFieldList)
+        public void SetInfoAboutDiscoveredTaskField(GameObjects.Location location, int dx, int dy,
+                                                    GameObjects.Field field, List<GameObjects.TaskField> TaskFieldList)
         {
             //basic information
-            Messages.TaskField responseField = new Messages.TaskField(location.x, location.y)
+            GameObjects.TaskField responseField = new GameObjects.TaskField(location.X + dx, location.Y + dy)
             {
-                x = location.x + dx,
-                y = location.y + dy,
-                timestamp = DateTime.Now,
-                distanceToPiece = (field as TaskField).Distance
+                TimeStamp = DateTime.Now,
+                DistanceToPiece = (field as GameObjects.TaskField).DistanceToPiece
             };
 
             //anoter Player on the field
             if (field.HasPlayer())
             {
-                responseField.playerId = field.Player.id;
-                responseField.playerIdSpecified = true;
+                responseField.PlayerId = (long)field.Player.ID;
+                responseField.Player = field.Player;
             }
             else
-                responseField.playerIdSpecified = false;
+            {
+                responseField.PlayerId = -1;
+                responseField.Player = null;
+            }
 
             //piece on the field
-            Messages.Piece piece = (field as TaskField).GetPiece;
+            GameObjects.Piece piece = (field as GameObjects.TaskField).Piece;
             if (piece != null)
             {
-                responseField.pieceId = piece.id;
-                responseField.pieceIdSpecified = true;
+                responseField.Piece = piece;
             }
             else
-                responseField.pieceIdSpecified = false;
+                responseField.Piece = null;
 
             TaskFieldList.Add(responseField);
         }
@@ -229,23 +214,24 @@ namespace GameArea
         /// <param name="dy"></param>
         /// <param name="field"></param>
         /// <param name="GoalFieldList"></param>
-        public void SetInfoAboutDiscoveredGoalField(Location location, int dx, int dy,
-                                                    Field field, List<Messages.GoalField> GoalFieldList)
+        public void SetInfoAboutDiscoveredGoalField(GameObjects.Location location, int dx, int dy,
+                                                    GameObjects.Field field, List<GameObjects.GoalField> GoalFieldList)
         {
-            Messages.GoalField responseField = new Messages.GoalField(location.x, location.y, (field as GoalField).GetOwner)
+            GameObjects.GoalField responseField = new GameObjects.GoalField(location.X + dx, location.Y + dy, (field as GameObjects.GoalField).Team)
             {
-                x = location.x + dx,
-                y = location.y + dy,
-                timestamp = DateTime.Now
+                TimeStamp = DateTime.Now
             };
 
             if (field.HasPlayer())
             {
-                responseField.playerId = field.Player.id;
-                responseField.playerIdSpecified = true;
+                responseField.PlayerId = (long)field.Player.ID;
+                responseField.Player = field.Player;
             }
             else
-                responseField.playerIdSpecified = false;
+            {
+                responseField.PlayerId = -1;
+                responseField.Player = null;
+            }
 
             GoalFieldList.Add(responseField);
         }
@@ -261,20 +247,20 @@ namespace GameArea
         public void PrintBoardState()
         {
             StringBuilder boardPrint = new StringBuilder("\n BOARD STATE: \n");
-            for (int y = (int)GetBoard.BoardHeight - 1; y >= 0; y--)
+            for (int y = (int)GetBoard.Height - 1; y >= 0; y--)
             {
                 boardPrint.Append("[" + y);
                 if (y < 10)
                     boardPrint.Append(" ");
                 boardPrint.Append("] ");
-                for (int x = 0; x < (int)GetBoard.BoardWidth; x++)
+                for (int x = 0; x < GetBoard.Width; x++)
                 { 
                     var field = GetBoard.GetField(x, y);
                     boardPrint.Append(field.ToString());
                 }
                 boardPrint.AppendLine();
             }
-            for (int x = 0; x < (int)GetBoard.BoardWidth; x++)
+            for (int x = 0; x < GetBoard.Width; x++)
             {
                 if (x == 0)
                     boardPrint.Append("     ");
@@ -287,7 +273,7 @@ namespace GameArea
         /// Converts MoveType enum object to Location object
         /// </summary>
         /// <returns></returns>
-        private Messages.Location PerformLocationDelta(MoveType moveType, Messages.Location currentLocation, TeamColour team)
+        private GameObjects.Location PerformLocationDelta(MoveType moveType, GameObjects.Location currentLocation, TeamColour team)
         {
             // is MoveUp the same for red and blue team? or if for red Up is +1 for blue should be -1 on OY???
             int dx = 0, dy = 0;
@@ -308,10 +294,10 @@ namespace GameArea
                     break;
             }
 
-            if (!ValidateFieldPosition(currentLocation.x, currentLocation.y, team))
+            if (!ValidateFieldPosition(currentLocation.X, currentLocation.Y, team))
                 return currentLocation;
             else
-                return new Messages.Location(currentLocation.x + dx, currentLocation.y + dy);
+                return new GameObjects.Location(currentLocation.X + dx, currentLocation.Y + dy);
         }
 
         /// <summary>
@@ -333,8 +319,8 @@ namespace GameArea
         private bool CheckIfNotOutOfBorad(int x, int y)
         {
             //stepping out of the board
-            if (x < 0 || x >= actualBoard.BoardWidth ||
-                y < 0 || y >= actualBoard.BoardHeight)
+            if (x < 0 || x >= actualBoard.Width ||
+                y < 0 || y >= actualBoard.Height)
                 return true;
             else return false;
         }
@@ -342,7 +328,7 @@ namespace GameArea
         private bool CheckIfNotEnteringWrongGoalArea(int x, int y, TeamColour team)
         {
             if (team == TeamColour.red && y < actualBoard.GoalAreaHeight ||
-                team == TeamColour.blue && y >= actualBoard.BoardHeight - actualBoard.GoalAreaHeight)
+                team == TeamColour.blue && y >= actualBoard.Height - actualBoard.GoalAreaHeight)
                 return true;
             else return false;
         }
@@ -411,10 +397,10 @@ namespace GameArea
         /// <returns></returns>
         public bool SetPieceInLocation(int x, int y, TeamColour team, PieceType type, ulong id)
         {
-            var piece = new Piece(type, id);
-            if (ValidateFieldPosition(x, y, team) && actualBoard.GetField(x, y) is TaskField)
+            var piece = new GameObjects.Piece(id,DateTime.Now, type);
+            if (ValidateFieldPosition(x, y, team) && actualBoard.GetField(x, y) is GameObjects.TaskField)
             {
-                (actualBoard.GetField(x, y) as TaskField).SetPiece(piece);
+                (actualBoard.GetField(x, y) as GameObjects.TaskField).Piece = piece;
                 UpdateDistancesFromAllPieces();
                 return true;
             }

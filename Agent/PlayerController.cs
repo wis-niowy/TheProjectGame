@@ -95,40 +95,40 @@ namespace Player
 
         private void DoAgentLogic(string message)
         {
-            object messageObject = new object();
-
-            messageObject = MessageParser.Deserialize(message);//message must be without any \0 characters
-
-            switch (messageObject.GetType().Name)
-            {
-                case nameof(RegisteredGames):
-                    Player.RegisteredGames( (RegisteredGames)messageObject);
-                    Player.DoStrategy();
-                    break;
-                case nameof(ConfirmJoiningGame):
-                    Player.ConfirmJoiningGame((ConfirmJoiningGame)messageObject);
-                    break;
-                case nameof(RejectJoiningGame): //gracz nie połączył się z daną grą, próbuj do kolejnej z listy
-                    Player.DoStrategy();
-                    break;
-                case nameof(Game):
-                    Player.GameStarted((Game)messageObject);
-                    Player.DoStrategy();
-                    break;
-                case nameof(GameMasterDisconnected):
-                    Player.GameMasterDisconnected((GameMasterDisconnected)messageObject);
-                    Player.DoStrategy();
-                    break;
-                case nameof(Data):
-                    Player.UpdateLocalBoard((Data)messageObject, (ActionType)Player.LastActionTaken, (MoveType)Player.LastMoveTaken); //update związany z ostatnią wykonaną akcją
-                    Player.DoStrategy();
-                    break;
-
-                default:
-                    ConsoleWriter.Warning("Unknown message received by Player \nReceived message:\n" + message + "\n");
-                    break;
-            }
-            ConsoleWriter.Show("Player received message of type: " + messageObject.GetType().Name + "\n");
+           //object messageObject = new object();
+           //
+           //messageObject = MessageParser.Deserialize(message);//message must be without any \0 characters
+           //
+           //switch (messageObject.GetType().Name)
+           //{
+           //    case nameof(RegisteredGames):
+           //        Player.RegisteredGames( new GameArea.AppMessages.RegisteredGamesMessage(((RegisteredGames)messageObject));
+           //        Player.DoStrategy();
+           //        break;
+           //    case nameof(ConfirmJoiningGame):
+           //        Player.ConfirmJoiningGame((ConfirmJoiningGame)messageObject);
+           //        break;
+           //    case nameof(RejectJoiningGame): //gracz nie połączył się z daną grą, próbuj do kolejnej z listy
+           //        Player.DoStrategy();
+           //        break;
+           //    case nameof(Game):
+           //        Player.GameStarted((Game)messageObject);
+           //        Player.DoStrategy();
+           //        break;
+           //    case nameof(GameMasterDisconnectedMessage):
+           //        Player.GameMasterDisconnected((GameMasterDisconnectedMessage)messageObject);
+           //        Player.DoStrategy();
+           //        break;
+           //    case nameof(Data):
+           //        Player.UpdateLocalBoard((Data)messageObject, (ActionType)Player.LastActionTaken, (MoveType)Player.LastMoveTaken); //update związany z ostatnią wykonaną akcją
+           //        Player.DoStrategy();
+           //        break;
+           //
+           //    default:
+           //        ConsoleWriter.Warning("Unknown message received by Player \nReceived message:\n" + message + "\n");
+           //        break;
+           //}
+           //ConsoleWriter.Show("Player received message of type: " + messageObject.GetType().Name + "\n");
         }
 
         public void BeginSend(string message)

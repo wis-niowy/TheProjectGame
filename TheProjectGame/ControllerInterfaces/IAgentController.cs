@@ -1,8 +1,8 @@
 ﻿using Messages;
 
-namespace CommunicationServer.ServerObjects
+namespace GameArea.ControllerInterfaces
 {
-    internal interface IAgentController
+    public interface IAgentController
     {
         void SendMessageToGameMaster(string message);
         void RemoveClientOrAgent(ulong clientId);

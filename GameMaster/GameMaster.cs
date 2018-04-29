@@ -22,7 +22,7 @@ namespace GameArea
         private List<Player.Player> Players;
         //private List<Piece> pieces;
         private Dictionary<string, ulong> PlayerIdDictionary;
-        private Board actualBoard;
+        private GameObjects.GameBoard actualBoard;
         private GameMasterSettings gameSettings;
         private System.Timers.Timer pieceAdder;
 
@@ -102,16 +102,12 @@ namespace GameArea
             var newId = Players.Count > 0 ? Players.Max(q => q.ID) + 1 : 1;
             Player.ID = newId;
             Player.SetGuid(guid != null ? guid : "Player" + newId);
-            Player.SetBoard(new Board(GetGameDefinition.BoardWidth, GetGameDefinition.TaskAreaLength, GetGameDefinition.GoalAreaLength));
+            Player.SetBoard(new GameObjects.GameBoard((int)GetGameDefinition.BoardWidth, (int)GetGameDefinition.TaskAreaLength, (int)GetGameDefinition.GoalAreaLength));
             if (findFreeLocationAndPlacePlayer)
             {
                 var playerField = GetEmptyFieldForPlayer(Player.GetTeam);
                 Player.SetLocation(playerField);
-                playerField.Player = new Messages.Player()
-                {
-                    id = Player.ID,
-                    team = Player.GetTeam
-                };
+                playerField.Player = new GameObjects.Player(Player.ID, Player.GetTeam);
             }
             Players.Add(Player);
             ConsoleWriter.Show("Registered Player with params: GUID: " + Player.GUID + ", ID: " + Player.ID + " , Location: " + Player.GetLocation + ", Team: " + Player.GetTeam);
@@ -127,12 +123,12 @@ namespace GameArea
             var player = Players.Where(p => p.ID == id).FirstOrDefault();
             if (player != null)
             {
-                GetBoard.GetField(player.GetLocation.x, player.GetLocation.y).Player = null;
+                GetBoard.GetField(player.GetLocation.X, player.GetLocation.Y).Player = null;
                 Players.Remove(player);
             }
         }
 
-        public Board GetBoard
+        public GameObjects.GameBoard GetBoard
         {
             get
             {
@@ -163,16 +159,16 @@ namespace GameArea
 
         private void InitBoard(GameMasterSettingsGameDefinition settings)
         {
-            actualBoard = new Board(settings.BoardWidth, settings.TaskAreaLength, settings.GoalAreaLength,GoalFieldType.nongoal);
-            PlaceInitialPieces(settings.InitialNumberOfPieces);
-            PlaceInitialGoals(settings.Goals);
+            actualBoard = new GameObjects.GameBoard((int)settings.BoardWidth, (int)settings.TaskAreaLength, (int)settings.GoalAreaLength,GoalFieldType.nongoal);
+            PlaceInitialPieces((int)settings.InitialNumberOfPieces);
+            PlaceInitialGoals(settings.Goals.Select(q=>new GameObjects.GoalField(q)).ToArray());
         }
 
-        private void PlaceInitialGoals(Messages.GoalField[] goals)
+        private void PlaceInitialGoals(GameObjects.GoalField[] goals)
         {
             foreach (var goal in goals)
             {
-                actualBoard.SetGoalField(new GameArea.GameMasterGoalField(goal.x, goal.y, goal.team, goal.type));
+                actualBoard.SetGoalField(new GameArea.GameMasterGoalField(goal.X, goal.Y, goal.Team, goal.Type));
             }
         }
 
@@ -187,7 +183,7 @@ namespace GameArea
             {
                 var piece = CreatePiece();
                 var field = GetEmptyFieldForPiece();
-                field.SetPiece(piece);
+                field.Piece = piece;
             }
         }
 
@@ -197,7 +193,7 @@ namespace GameArea
             var field = GetEmptyFieldForPiece();
             if (field != null)
             {
-                field.SetPiece(piece);
+                field.Piece = piece;
                 UpdateDistancesFromAllPieces();
                 return true;
             }
@@ -209,38 +205,35 @@ namespace GameArea
 
         }
 
-        private Piece CreatePiece()
+        private GameObjects.Piece CreatePiece()
         {
             var possibleSham = random.NextDouble();
             if (possibleSham <= gameSettings.GameDefinition.ShamProbability)
-                return new Piece(PieceType.sham, nextPieceId++);
+                return new GameObjects.Piece(nextPieceId++,DateTime.Now, PieceType.sham );
             else
-                return new Piece(PieceType.normal, nextPieceId++);
+                return new GameObjects.Piece(nextPieceId++, DateTime.Now, PieceType.normal );
         }
-        
 
-
-
-        private GameArea.TaskField GetEmptyFieldForPiece()
+        private GameObjects.TaskField GetEmptyFieldForPiece()
         {
             int x, y;
-            GameArea.TaskField field;
-            if (actualBoard.TaskFields.Where(q => q.GetPiece != null).Count() == (int)(actualBoard.BoardWidth * actualBoard.TaskAreaHeight))
+            GameObjects.TaskField field;
+            if (actualBoard.TaskFields.Where(q => q.Piece != null).Count() == (int)(actualBoard.Width * actualBoard.TaskAreaHeight))
                 return null;
             do
             {
                 y = random.Next() % actualBoard.TaskAreaHeight + actualBoard.GoalAreaHeight;
-                x = random.Next() % actualBoard.BoardWidth;
+                x = random.Next() % actualBoard.Width;
                 field = actualBoard.GetTaskField(x, y);
             }
-            while (field == null || field.GetPiece != null);
+            while (field == null || field.Piece != null);
             return field;
         }
 
-        private GameArea.TaskField GetEmptyFieldForPlayer(TeamColour team)
+        private GameArea.GameObjects.Field GetEmptyFieldForPlayer(TeamColour team)
         {
-            int x = 0, y = team == TeamColour.blue ? GetGameDefinition.GoalAreaLength : GetGameDefinition.GoalAreaLength + GetGameDefinition.TaskAreaLength - 1;
-            GameArea.TaskField field = actualBoard.GetTaskField(x, y);
+            int x = 0, y = team == TeamColour.blue ? (int)GetGameDefinition.GoalAreaLength : (int)GetGameDefinition.GoalAreaLength + (int)GetGameDefinition.TaskAreaLength - 1;
+            GameArea.GameObjects.TaskField field = actualBoard.GetTaskField(x, y);
             while (field == null || field.Player != null)
             {
                 x++;
@@ -262,8 +255,8 @@ namespace GameArea
         {
             foreach (var otherPlayer in Players)
             {
-                Player.myTeam = new List<Messages.Player>();
-                Player.otherTeam = new List<Messages.Player>();
+                Player.myTeam = new List<GameObjects.Player>();
+                Player.otherTeam = new List<GameObjects.Player>();
                 //player from another team
                 if (otherPlayer.GetTeam != Player.GetTeam)
                     Player.otherTeam.Add(otherPlayer.ConvertToMessagePlayer());
@@ -275,44 +268,44 @@ namespace GameArea
 
         public void UpdateDistancesFromAllPieces()
         {
-            List<GameArea.TaskField> taskFields = actualBoard.TaskFields;
+            List<GameObjects.TaskField> taskFields = actualBoard.TaskFields;
             foreach (var field in taskFields)
             {
                 //if there is a piece on this field - distance = 0
-                if (field.GetPiece != null)
+                if (field.Piece != null)
                 {
-                    field.Distance = 0;
+                    field.DistanceToPiece = 0;
                     continue;
                 }
                 else    //no piece -> check if there is a piece 1, 2, 3... fields away
                 {
                     int currentDist = 1;
                     int x, y;
-                    while (currentDist < field.Distance && currentDist < taskFields.Count)
+                    while (currentDist < field.DistanceToPiece && currentDist < taskFields.Count)
                     {
                         for (x = 0; x <= currentDist; x++)
                         {
                             y = currentDist - x;
 
 
-                            if (CheckIfNotOutOfTaskArea(field.x + x, field.y + y) && ((actualBoard.GetField(field.x + x, field.y + y)) as TaskField).GetPiece != null)
+                            if (CheckIfNotOutOfTaskArea(field.X + x, field.Y + y) && ((actualBoard.GetField(field.X + x, field.Y + y)) as GameObjects.TaskField).Piece != null)
                             {
-                                field.Distance = currentDist;
+                                field.DistanceToPiece = currentDist;
                                 break;
                             }//first quarter
-                            if (CheckIfNotOutOfTaskArea(field.x - x, field.y + y) && ((actualBoard.GetField(field.x - x, field.y + y)) as TaskField).GetPiece != null)
+                            if (CheckIfNotOutOfTaskArea(field.X - x, field.Y + y) && ((actualBoard.GetField(field.X - x, field.Y + y)) as GameObjects.TaskField).Piece != null)
                             {
-                                field.Distance = currentDist;
+                                field.DistanceToPiece = currentDist;
                                 break;
                             }//second quarter
-                            if (CheckIfNotOutOfTaskArea(field.x + x, field.y - y) && ((actualBoard.GetField(field.x + x, field.y - y)) as TaskField).GetPiece != null)
+                            if (CheckIfNotOutOfTaskArea(field.X + x, field.Y - y) && ((actualBoard.GetField(field.X + x, field.Y - y)) as GameObjects.TaskField).Piece != null)
                             {
-                                field.Distance = currentDist;
+                                field.DistanceToPiece = currentDist;
                                 break;
                             }
-                            if (CheckIfNotOutOfTaskArea(field.x - x, field.y - y) && ((actualBoard.GetField(field.x - x, field.y - y)) as TaskField).GetPiece != null)
+                            if (CheckIfNotOutOfTaskArea(field.X - x, field.Y - y) && ((actualBoard.GetField(field.X - x, field.Y - y)) as GameObjects.TaskField).Piece != null)
                             {
-                                field.Distance = currentDist;
+                                field.DistanceToPiece = currentDist;
                                 break;
                             }//fourth quarter
 
@@ -326,7 +319,7 @@ namespace GameArea
 
         private bool CheckIfNotOutOfTaskArea(int x, int y)
         {
-            if (x < 0 || x >= actualBoard.BoardWidth ||
+            if (x < 0 || x >= actualBoard.Width ||
                 y < actualBoard.GoalAreaHeight || y >= actualBoard.GoalAreaHeight + actualBoard.TaskAreaHeight)
                 return false;
             return true;

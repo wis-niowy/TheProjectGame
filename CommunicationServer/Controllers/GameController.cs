@@ -1,4 +1,7 @@
-﻿using Messages;
+﻿using CommunicationServer.Interpreters;
+using GameArea.AppMessages;
+using GameArea.ControllerInterfaces;
+using GameArea.GameObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,16 +10,16 @@ using System.Text;
 namespace CommunicationServer.ServerObjects
 {
     public enum GameState { New, InProgress, Ended };
-    public class GameController:IGMController, IAgentController
+    public class GameController : IGMController, IAgentController
     {
         public ulong gameId { get; }
         public GM GameMaster { get; set; }
         public List<AGENT> Agents { get; set; }
-        public  List<ClientHandle> JoiningAgents { get; set; }
+        public List<ClientHandle> JoiningAgents { get; set; }
         public GameInfo GameInfo { get; set; }
         public GameState State { get; set; }
         private MainController mainController;
-        public GameController(GameInfo newGameInfo,ulong id, MainController controller)
+        public GameController(GameInfo newGameInfo, ulong id, MainController controller)
         {
             Agents = new List<AGENT>();
             JoiningAgents = new List<ClientHandle>();
@@ -47,21 +50,21 @@ namespace CommunicationServer.ServerObjects
             GameMaster = gm;
         }
 
-        public void RegisterClientAsAgent(ConfirmJoiningGame message)
+        public void RegisterClientAsAgent(ulong clientId, string message)
         {
-            var client = JoiningAgents.Where(q => q.ID == message.playerId).FirstOrDefault();
+            var client = JoiningAgents.Where(q => q.ID == clientId).FirstOrDefault();
             JoiningAgents.Remove(client);
 
             client.MessageInterpreter = new AgentInterpreter(this);
             var agent = new AGENT(client);
             Agents.Add(agent);
-            client.BeginSend(MessageReader.Serialize(message));
+            client.BeginSend(message);
         }
 
-        public bool SendMessageToClient(string message) //always first one in JoiningAgents
+        public bool SendMessageToClient(ulong clientId, string message) //always first one in JoiningAgents
         {
-            var client = JoiningAgents.FirstOrDefault();
-            if(client != null)
+            var client = JoiningAgents.Where(q=>q.ID == clientId).FirstOrDefault();
+            if (client != null)
             {
                 client.BeginSend(message);
                 return true;
@@ -69,12 +72,11 @@ namespace CommunicationServer.ServerObjects
             return false;
         }
 
-        internal void AddClient(ClientHandle client, JoinGame message)
+        internal void AddClient(ClientHandle client, JoinGameMessage message)
         {
             JoiningAgents.Add(client);
-            message.playerId = client.ID;
-            message.playerIdSpecified = true;
-            SendMessageToGameMaster(MessageReader.Serialize(message));
+            message.PlayerId = (long)client.ID;
+            SendMessageToGameMaster(message.Serialize());
         }
 
         public void RemoveClientOrAgent(ulong clientId)
@@ -88,37 +90,31 @@ namespace CommunicationServer.ServerObjects
             if (agent != null)
             {
                 Agents.Remove(agent);
-                var message = MessageReader.Serialize(new PlayerDisconnected()
-                {
-                    playerId = agent.PlayerId
-                });
-                SendMessageToGameMaster(message);
+                var message = new PlayerDisconnectedMessage(agent.PlayerId);
+                SendMessageToGameMaster(message.Serialize());
             }
         }
 
         public void CloseGame()
         {
             State = GameState.Ended;
-            var message = MessageReader.Serialize(new GameMasterDisconnected()
+            var message = new GameMasterDisconnectedMessage(gameId);
+            foreach (var agent in Agents)
             {
-                gameId = this.gameId
-            });
-            foreach(var agent in Agents)
-            {
-                SendMessageToAgent(agent.PlayerId, message);
+                SendMessageToAgent(agent.PlayerId, message.Serialize());
             }
             mainController.DoCleaning();
         }
 
-        public void RejectJoin(RejectJoiningGame message)
+        public void RejectJoin(string name, ulong clientId)
         {
-            SendMessageToAgent(message.playerId,MessageReader.Serialize(message));
+            SendMessageToClient(clientId,( new RejectJoiningGameMessage(name,clientId)).Serialize());
         }
 
 
-        public void DataSend(Data messageObject)
+        public void DataSend(string message, ulong clientId)
         {
-            SendMessageToAgent(messageObject.playerId, MessageReader.Serialize(messageObject));
+            SendMessageToAgent(clientId, message);
         }
 
         public void BeginGame()

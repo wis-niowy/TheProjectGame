@@ -1,4 +1,5 @@
-﻿using Messages;
+﻿using GameArea.GameObjects;
+using Messages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,25 +9,25 @@ namespace Player
 {
     public partial class Player
     {
-        public GameArea.TaskField GetTaskFromDirection(MoveType direction)
+        public GameArea.GameObjects.TaskField GetTaskFromDirection(MoveType direction)
         {
             switch (direction)
             {
                 case MoveType.left:
-                    return PlayerBoard.GetTaskField(location.x - 1, location.y);
+                    return PlayerBoard.GetTaskField(location.X - 1, location.Y);
                 case MoveType.right:
-                    return PlayerBoard.GetTaskField(location.x + 1, location.y);
+                    return PlayerBoard.GetTaskField(location.X + 1, location.Y);
                 case MoveType.up:
-                    return PlayerBoard.GetTaskField(location.x, location.y + 1);
+                    return PlayerBoard.GetTaskField(location.X, location.Y + 1);
                 case MoveType.down:
-                    return PlayerBoard.GetTaskField(location.x, location.y - 1);
+                    return PlayerBoard.GetTaskField(location.X, location.Y - 1);
             }
 
             return null;
 
         }
 
-        public GameArea.TaskField GetCurrentTaksField
+        public GameArea.GameObjects.TaskField GetCurrentTaksField
         {
             get
             {
@@ -34,7 +35,7 @@ namespace Player
             }
         }
 
-        public GameArea.GoalField GetCurrentGoalField
+        public GameArea.GameObjects.GoalField GetCurrentGoalField
         {
             get
             {
@@ -46,7 +47,7 @@ namespace Player
         {
             get
             {
-                return PlayerBoard.GetField(location.x, location.y) is GameArea.GoalField;
+                return PlayerBoard.GetField(location.X, location.Y) is GameArea.GameObjects.GoalField;
             }
         }
 
@@ -54,7 +55,7 @@ namespace Player
         {
             get
             {
-                return PlayerBoard.GetField(location.x, location.y) is GameArea.TaskField;
+                return PlayerBoard.GetField(location.X, location.Y) is GameArea.GameObjects.TaskField;
             }
         }
 
@@ -62,10 +63,10 @@ namespace Player
         {
             get
             {
-                var field = PlayerBoard.GetField(location.x, location.y);
-                if (field is GameArea.TaskField)
+                var field = PlayerBoard.GetField(location.X, location.Y);
+                if (field is GameArea.GameObjects.TaskField)
                 {
-                    return ((GameArea.TaskField)field).GetPiece != null;
+                    return ((GameArea.GameObjects.TaskField)field).Piece != null;
                 }
                 else
                     return false;
@@ -208,12 +209,12 @@ namespace Player
 
     public class TaskDirectionInfo
     {
-        GameArea.TaskField Left { get; set; }
-        GameArea.TaskField Right { get; set; }
-        GameArea.TaskField Up { get; set; }
-        GameArea.TaskField Down { get; set; }
+        GameArea.GameObjects.TaskField Left { get; set; }
+        GameArea.GameObjects.TaskField Right { get; set; }
+        GameArea.GameObjects.TaskField Up { get; set; }
+        GameArea.GameObjects.TaskField Down { get; set; }
 
-        public TaskDirectionInfo(GameArea.TaskField left, GameArea.TaskField right, GameArea.TaskField up, GameArea.TaskField down)
+        public TaskDirectionInfo(GameArea.GameObjects.TaskField left, GameArea.GameObjects.TaskField right, GameArea.GameObjects.TaskField up, GameArea.GameObjects.TaskField down)
         {
             Left = left;
             Right = right;
@@ -224,12 +225,12 @@ namespace Player
         public MoveType GetClosestDirection()
         {
             MoveType closestDirection = MoveType.up;
-            var minDistance = Up != null ? Up.Distance : int.MaxValue;
-            if (Down != null && minDistance > Down.Distance)
+            var minDistance = Up != null ? Up.DistanceToPiece : int.MaxValue;
+            if (Down != null && minDistance > Down.DistanceToPiece)
                 closestDirection = MoveType.down;
-            if (Left != null && minDistance > Left.Distance)
+            if (Left != null && minDistance > Left.DistanceToPiece)
                 closestDirection = MoveType.left;
-            if (Right != null && minDistance > Right.Distance)
+            if (Right != null && minDistance > Right.DistanceToPiece)
                 closestDirection = MoveType.right;
             return closestDirection;
         }
@@ -237,8 +238,8 @@ namespace Player
         public MoveType GetClosesUpDownDirection() //requires that Discovery was succesfull, last move was left/right
         {
             MoveType closestDirection = MoveType.up;
-            var minDistance = Up != null ? Up.Distance : int.MaxValue;
-            if (Down != null && minDistance > Down.Distance)
+            var minDistance = Up != null ? Up.DistanceToPiece : int.MaxValue;
+            if (Down != null && minDistance > Down.DistanceToPiece)
                 closestDirection = MoveType.down;
             return closestDirection;
         }
@@ -246,8 +247,8 @@ namespace Player
         public MoveType GetClosesLeftRightDirection() //requires that Discovery was succesfull, last move was up/down
         {
             MoveType closestDirection = MoveType.left;
-            var minDistance = Left != null ? Left.Distance : int.MaxValue;
-            if (Right != null && minDistance > Right.Distance)
+            var minDistance = Left != null ? Left.DistanceToPiece : int.MaxValue;
+            if (Right != null && minDistance > Right.DistanceToPiece)
                 closestDirection = MoveType.right;
             return closestDirection;
         }
@@ -255,21 +256,21 @@ namespace Player
 
     public class GoalDirectionInfo
     {
-        List<GameArea.GoalField> Goals { get; set; }
-        Location PlayerLocation { get; set; }
+        List<GameArea.GameObjects.GoalField> Goals { get; set; }
+        GameArea.GameObjects.Location PlayerLocation { get; set; }
         TeamColour Team { get; set; }
 
-        public GoalDirectionInfo(List<GameArea.GoalField> goals, TeamColour team, Location _PlayerLocation)
+        public GoalDirectionInfo(List<GameArea.GameObjects.GoalField> goals, TeamColour team, GameArea.GameObjects.Location _PlayerLocation)
         {
             PlayerLocation = _PlayerLocation;
             Team = team;
             if (team == TeamColour.red)
             {
-                Goals = goals.OrderBy(q => q.y).ThenBy(q => q.x).Where(q => q.GoalType == GoalFieldType.unknown).ToList();
+                Goals = goals.OrderBy(q => q.Y).ThenBy(q => q.X).Where(q => q.Type == GoalFieldType.unknown).ToList();
             }
             else
             {
-                Goals = goals.OrderByDescending(q => q.y).ThenBy(q => q.x).Where(q => q.GoalType == GoalFieldType.unknown).ToList();
+                Goals = goals.OrderByDescending(q => q.Y).ThenBy(q => q.X).Where(q => q.Type == GoalFieldType.unknown).ToList();
             }
         }
 
@@ -282,20 +283,20 @@ namespace Player
             }).OrderBy(q => q.distance).Select(q=>q.goal).FirstOrDefault();
             return GetDirectionToGoal(closestGoal);
         }
-        private int GetDistance(Location goalLocation)
+        private int GetDistance(GameArea.GameObjects.Location goalLocation)
         {
-            return (int)(Math.Abs((int)goalLocation.x - (int)PlayerLocation.x) + Math.Abs((int)goalLocation.y - (int)PlayerLocation.y));
+            return (int)(Math.Abs(goalLocation.X - PlayerLocation.X) + Math.Abs(goalLocation.Y - PlayerLocation.Y));
         }
 
-        private MoveType GetDirectionToGoal(GameArea.GoalField goal)
+        private MoveType GetDirectionToGoal(GameArea.GameObjects.GoalField goal)
         {
             MoveType direction = MoveType.left;
-            long xDiff = Math.Abs((int)goal.x - (int)PlayerLocation.x);
-            long yDiff = Math.Abs((int)goal.y - (int)PlayerLocation.y);
+            long xDiff = Math.Abs(goal.X - PlayerLocation.X);
+            long yDiff = Math.Abs(goal.Y - PlayerLocation.Y);
 
             if (xDiff < yDiff) //move in y axis
             {
-                if ((int)goal.y - (int)PlayerLocation.y > 0)
+                if (goal.Y - PlayerLocation.Y > 0)
                 {
                     direction = MoveType.up;
                 }
@@ -304,7 +305,7 @@ namespace Player
             }
             else
             {
-                if ((int)goal.x - (int)PlayerLocation.x > 0)
+                if (goal.X - PlayerLocation.X > 0)
                 {
                     direction = MoveType.right;
                 }

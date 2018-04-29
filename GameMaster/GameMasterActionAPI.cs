@@ -1,4 +1,5 @@
-﻿using GameArea.Parsers;
+﻿using GameArea.AppMessages;
+using GameArea.Parsers;
 using Messages;
 using System;
 using System.Collections.Generic;
@@ -38,27 +39,27 @@ namespace GameArea
             {
                 case nameof(TestPiece):
                     msg = MessageParser.Deserialize<TestPiece>(requestXml);
-                    responseData = new string[] { MessageParser.Serialize(HandleTestPieceRequest(msg as TestPiece)) };
+                    responseData = new string[] { HandleTestPieceRequest(msg as TestPieceMessage).Serialize() };
                     break;
                 case nameof(DestroyPiece):
                     msg = MessageParser.Deserialize<DestroyPiece>(requestXml);
-                    responseData = new string[] { MessageParser.Serialize(HandleDestroyPieceRequest(msg as DestroyPiece)) };
+                    responseData = new string[] { HandleDestroyPieceRequest(msg as DestroyPieceMessage).Serialize() };
                     break;
                 case nameof(PlacePiece):
                     msg = MessageParser.Deserialize<PlacePiece>(requestXml);
-                    responseData = new string[] { MessageParser.Serialize(HandlePlacePieceRequest(msg as PlacePiece)) };
+                    responseData = new string[] { HandlePlacePieceRequest(msg as PlacePieceMessage).Serialize()};
                     break;
                 case nameof(PickUpPiece):
                     msg = MessageParser.Deserialize<PickUpPiece>(requestXml);
-                    responseData = new string[] { MessageParser.Serialize(HandlePickUpPieceRequest(msg as PickUpPiece)) };
+                    responseData = new string[] { HandlePickUpPieceRequest(msg as PickUpPieceMessage).Serialize() };
                     break;
                 case nameof(Move):
                     msg = MessageParser.Deserialize<Move>(requestXml);
-                    responseData = new string[] { MessageParser.Serialize(HandleMoveRequest(msg as Move)) };
+                    responseData = new string[] { HandleMoveRequest(msg as MoveMessage).Serialize() };
                     break;
                 case nameof(Discover):
                     msg = MessageParser.Deserialize<Discover>(requestXml);
-                    responseData = new string[] { MessageParser.Serialize(HandleDiscoverRequest(msg as Discover)) };
+                    responseData = new string[] { HandleDiscoverRequest(msg as DiscoverMessage).Serialize() };
                     break;
                 case nameof(RejectGameRegistration):
                     ConsoleWriter.Show("Server reject for registering game with given name.");
@@ -71,7 +72,7 @@ namespace GameArea
                     break;
                 case nameof(JoinGame):
                     msg = MessageParser.Deserialize<JoinGame>(requestXml);
-                    responseData = new string[] {HandleJoinGameRequest(msg as JoinGame) }; //HandleJoin zwraca od razu tresc wiadomosci, bo moga byc 2 rozne typy COnfirm lub Reject
+                    responseData = new string[] {HandleJoinGameRequest(msg as JoinGameMessage) }; //HandleJoin zwraca od razu tresc wiadomosci, bo moga byc 2 rozne typy COnfirm lub Reject
                     if (GameReady)
                     {
                         State = GameMasterState.GameInprogress;
@@ -81,7 +82,7 @@ namespace GameArea
                     break;
                 case nameof(PlayerDisconnected):
                     msg = MessageParser.Deserialize<PlayerDisconnected>(requestXml);
-                    responseData = new string[] { MessageParser.Serialize(HandlePlayerDisconnectedRequest(msg as PlayerDisconnected)) };
+                    responseData = new string[] { HandlePlayerDisconnectedRequest(msg as PlayerDisconnectedMessage).Serialize()};
                     break;
             }
 
@@ -103,18 +104,12 @@ namespace GameArea
             return msgs.ToArray();
         }
 
-        private Game PrepareGameMessageForPlayer(Player.Player player)
+        private AppMessages.GameMessage PrepareGameMessageForPlayer(Player.Player player)
         {
-            return new Game()
+            return new AppMessages.GameMessage(player.ID)
             {
-                playerId = player.ID,
                 PlayerLocation = player.GetLocation,
-                Players = Players.Select(q => new Messages.Player()
-                {
-                    id = q.ID,
-                    role = q.Role,
-                    team = q.GetTeam
-                }).ToArray()
+                Players = Players.Select(q => new GameObjects.Player(q.ID,q.GetTeam,q.Role)).ToArray()
             };
         }
 
@@ -152,14 +147,14 @@ namespace GameArea
             };
         }
 
-        public string HandleJoinGameRequest(JoinGame joinGame)
+        public string HandleJoinGameRequest(JoinGameMessage joinGame)
         {
             var expectedPlayersNumberPerTeam = gameSettings.GameDefinition.NumberOfPlayersPerTeam;
             var redPlayersNumber = GetPlayersByTeam(TeamColour.red).Count;
             var bluePlayersNumber = GetPlayersByTeam(TeamColour.blue).Count;
-            var prefferedTeam = joinGame.preferredTeam;
-            var prefferedRole = joinGame.preferredRole;
-            var playerId = joinGame.playerId;
+            var prefferedTeam = joinGame.PrefferedTeam;
+            var prefferedRole = joinGame.PrefferedRole;
+            var playerId = (ulong)joinGame.PlayerId;
 
             Player.Player player = null;
 
@@ -183,22 +178,22 @@ namespace GameArea
                 var canBeLeader = prefferedRole == PlayerRole.leader && leaders.Count() == 0;
                 if (canBeLeader)
                 {
-                    messagePlayerObject.role = PlayerRole.leader;
+                    messagePlayerObject.Role = PlayerRole.leader;
                     player.Role = PlayerRole.leader;
                 }
                 else
                 {
-                    messagePlayerObject.role = PlayerRole.member;
+                    messagePlayerObject.Role = PlayerRole.member;
                     player.Role = PlayerRole.member;
                 }
                 RegisterPlayer(player); // GameMaster rejestruje playera i umieszcza na boardzie
 
-                return  MessageParser.Serialize(PrepareConfirmationMsg(GameId, messagePlayerObject));
+                return  new ConfirmJoiningGameMessage(GameId, messagePlayerObject,GetUniqueGUID(), player.ID).Serialize();
             }
             else
             // player cannot join any of two teams
             {
-                return MessageParser.Serialize(PrepareRejectionMsg(joinGame.gameName, playerId));
+                return new RejectGameRegistrationMessage(gameSettings.GameDefinition.GameName).Serialize();
             }
 
 
@@ -220,9 +215,9 @@ namespace GameArea
             //}
         }
 
-        public PlayerMessage HandlePlayerDisconnectedRequest(PlayerDisconnected playerDisconnected)
+        public AppMessages.PlayerMessage HandlePlayerDisconnectedRequest(PlayerDisconnectedMessage playerDisconnected)
         {
-            UnregisterPlayer(playerDisconnected.playerId);
+            UnregisterPlayer(playerDisconnected.PlayerID);
 
             return null;
         }
@@ -235,24 +230,18 @@ namespace GameArea
         /// <param name="playerGuid">guid of player requesting an action</param>
         /// <param name="gameId">id of current game</param>
         /// <returns></returns>
-        public Data HandleTestPieceRequest(TestPiece msg)
+        public DataMessage HandleTestPieceRequest(TestPieceMessage msg)
         {
-            string playerGuid = msg.playerGuid;
-            ulong gameId = msg.gameId;
+            string playerGuid = msg.PlayerGUID;
+            ulong gameId = msg.GameId;
             Monitor.Enter(lockObject);
-            Piece pieceDataToSend = null;
+            GameObjects.Piece pieceDataToSend = null;
             var Player = Players.Where(q => q.GUID == playerGuid).First();
             try
             {
                 if (Player.GetPiece != null)
                 {
-                    pieceDataToSend = new Piece()
-                    {
-                        type = Player.GetPiece.type,
-                        id = Player.GetPiece.id,
-                        playerId = Player.ID,
-                        timestamp = DateTime.Now
-                    };
+                    pieceDataToSend = new GameObjects.Piece(Player.GetPiece.ID, DateTime.Now, Player.GetPiece.Type, (long)Player.ID);
                 }
             }
             finally
@@ -261,11 +250,10 @@ namespace GameArea
             }
             PrintBoardState();
             Thread.Sleep((int)GetCosts.TestDelay);
-            return new Data()
+            return new DataMessage(Player.ID)
             {
-                gameFinished = IsGameFinished,
-                playerId = Player.ID,
-                Pieces = new Piece[] { pieceDataToSend }
+                GameFinished = IsGameFinished,
+                Pieces = new GameObjects.Piece[] { pieceDataToSend }
             };
         }
 
@@ -275,12 +263,12 @@ namespace GameArea
         /// <param name="playerGuid"></param>
         /// <param name="gameId"></param>
         /// <returns></returns>
-        public Data HandleDestroyPieceRequest(DestroyPiece msg)
+        public DataMessage HandleDestroyPieceRequest(DestroyPieceMessage msg)
         {
-            string playerGuid = msg.playerGuid;
-            ulong gameId = msg.gameId;
+            string playerGuid = msg.PlayerGUID;
+            ulong gameId = msg.GameId;
             Monitor.Enter(lockObject);
-            Piece pieceDataToSend = null;
+            GameObjects.Piece pieceDataToSend = null;
             var Player = Players.Where(q => q.GUID == playerGuid).First();
             try
             { 
@@ -296,11 +284,10 @@ namespace GameArea
             }
             PrintBoardState();
             Thread.Sleep((int)GetCosts.TestDelay);
-            return new Data()
+            return new DataMessage(Player.ID)
             {
-                gameFinished = IsGameFinished,
-                playerId = Player.ID,
-                Pieces = new Piece[] { pieceDataToSend }
+                GameFinished = IsGameFinished,
+                Pieces = new GameObjects.Piece[] { pieceDataToSend }
             };
         }
 
@@ -311,17 +298,16 @@ namespace GameArea
         /// <param name="playerGuid">guid of player requesting an action</param>
         /// <param name="gameId">id of current game</param>
         /// <returns></returns>
-        public Data HandlePlacePieceRequest(PlacePiece msg)
+        public DataMessage HandlePlacePieceRequest(PlacePieceMessage msg)
         {
-            string playerGuid = msg.playerGuid;
-            ulong gameId = msg.gameId;
+            string playerGuid = msg.PlayerGUID;
+            ulong gameId = msg.GameId;
             var location = Players.Where(q => q.GUID == playerGuid).First().GetLocation;
             var Player = Players.Where(q => q.GUID == playerGuid).First();
             // basic information
-            var response = new Data()
+            var response = new DataMessage(Player.ID)
             {
-                playerId = Player.ID,
-                gameFinished = IsGameFinished
+                GameFinished = IsGameFinished
             };
 
             Monitor.Enter(lockObject);
@@ -331,19 +317,19 @@ namespace GameArea
                 if (Player.GetPiece != null)
                 {
                     // player is on the TaskField
-                    if (actualBoard.GetField(location.x, location.y) is GameArea.TaskField)
+                    if (actualBoard.GetField(location.X, location.Y) is GameObjects.TaskField)
                     {
-                        response.TaskFields = TryPlacePieceOnTaskField(location, playerGuid);
+                        response.Tasks = TryPlacePieceOnTaskField(location, playerGuid);
                     }
                     // player carries a sham piece and is on a GoalField - he receives no data about a current GoalField and cannot place a piece
-                    else if (actualBoard.GetField(location.x, location.y) is GameArea.GoalField && Player.GetPiece.type == PieceType.sham)
+                    else if (actualBoard.GetField(location.X, location.Y) is GameObjects.GoalField && Player.GetPiece.Type == PieceType.sham)
                     {
-                        response.GoalFields = TryPlaceShamPieceOnGoalField(location, playerGuid);
+                        response.Goals = TryPlaceShamPieceOnGoalField(location, playerGuid);
                     }
                     // the goal field is a goal or nongoal and player carries a normal piece
-                    else if (actualBoard.GetField(location.x, location.y) is GameArea.GoalField)
+                    else if (actualBoard.GetField(location.X, location.Y) is GameObjects.GoalField)
                     {
-                        response.GoalFields = TryPlaceNormalPieceOnGoalField(location, playerGuid);
+                        response.Goals = TryPlaceNormalPieceOnGoalField(location, playerGuid);
                     }
                 }
                 // the field is task field and is claimed - action rejected
@@ -366,45 +352,38 @@ namespace GameArea
         /// <param name="playerGuid">guid of player requesting an action</param>
         /// <param name="gameId">id of current game</param>
         /// <returns></returns>
-        public Data HandlePickUpPieceRequest(PickUpPiece msg)
+        public DataMessage HandlePickUpPieceRequest(PickUpPieceMessage msg)
         {
-            string playerGuid = msg.playerGuid;
-            ulong gameId = msg.gameId;
+            string playerGuid = msg.PlayerGUID;
+            ulong gameId = msg.GameId;
             var location = Players.Where(a => a.GUID == playerGuid).First().GetLocation;
             var Player = Players.Where(q => q.GUID == playerGuid).First();
-            Piece[] pieces = new Piece[] { null };
+            GameObjects.Piece[] pieces = new GameObjects.Piece[] { null };
 
-            var response = new Data()
+            var response = new DataMessage(Player.ID)
             {
-                playerId = Player.ID,
                 Pieces = pieces
             };
 
             Monitor.Enter(lockObject);
             try
             {
-                var currentTaskField = actualBoard.GetField(location.x, location.y) as GameArea.TaskField;
+                var currentTaskField = actualBoard.GetField(location.X, location.Y) as GameObjects.TaskField;
                 // the TaskField contains a piece
-                if (currentTaskField != null && currentTaskField.GetPiece != null)
+                if (currentTaskField != null && currentTaskField.Piece != null)
                 {
-                    Piece pieceDataToSend = new Piece()
-                    {
-                        type = PieceType.unknown,
-                        id = currentTaskField.GetPiece.id,
-                        playerId = Player.ID,
-                        timestamp = DateTime.Now
-                    };
+                    GameObjects.Piece pieceDataToSend = new GameObjects.Piece(currentTaskField.Piece.ID, DateTime.Now, playerId: (long)Player.ID);
 
                     response.Pieces[0] = pieceDataToSend;
 
-                    var piece = currentTaskField.GetPiece;
+                    var piece = currentTaskField.Piece;
                     Player.SetPiece(piece); // Player picks up a piece
-                    currentTaskField.SetPiece(null); // the piece is no longer on the field  
+                    currentTaskField.Piece =null; // the piece is no longer on the field  
                     UpdateDistancesFromAllPieces();
                 }
 
                 // player is either on an empty TaskField or on a GoalField
-                response.gameFinished = IsGameFinished;
+                response.GameFinished = IsGameFinished;
             }
             finally
             {
@@ -422,69 +401,68 @@ namespace GameArea
         /// <param name="playerGuid">guid of player requesting an action</param>
         /// <param name="gameId">id of current game</param>
         /// <returns></returns>
-        public Data HandleMoveRequest(Move msg)
+        public DataMessage HandleMoveRequest(MoveMessage msg)
         {
-            string playerGuid = msg.playerGuid;
-            ulong gameId = msg.gameId;
-            MoveType direction = msg.direction;
+            string playerGuid = msg.PlayerGUID;
+            ulong gameId = msg.GameId;
+            MoveType direction = (MoveType)msg.Direction;
             var currentLocation = Players.Where(a => a.GUID == playerGuid).First().GetLocation;
             var team = Players.Where(a => a.GUID == playerGuid).First().GetTeam;
             var Player = Players.Where(q => q.GUID == playerGuid).First();
 
             // perform location delta and get future field
             var futureLocation = PerformLocationDelta(direction, currentLocation, team);
-            var futureBoardField = actualBoard.GetField(futureLocation.x, futureLocation.y);
+            var futureBoardField = actualBoard.GetField(futureLocation.X, futureLocation.Y);
 
             //basic info for response
-            Data response = new Data()
+            DataMessage response = new DataMessage(Player.ID)
             {
-                playerId = Player.ID,
-                TaskFields = new Messages.TaskField[] { },
-                GoalFields = null,
+                Tasks = new GameObjects.TaskField[] { },
+                Goals = null,
                 PlayerLocation = currentLocation,
             };
 
             //player tried to step out of the board or enetr wrong GoalArea
-            if (!ValidateFieldPosition(futureLocation.x, futureLocation.y, team))
+            if (!ValidateFieldPosition(futureLocation.X, futureLocation.Y, team))
                 return response;
 
-            Messages.Field responseField;
-            Field field = actualBoard.GetField(futureLocation.x, futureLocation.y);
+            GameObjects.Field responseField;
+            GameObjects.Field field = actualBoard.GetField(futureLocation.X, futureLocation.Y);
 
             Monitor.Enter(lockObject);
             try
             {
                 // what type of field are we trying to enter - Task or Goal?
                 // we set info about a FutureField
-                if (futureBoardField is GameArea.TaskField)
+                if (futureBoardField is GameObjects.TaskField)
                 {
                     //TryMovePlayerToTaskField(response, futureLocation, playerGuid, out piece, out field);
-                    List<Messages.TaskField> tempList = new List<Messages.TaskField>();
+                    List<GameObjects.TaskField> tempList = new List<GameObjects.TaskField>();
                     SetInfoAboutDiscoveredTaskField(futureLocation, 0, 0, field, tempList);
-                    response.TaskFields = tempList.ToArray();
-                    responseField = response.TaskFields[0];
+                    response.Tasks = tempList.ToArray();
+                    responseField = response.Tasks[0];
                 }
                 else //if (futureBoardField is GameArea.GoalField)
                 {
                     //TryMovePlayerToGoalField(response, futureLocation, playerGuid, out field);
-                    response.GoalFields = new Messages.GoalField[] { };
-                    response.TaskFields = null;
+                    response.Goals = new GameObjects.GoalField[] { };
+                    response.Tasks = null;
 
-                    List<Messages.GoalField> tempList = new List<Messages.GoalField>();
+                    List<GameObjects.GoalField> tempList = new List<GameObjects.GoalField>();
                     SetInfoAboutDiscoveredGoalField(futureLocation, 0, 0, field, tempList);
-                    response.GoalFields = tempList.ToArray();
-                    responseField = response.GoalFields[0];
+                    response.Goals = tempList.ToArray();
+                    responseField = response.Goals[0];
                 }
 
                 // check if there is another Player on the field we're trying to enter
                 // if so, we don't actually move, just get an update on the field
-                if (!responseField.playerIdSpecified)
+                if (responseField.Player == null)
                 {
                     // perform move action
                     PerformMoveAction(currentLocation, futureLocation, playerGuid, response);
                 }
 
-                response.gameFinished = IsGameFinished;
+                response.GameFinished = IsGameFinished;
             }
             finally
             {
@@ -502,14 +480,14 @@ namespace GameArea
         /// <param name="playerGuid">guid of player requesting an action</param>
         /// <param name="gameId">id of current game</param>
         /// <returns></returns>
-        public Data HandleDiscoverRequest(Discover msg)
+        public DataMessage HandleDiscoverRequest(DiscoverMessage msg)
         {
-            string playerGuid = msg.playerGuid;
-            ulong gameId = msg.gameId;
+            string playerGuid = msg.PlayerGUID;
+            ulong gameId = msg.GameId;
             var location = Players.Where(a => a.GUID == playerGuid).First().GetLocation;
             var team = Players.Where(q => q.GUID == playerGuid).First().GetTeam;
-            List<Messages.TaskField> TaskFieldList = new List<Messages.TaskField>();
-            List<Messages.GoalField> GoalFieldList = new List<Messages.GoalField>();
+            List<GameObjects.TaskField> TaskFieldList = new List<GameObjects.TaskField>();
+            List<GameObjects.GoalField> GoalFieldList = new List<GameObjects.GoalField>();
 
             Monitor.Enter(lockObject);
             try
@@ -519,17 +497,17 @@ namespace GameArea
                     for (int dy = -1; dy <= 1; ++dy)
                     {
                         if (dx == 0 && dy == 0) continue;
-                        if (ValidateFieldPosition((location.x + dx),(location.y + dy), team))
+                        if (ValidateFieldPosition((location.X + dx),(location.Y + dy), team))
                         {
-                            Field field = actualBoard.GetField(location.x + dx, location.y + dy);
+                            GameObjects.Field field = actualBoard.GetField(location.X + dx, location.Y + dy);
                             // discovered field is a TaskField - can contain players and pieces
-                            if (field is TaskField)
+                            if (field is GameObjects.TaskField)
                             {
                                 SetInfoAboutDiscoveredTaskField(location, dx, dy, field, TaskFieldList);
                             }
 
                             // discovered field is a GoalField - can contain players
-                            else if (field is GoalField)
+                            else if (field is GameObjects.GoalField)
                             {
                                 SetInfoAboutDiscoveredGoalField(location, dx, dy, field, GoalFieldList);
                             }
@@ -543,26 +521,17 @@ namespace GameArea
             }
             PrintBoardState();
             Thread.Sleep((int)GetCosts.DiscoverDelay);
-            return new Data()
+            return new DataMessage(Players.Where(q => q.GUID == playerGuid).First().ID)
             {
-                gameFinished = IsGameFinished,
-                playerId = Players.Where(q => q.GUID == playerGuid).First().ID,
-                TaskFields = TaskFieldList.ToArray(),
-                GoalFields = GoalFieldList.ToArray()
+                GameFinished = IsGameFinished,
+                Tasks = TaskFieldList.ToArray(),
+                Goals = GoalFieldList.ToArray()
             };
         }
 
-        public RegisterGame RegisterGame()
+        public RegisterGameMessage RegisterGame()
         {
-            return new RegisterGame()
-            {
-                NewGameInfo = new GameInfo()
-                {
-                    blueTeamPlayers = (ulong)gameSettings.GameDefinition.NumberOfPlayersPerTeam,
-                    redTeamPlayers = (ulong)gameSettings.GameDefinition.NumberOfPlayersPerTeam,
-                    gameName = gameSettings.GameDefinition.GameName
-                }
-            };
+            return new RegisterGameMessage(gameSettings.GameDefinition.GameName, (ulong)gameSettings.GameDefinition.NumberOfPlayersPerTeam, (ulong)gameSettings.GameDefinition.NumberOfPlayersPerTeam);
         }
 
         #endregion

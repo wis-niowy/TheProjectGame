@@ -1,4 +1,5 @@
-﻿using Messages;
+﻿using GameArea.AppMessages;
+using Messages;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,14 +11,14 @@ namespace GameArea
     {
         GameMasterState State { get; set; }
 
-        Data HandleTestPieceRequest(TestPiece msg);
-        Data HandlePlacePieceRequest(PlacePiece msg);
-        Data HandlePickUpPieceRequest(PickUpPiece msg);
-        Data HandleMoveRequest(Move msg);
-        Data HandleDiscoverRequest(Discover msg);
-        Data HandleDestroyPieceRequest(DestroyPiece msg);
+        DataMessage HandleTestPieceRequest(TestPieceMessage msg);
+        DataMessage HandlePlacePieceRequest(PlacePieceMessage msg);
+        DataMessage HandlePickUpPieceRequest(PickUpPieceMessage msg);
+        DataMessage HandleMoveRequest(MoveMessage msg);
+        DataMessage HandleDiscoverRequest(DiscoverMessage msg);
+        DataMessage HandleDestroyPieceRequest(DestroyPieceMessage msg);
 
         string[] HandleActionRequest(string s);
-        RegisterGame RegisterGame();
+        RegisterGameMessage RegisterGame();
     }
 }

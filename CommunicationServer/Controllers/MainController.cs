@@ -1,5 +1,8 @@
-﻿using CommunicationServer.ServerObjects;
+﻿using CommunicationServer.Interpreters;
+using CommunicationServer.ServerObjects;
 using GameArea;
+using GameArea.AppMessages;
+using GameArea.ControllerInterfaces;
 using Messages;
 using System;
 using System.Collections.Generic;
@@ -9,7 +12,7 @@ using System.Xml.Serialization;
 
 namespace CommunicationServer
 {
-    public class MainController
+    public class MainController:IMainController
     {
         Dictionary<string, GameController> gameDefinitions;
         List<ClientHandle> clients;
@@ -20,85 +23,58 @@ namespace CommunicationServer
             clients = new List<ClientHandle>();
         }
 
-        public bool RegisterGame(RegisterGame game, ulong clientId)
+        public bool RegisterGame(string name, ulong red, ulong blue, ulong clientId)
         {
-            if(GameAvaiable(game.NewGameInfo.gameName))
+            if(GameAvaiable(name))
             {
-                var controller = new GameController(game.NewGameInfo, GetNewGameId(),this);
+                var gameInfo = new GameArea.GameObjects.GameInfo(name, red, blue);
+                var controller = new GameController(gameInfo, GetNewGameId(),this);
                 var client = clients.Where(q => q.ID == clientId).FirstOrDefault();
                 clients.Remove(client);
                 client.MessageInterpreter = new GMInterpreter(controller);
                 var GM = new GM(client);
                 controller.SetGM(GM);
-                gameDefinitions.Add(game.NewGameInfo.gameName, controller);
-                ConsoleWriter.Show("Successful registration for game: " + game.NewGameInfo.gameName);
-                controller.SendMessageToGameMaster(GameRegisterConfirmation(controller));
+                gameDefinitions.Add(name, controller);
+                ConsoleWriter.Show("Successful registration for game: " + name);
+                controller.SendMessageToGameMaster((new ConfirmGameRegistrationMessage(controller.gameId)).Serialize());
                 return true;
             }
             else
             {
-                SendToClient(clientId, GameRegisterRejection(game.NewGameInfo.gameName));
+                SendToClient(clientId, (new RejectGameRegistrationMessage(name)).Serialize());
             }
-            ConsoleWriter.Show("Game not registered (possible that already exists): " + game.NewGameInfo.gameName);
+            ConsoleWriter.Show("Game not registered (possible that already exists): " + name);
             return false;
         }
 
-        private string GameRegisterRejection(string name)
+        public void JoinGame(string name, TeamColour team, PlayerRole role, ulong clientId)
         {
-            return MessageReader.Serialize(new RejectGameRegistration() { gameName = name });
-        }
-
-        internal void JoinGame(JoinGame message, ulong clientId)
-        {
-            var game = gameDefinitions.Where(q => q.Value.GameInfo.gameName == message.gameName).Select(q=>q.Value).FirstOrDefault();
+            var game = gameDefinitions.Where(q => q.Value.GameInfo.GameName == name).Select(q=>q.Value).FirstOrDefault();
             if(game == null)
             {
-                SendToClient(clientId, RejectJoiningGameMessage(message.gameName));
+                SendToClient(clientId, (new RejectJoiningGameMessage(name, clientId).Serialize()));
             }
             else
             {
                 var client = RemoveClient(clientId);
-                game.AddClient(client, message);
+                game.AddClient(client, new JoinGameMessage(name,team,role,(long)clientId));
             }
         }
 
-        private string RejectJoiningGameMessage(string name)
-        {
-            var obj = new RejectJoiningGame()
-            {
-                gameName = name
-            };
-            return MessageReader.Serialize(obj);
-        }
-
-        internal void GetGames(ulong clientId)
+        public void GetGames(ulong clientId)
         {
             SendToClient(clientId, GetGamesMessage());
         }
 
         private string GetGamesMessage()
         {
-            var games = new List<GameInfo>();
+            var games = new List<GameArea.GameObjects.GameInfo>();
             foreach(var game in gameDefinitions.Where(q=>q.Value.State == GameState.New))
             {
                 games.Add(game.Value.GameInfo);
             }
-            var obj = new RegisteredGames()
-            {
-                GameInfo = games.ToArray()
-            };
-            return MessageReader.Serialize(obj);
-        }
-
-        private string GameRegisterConfirmation(GameController controller)
-        {
-            var stringwriter = new System.IO.StringWriter();
-            var serializer = new XmlSerializer(typeof(ConfirmGameRegistration));
-            serializer.Serialize(stringwriter,new ConfirmGameRegistration()
-            {
-                gameId = controller.gameId
-            });
-            return stringwriter.ToString();
+            var message = new RegisteredGamesMessage(games.ToArray());
+            return message.Serialize();
         }
 
         internal ClientHandle RemoveClient(ulong clientId)
