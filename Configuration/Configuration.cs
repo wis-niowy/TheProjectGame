@@ -15,17 +15,17 @@ namespace Configuration
     public partial class PlayerSettings : Configuration
     {
 
-        private int retryJoinGameIntervalField;
+        private uint retryJoinGameIntervalField;
 
         public PlayerSettings()
         {
-            this.retryJoinGameIntervalField = (5000);
+            this.retryJoinGameIntervalField = ((uint)(5000));
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        [System.ComponentModel.DefaultValueAttribute(typeof(int), "5000")]
-        public int RetryJoinGameInterval
+        [System.ComponentModel.DefaultValueAttribute(typeof(uint), "5000")]
+        public uint RetryJoinGameInterval
         {
             get
             {
@@ -48,17 +48,17 @@ namespace Configuration
     public partial class Configuration
     {
 
-        private int keepAliveIntervalField;
+        private uint keepAliveIntervalField;
 
         public Configuration()
         {
-            this.keepAliveIntervalField = 30000;
+            this.keepAliveIntervalField = ((uint)(30000));
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         [System.ComponentModel.DefaultValueAttribute(typeof(int), "30000")]
-        public int KeepAliveInterval
+        public uint KeepAliveInterval
         {
             get
             {
@@ -85,7 +85,7 @@ namespace Configuration
 
         private GameMasterSettingsActionCosts actionCostsField;
 
-        private int retryRegisterGameIntervalField;
+        private uint retryRegisterGameIntervalField;
 
         public GameMasterSettings() { }
 
@@ -94,7 +94,7 @@ namespace Configuration
         {
             return new GameMasterSettings()
             {
-                retryRegisterGameIntervalField = 5000,
+                retryRegisterGameIntervalField = ((uint)(5000)),
                 actionCostsField = new GameMasterSettingsActionCosts(),
                 gameDefinitionField = GameMasterSettingsGameDefinition.GetDefaultGameDefinition()
             };
@@ -138,7 +138,7 @@ namespace Configuration
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         [System.ComponentModel.DefaultValueAttribute(typeof(int), "5000")]
-        public int RetryRegisterGameInterval
+        public uint RetryRegisterGameInterval
         {
             get
             {
@@ -164,17 +164,17 @@ namespace Configuration
 
         private double shamProbabilityField;
 
-        private int placingNewPiecesFrequencyField;
+        private uint placingNewPiecesFrequencyField;
 
-        private int initialNumberOfPiecesField;
+        private uint initialNumberOfPiecesField;
 
-        private int boardWidthField;
+        private uint boardWidthField;
 
-        private int taskAreaLengthField;
+        private uint taskAreaLengthField;
 
-        private int goalAreaLengthField;
+        private uint goalAreaLengthField;
 
-        private int numberOfPlayersPerTeamField;
+        private uint numberOfPlayersPerTeamField;
 
         private string gameNameField;
 
@@ -188,12 +188,12 @@ namespace Configuration
             {
                 gameNameField = "DefaultGame" + DateTime.Now.Ticks,
                 shamProbabilityField = 0.1D,
-                placingNewPiecesFrequencyField = 100000,
-                initialNumberOfPiecesField = 0,
-                boardWidthField = 5,
-                taskAreaLengthField = 7,
-                goalAreaLengthField = 3,
-                numberOfPlayersPerTeamField = 1,
+                placingNewPiecesFrequencyField = ((uint)(1000)),
+                initialNumberOfPiecesField = ((uint)(4)),
+                boardWidthField = ((uint)(5)),
+                taskAreaLengthField = ((uint)(7)),
+                goalAreaLengthField = ((uint)(3)),
+                numberOfPlayersPerTeamField = ((uint)(4)),
                 numberOfGoalsPerGame = 10,
                 goalsField = new GoalField[]
                 {
@@ -207,7 +207,7 @@ namespace Configuration
             };
         }
 
-        public void SetInitialPiecesNumber(int number)
+        public void SetInitialPiecesNumber(uint number)
         {
             initialNumberOfPiecesField = number;
         }
@@ -240,7 +240,7 @@ namespace Configuration
         }
 
         /// <remarks/>
-        public int PlacingNewPiecesFrequency
+        public uint PlacingNewPiecesFrequency
         {
             get
             {
@@ -253,7 +253,7 @@ namespace Configuration
         }
 
         /// <remarks/>
-        public int InitialNumberOfPieces
+        public uint InitialNumberOfPieces
         {
             get
             {
@@ -266,8 +266,7 @@ namespace Configuration
         }
 
         /// <remarks/>
-        //[System.Xml.Serialization.XmlElementAttribute(DataType="nonNegativeInteger")]
-        public int BoardWidth
+        public uint BoardWidth
         {
             get
             {
@@ -280,7 +279,7 @@ namespace Configuration
         }
 
         /// <remarks/>
-        public int TaskAreaLength
+        public uint TaskAreaLength
         {
             get
             {
@@ -293,7 +292,7 @@ namespace Configuration
         }
 
         /// <remarks/>
-        public int GoalAreaLength
+        public uint GoalAreaLength
         {
             get
             {
@@ -306,7 +305,7 @@ namespace Configuration
         }
 
         /// <remarks/>
-        public int NumberOfPlayersPerTeam
+        public uint NumberOfPlayersPerTeam
         {
             get
             {
@@ -409,6 +408,8 @@ namespace Configuration
     {
     }
 
+    
+
 
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
@@ -419,40 +420,36 @@ namespace Configuration
     public partial class GameMasterSettingsActionCosts
     {
 
-        private int moveDelayField;
+        private uint moveDelayField;
 
-        private int discoverDelayField;
+        private uint discoverDelayField;
 
-        private int testDelayField;
+        private uint testDelayField;
 
-        private int destroyDelayField;
+        private uint destroyDelayField;
 
-        private int pickUpDelayField;
+        private uint pickUpDelayField;
 
-        private int placingDelayField;
+        private uint placingDelayField;
 
-        private int knowledgeExchangeDelayField;
+        private uint knowledgeExchangeDelayField;
+
+        private uint suggestActionDelayField;
 
         public GameMasterSettingsActionCosts()
         {
-
-        }
-
-        public static GameMasterSettingsActionCosts GetDefaultCosts()
-        {
-            return new GameMasterSettingsActionCosts()
-            {
-                moveDelayField = 100,
-                discoverDelayField = 450,
-                testDelayField = 500,
-                pickUpDelayField = 100,
-                placingDelayField = 100,
-                knowledgeExchangeDelayField = 1200
-            };
+            this.moveDelayField = ((uint)(100));
+            this.discoverDelayField = ((uint)(450));
+            this.testDelayField = ((uint)(500));
+            this.destroyDelayField = ((uint)(100));
+            this.pickUpDelayField = ((uint)(100));
+            this.placingDelayField = ((uint)(100));
+            this.knowledgeExchangeDelayField = ((uint)(1200));
+            this.suggestActionDelayField = ((uint)(200));
         }
 
         /// <remarks/>
-        public int MoveDelay
+        public uint MoveDelay
         {
             get
             {
@@ -465,7 +462,7 @@ namespace Configuration
         }
 
         /// <remarks/>
-        public int DiscoverDelay
+        public uint DiscoverDelay
         {
             get
             {
@@ -478,7 +475,7 @@ namespace Configuration
         }
 
         /// <remarks/>
-        public int TestDelay
+        public uint TestDelay
         {
             get
             {
@@ -491,7 +488,7 @@ namespace Configuration
         }
 
         /// <remarks/>
-        public int DestroyDelay
+        public uint DestroyDelay
         {
             get
             {
@@ -504,7 +501,7 @@ namespace Configuration
         }
 
         /// <remarks/>
-        public int PickUpDelay
+        public uint PickUpDelay
         {
             get
             {
@@ -517,7 +514,7 @@ namespace Configuration
         }
 
         /// <remarks/>
-        public int PlacingDelay
+        public uint PlacingDelay
         {
             get
             {
@@ -530,7 +527,7 @@ namespace Configuration
         }
 
         /// <remarks/>
-        public int KnowledgeExchangeDelay
+        public uint KnowledgeExchangeDelay
         {
             get
             {
@@ -539,6 +536,19 @@ namespace Configuration
             set
             {
                 this.knowledgeExchangeDelayField = value;
+            }
+        }
+
+        /// <remarks/>
+        public uint SuggestActionDelay
+        {
+            get
+            {
+                return this.suggestActionDelayField;
+            }
+            set
+            {
+                this.suggestActionDelayField = value;
             }
         }
     }

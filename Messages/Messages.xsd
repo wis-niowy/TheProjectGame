@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema"
     xmlns="https://se2.mini.pw.edu.pl/17-results/" targetNamespace="https://se2.mini.pw.edu.pl/17-results/">
   <xs:simpleType name="guid">
@@ -26,7 +26,7 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  
+
   <xs:complexType name="TaskField">
     <xs:complexContent>
       <xs:extension base="Field">
@@ -43,7 +43,7 @@
       <xs:enumeration value="non-goal" />
     </xs:restriction>
   </xs:simpleType>
-  
+
   <xs:complexType name="GoalField">
     <xs:complexContent>
       <xs:extension base="Field">
@@ -58,6 +58,7 @@
       <xs:enumeration value="unknown" />
       <xs:enumeration value="sham" />
       <xs:enumeration value="normal" />
+      <xs:enumeration value="destroyed" />
     </xs:restriction>
   </xs:simpleType>
 
@@ -84,7 +85,7 @@
     </xs:restriction>
   </xs:simpleType>
 
-  <xs:simpleType name="PlayerType">
+  <xs:simpleType name="PlayerRole">
     <xs:restriction base="xs:string">
       <xs:enumeration value="leader" />
       <xs:enumeration value="member" />
@@ -108,6 +109,12 @@
     <xs:attribute name="gameId" type="xs:unsignedLong"  use="required" />
   </xs:complexType>
 
+  <xs:complexType name="ErrorMessage">
+    <xs:attribute name="ExceptionType" type="xs:NCName" use="required" />
+    <xs:attribute name="ExceptionMessage" type="xs:string" use="optional" />
+    <xs:attribute name="ExceptionCauseParameterName" type="xs:NCName" use="optional" />
+  </xs:complexType>
+
   <xs:complexType name="GameInfo">
     <xs:attribute name="gameName" type="GameName" use="required" />
     <xs:attribute name="redTeamPlayers" type="xs:unsignedLong" use="required" />
@@ -116,7 +123,7 @@
 
   <xs:complexType name="Player">
     <xs:attribute name="team" type="TeamColour" use="required" />
-    <xs:attribute name="type" type="PlayerType" use="required" />
+    <xs:attribute name="role" type="PlayerRole" use="required" />
     <xs:attribute name="id" type="xs:unsignedLong" use="required" />
   </xs:complexType>
 
@@ -163,6 +170,11 @@
             </xs:element>
           </xs:sequence>
           <xs:attribute type="xs:boolean" name="gameFinished" use="required" />
+          <xs:attribute name="playerGuid" type="guid" use="optional">
+            <xs:annotation>
+              <xs:documentation>Signature of the player for sending data during knowledge exchange</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -175,6 +187,15 @@
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
+
+  <xs:element name="DestroyPiece">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="GameMessage" />
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
   <xs:element name="PlacePiece">
     <xs:complexType>
       <xs:complexContent>
@@ -182,6 +203,7 @@
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
+
   <xs:element name="PickUpPiece">
     <xs:complexType>
       <xs:complexContent>
@@ -192,11 +214,11 @@
 
   <xs:element name="Move">
     <xs:complexType>
-    <xs:complexContent>
-      <xs:extension base="GameMessage">
-        <xs:attribute name="direction" type="MoveType" />
-      </xs:extension>
-    </xs:complexContent>
+      <xs:complexContent>
+        <xs:extension base="GameMessage">
+          <xs:attribute name="direction" type="MoveType" />
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
   </xs:element>
 
@@ -239,11 +261,104 @@
       <xs:complexContent>
         <xs:extension base="BetweenPlayersMessage">
           <xs:attribute name="permanent" type="xs:boolean" use="required" />
+          <xs:attribute name="playerGuid" type="guid" use="optional">
+            <xs:annotation>
+              <xs:documentation>Signature of the player for confirming identity on GameMaster during knowledge exchange</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="SuggestAction">
+    <xs:annotation>
+      <xs:documentation>
+        This message might be used to coordinate actions with other players,
+        its usage should be similar to KnowledgeExchangeRequest.
+        The delay is introduced only for the initiator and NOT for responder.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="BetweenPlayersMessage">
+          <xs:sequence>
+            <xs:element name="TaskFields" minOccurs="0">
+              <xs:annotation>
+                <xs:documentation>Suggested task fields to scout for pieces (fields ordering means priority)</xs:documentation>
+              </xs:annotation>
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="TaskField" type="TaskField" minOccurs="0" maxOccurs="unbounded" />
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="GoalFields" minOccurs="0">
+              <xs:annotation>
+                <xs:documentation>Suggested goal fields to check (fields ordering means priority)</xs:documentation>
+              </xs:annotation>
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="GoalField" type="GoalField" minOccurs="0" maxOccurs="unbounded" />
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+          <xs:attribute name="playerGuid" type="guid" use="optional">
+            <xs:annotation>
+              <xs:documentation>Signature of the player for confirming identity on GameMaster during messages exchange</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="gameId" type="xs:unsignedLong" use="required" />
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="SuggestActionResponse">
+    <xs:annotation>
+      <xs:documentation>
+        This message might be used to coordinate actions with other players,
+        its usage should be similar to RejectKnowledgeExchange
+        or Data used as response for exchange.
+        There is NO delay for that message.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="BetweenPlayersMessage">
+          <xs:sequence>
+            <xs:element name="TaskFields" minOccurs="0">
+              <xs:annotation>
+                <xs:documentation>Fields which the player is going to scout (fields ordering means priority)</xs:documentation>
+              </xs:annotation>
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="TaskField" type="TaskField" minOccurs="0" maxOccurs="unbounded" />
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="GoalFields" minOccurs="0">
+              <xs:annotation>
+                <xs:documentation>Goal fields that the player is going to check (fields ordering means priority)</xs:documentation>
+              </xs:annotation>
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="GoalField" type="GoalField" minOccurs="0" maxOccurs="unbounded" />
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+          <xs:attribute name="playerGuid" type="guid" use="optional">
+            <xs:annotation>
+              <xs:documentation>Signature of the player for confirming identity on GameMaster during messages exchange</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="gameId" type="xs:unsignedLong" use="required" />
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
 
   <xs:element name="Game">
     <xs:complexType>
@@ -266,7 +381,7 @@
             </xs:element>
             <xs:element name="PlayerLocation" type="Location" />
           </xs:sequence>
-         </xs:extension>
+        </xs:extension>
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
@@ -313,7 +428,7 @@
 
   <xs:element name="GetGames">
     <xs:complexType>
-      
+
     </xs:complexType>
   </xs:element>
 
@@ -333,7 +448,7 @@
           <xs:documentation>Possible values: red|blue</xs:documentation>
         </xs:annotation>
       </xs:attribute>
-      <xs:attribute name="preferredRole" type="PlayerType" use="required">
+      <xs:attribute name="preferredRole" type="PlayerRole" use="required">
         <xs:annotation>
           <xs:documentation>Possible values: leader|member</xs:documentation>
         </xs:annotation>

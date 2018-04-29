@@ -169,8 +169,75 @@ namespace Messages
             }
         }
 
-        public TaskField(int x, int y) : base(x, y) { }
+        public TaskField(uint x, uint y) : base(x, y) { }
         public TaskField() : base() { }
+    }
+
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(Field))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(GoalField))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(TaskField))]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = true)]
+    public partial class Location
+    {
+
+        private uint xField;
+
+        private uint yField;
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public uint x
+        {
+            get
+            {
+                return this.xField;
+            }
+            set
+            {
+                this.xField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public uint y
+        {
+            get
+            {
+                return this.yField;
+            }
+            set
+            {
+                this.yField = value;
+            }
+        }
+
+        public Location(uint x, uint y)
+        {
+            xField = x;
+            yField = y;
+        }
+
+        public Location() { }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+                return false;
+            var location = (Location)obj;
+            return location.xField == xField && location.yField == yField;
+        }
+
+        public override string ToString()
+        {
+            return "(" + x + "," + y + ")";
+        }
     }
 
     /// <remarks/>
@@ -233,7 +300,7 @@ namespace Messages
             }
         }
 
-        public Field(int x, int y) : base(x, y) { }
+        public Field(uint x, uint y) : base(x, y) { }
 
         public override bool Equals(object obj)
         {
@@ -251,72 +318,7 @@ namespace Messages
         public Field() : base() { }
     }
 
-    /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(Field))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(GoalField))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(TaskField))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = true)]
-    public partial class Location
-    {
 
-        private int xField;
-
-        private int yField;
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public int x
-        {
-            get
-            {
-                return this.xField;
-            }
-            set
-            {
-                this.xField = value;
-            }
-        }
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public int y
-        {
-            get
-            {
-                return this.yField;
-            }
-            set
-            {
-                this.yField = value;
-            }
-        }
-
-        public Location(int x, int y)
-        {
-            xField = x;
-            yField = y;
-        }
-
-        public Location() { }
-
-        public override bool Equals(object obj)
-        {
-            if (obj == null)
-                return false;
-            var location = (Location)obj;
-            return location.xField == xField && location.yField == yField;
-        }
-
-        public override string ToString()
-        {
-            return "(" + x + "," + y + ")";
-        }
-    }
 
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
@@ -360,7 +362,7 @@ namespace Messages
             }
         }
 
-        public GoalField(int x, int y, TeamColour team, GoalFieldType type = GoalFieldType.goal) : base(x, y)
+        public GoalField(uint x, uint y, TeamColour team, GoalFieldType type = GoalFieldType.goal) : base(x, y)
         {
             teamField = team;
             typeField = type;
@@ -954,6 +956,156 @@ namespace Messages
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
     [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public partial class SuggestAction : BetweenPlayersMessage
+    {
+
+        private TaskField[] taskFieldsField;
+
+        private GoalField[] goalFieldsField;
+
+        private string playerGuidField;
+
+        private ulong gameIdField;
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable = false)]
+        public TaskField[] TaskFields
+        {
+            get
+            {
+                return this.taskFieldsField;
+            }
+            set
+            {
+                this.taskFieldsField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable = false)]
+        public GoalField[] GoalFields
+        {
+            get
+            {
+                return this.goalFieldsField;
+            }
+            set
+            {
+                this.goalFieldsField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string playerGuid
+        {
+            get
+            {
+                return this.playerGuidField;
+            }
+            set
+            {
+                this.playerGuidField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public ulong gameId
+        {
+            get
+            {
+                return this.gameIdField;
+            }
+            set
+            {
+                this.gameIdField = value;
+            }
+        }
+    }
+
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public partial class SuggestActionResponse : BetweenPlayersMessage
+    {
+
+        private TaskField[] taskFieldsField;
+
+        private GoalField[] goalFieldsField;
+
+        private string playerGuidField;
+
+        private ulong gameIdField;
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable = false)]
+        public TaskField[] TaskFields
+        {
+            get
+            {
+                return this.taskFieldsField;
+            }
+            set
+            {
+                this.taskFieldsField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable = false)]
+        public GoalField[] GoalFields
+        {
+            get
+            {
+                return this.goalFieldsField;
+            }
+            set
+            {
+                this.goalFieldsField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string playerGuid
+        {
+            get
+            {
+                return this.playerGuidField;
+            }
+            set
+            {
+                this.playerGuidField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public ulong gameId
+        {
+            get
+            {
+                return this.gameIdField;
+            }
+            set
+            {
+                this.gameIdField = value;
+            }
+        }
+    }
+
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
     public partial class Game : PlayerMessage
     {
 
@@ -1013,15 +1165,15 @@ namespace Messages
     public partial class GameBoard
     {
 
-        private int widthField;
+        private uint widthField;
 
-        private int tasksHeightField;
+        private uint tasksHeightField;
 
-        private int goalsHeightField;
+        private uint goalsHeightField;
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public int width
+        public uint width
         {
             get
             {
@@ -1035,7 +1187,7 @@ namespace Messages
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public int tasksHeight
+        public uint tasksHeight
         {
             get
             {
@@ -1049,7 +1201,7 @@ namespace Messages
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public int goalsHeight
+        public uint goalsHeight
         {
             get
             {
