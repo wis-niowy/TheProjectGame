@@ -77,7 +77,7 @@ namespace Player
             team = newTeam;
         }
 
-        public Player(TeamColour team, PlayerController gameController = null, string _guid = "TEST_GUID", IGameMaster gm = null)
+        public Player(TeamColour team, string _guid = "TEST_GUID", IGameMaster gm = null, PlayerController gameController = null)
         {
             this.gameMaster = gm;
             this.team = team;
@@ -205,13 +205,27 @@ namespace Player
         public void GameStarted(Game messageObject)
         {
             State = AgentState.Playing;
-            throw new NotImplementedException("Otrzymano wiadomość Game - zaktualizować struktury lokalne Agenta o dane gry");
+            myTeam = messageObject.Players.ToList().Where(p => p.team == team).ToList();
+            otherTeam = messageObject.Players.ToList().Where(p => p.team != team).ToList();
+            SetBoard(ConvertToGameAreaBoard(messageObject.Board));
+            location = messageObject.PlayerLocation;
         }
 
         public void GameMasterDisconnected(GameMasterDisconnected messageObject)
         {
             State = AgentState.SearchingForGame;
-            throw new NotImplementedException("Wypsiać stan agenta jaki jest aktualny, wyczyścić struktury lokalne Agenta związane z grą - ona już nie istnieje, została zakończona");
+            myTeam = null;
+            otherTeam = null;
+            SetBoard(null);
+            location = null;
+            ConsoleWriter.Show("Player id: " + id + " has state: " + State);
+        }
+
+        public override string ToString()
+        {
+            return "Player id: " + id + ", team: " + team + 
+                " role: " + Role +
+                " in location (" + location.x + ";" + location.y + ")";
         }
     }
 }

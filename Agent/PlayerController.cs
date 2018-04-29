@@ -98,7 +98,7 @@ namespace Player
             object messageObject = new object();
 
             messageObject = MessageParser.Deserialize(message);//message must be without any \0 characters
-
+            
             switch (messageObject.GetType().Name)
             {
                 case nameof(RegisteredGames):
@@ -120,7 +120,7 @@ namespace Player
                     Player.DoStrategy();
                     break;
                 case nameof(Data):
-                    Player.UpdateLocalBoard((Data)messageObject, (ActionType)Player.LastActionTaken, (MoveType)Player.LastMoveTaken); //update związany z ostatnią wykonaną akcją
+                    Player.UpdateLocalBoard((Data)messageObject, (ActionType)Player.LastActionTaken/*, (MoveType)Player.LastMoveTaken*/); //update związany z ostatnią wykonaną akcją
                     Player.DoStrategy();
                     break;
 

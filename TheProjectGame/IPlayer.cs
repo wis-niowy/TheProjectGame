@@ -31,7 +31,7 @@ namespace GameArea
         MoveType? LastMoveTaken { get; set; }
 
         void DoStrategy();
-        bool UpdateLocalBoard(Data receivedData, ActionType action, MoveType direction = MoveType.up);
+        bool UpdateLocalBoard(Data receivedData, ActionType action);
         void RegisteredGames(RegisteredGames messageObject);
         void ConfirmJoiningGame(ConfirmJoiningGame messageObject);
         void GameStarted(Game messageObject);

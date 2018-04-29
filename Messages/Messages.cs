@@ -109,6 +109,8 @@ namespace Messages
                 this.playerGuidField = value;
             }
         }
+
+        
     }
 
     /// <remarks/>

@@ -175,5 +175,65 @@ namespace GameArea
                 }
             }
         }
+
+        public void UpdatePieces(Piece[] pieceArray)
+        {
+            List<ulong> piecesIds = pieceArray.ToList().Select(p => p.id).ToList();
+            List<TaskField> TaskFieldsList = TaskFields;
+            
+            foreach (var taskField in TaskFieldsList)
+            {
+                if (piecesIds.Contains(taskField.GetPiece.id))
+                    // taskField has been received
+                {
+                    var receivedPiece = pieceArray.ToList().Where(p => p.id == taskField.GetPiece.id).FirstOrDefault();
+                    if (receivedPiece.timestamp > taskField.GetPiece.timestamp)
+                        // received version is more up to date
+                    {
+                        taskField.SetPiece(receivedPiece);
+                    }
+                }
+            }
+        }
+
+        public void UpdateTaskFields(TaskField[] taskFieldsArray)
+        {
+
+            foreach(var field in taskFieldsArray.ToList())
+            {
+                int xCoord = field.x;
+                int yCoord = field.y;
+                var currentField = GetField(xCoord, yCoord) as TaskField;
+
+                if (currentField != null && currentField.TimeStamp < field.TimeStamp)
+                {
+                    fields[xCoord, yCoord] = field;
+                    
+
+                    //GetTaskField(xCoord, yCoord).x = field.x;
+                    //GetTaskField(xCoord, yCoord).y = field.y;
+                    //GetTaskField(xCoord, yCoord).UpdateTimeStamp(field.TimeStamp);
+                    //GetTaskField(xCoord, yCoord).Distance = field.Distance;
+                }
+
+            }
+        }
+
+        public void UpdateGoalFields(GoalField[] goalFieldsArray)
+        {
+
+            foreach (var field in goalFieldsArray.ToList())
+            {
+                int xCoord = field.x;
+                int yCoord = field.y;
+                var currentField = GetGoalField(xCoord, yCoord);
+
+                if (currentField != null && currentField.TimeStamp < field.TimeStamp)
+                {
+                    fields[xCoord, yCoord] = field;
+                }
+
+            }
+        }
     }
 }
