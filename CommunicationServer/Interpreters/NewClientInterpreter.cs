@@ -19,7 +19,7 @@ namespace CommunicationServer.Interpreters
         }
         public void ReadMessage(string message,ulong clientId)
         {
-            IServerMessage<IMainController> messageObject = null;
+            IMessage<IMainController> messageObject = null;
             if (message == "client disconnected")
                 mainManager.RemoveClient(clientId);
             else

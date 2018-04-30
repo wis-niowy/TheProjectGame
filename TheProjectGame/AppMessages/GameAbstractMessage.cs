@@ -11,6 +11,11 @@ namespace GameArea.AppMessages
         public string PlayerGUID { get; set; }
         public ulong GameId { get; set; }
 
+        public GameAbstractMessage(string guid, ulong gameId)
+        {
+            PlayerGUID = guid;
+            GameId = gameId;
+        }
         public GameAbstractMessage(Messages.GameMessage game)
         {
             PlayerGUID = game.playerGuid;

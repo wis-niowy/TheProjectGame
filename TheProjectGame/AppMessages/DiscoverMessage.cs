@@ -14,6 +14,8 @@ namespace GameArea.AppMessages
             return MessageParser.Serialize(ToBase());
         }
 
+        public DiscoverMessage(string guid, ulong gameId) : base(guid, gameId) { }
+
         public Discover ToBase()
         {
             return new Discover()

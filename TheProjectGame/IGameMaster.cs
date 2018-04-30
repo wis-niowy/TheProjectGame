@@ -17,8 +17,11 @@ namespace GameArea
         DataMessage HandleMoveRequest(MoveMessage msg);
         DataMessage HandleDiscoverRequest(DiscoverMessage msg);
         DataMessage HandleDestroyPieceRequest(DestroyPieceMessage msg);
-
-        string[] HandleActionRequest(string s);
+        void HandleConfirmGameRegistration(ConfirmGameRegistrationMessage msg);
+        string[] HandleJoinGameRequest(JoinGameMessage msg);
+        void HandlePlayerDisconnectedRequest(PlayerDisconnectedMessage playerDisconnected);
         RegisterGameMessage RegisterGame();
+
+        void HandlerErrorMessage(AppMessages.ErrorMessage error);
     }
 }

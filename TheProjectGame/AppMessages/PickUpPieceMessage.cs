@@ -14,6 +14,8 @@ namespace GameArea.AppMessages
             return MessageParser.Serialize(ToBase());
         }
 
+        public PickUpPieceMessage(string guid, ulong gameId) : base(guid, gameId) { }
+
         public PickUpPiece ToBase()
         {
             return new PickUpPiece()

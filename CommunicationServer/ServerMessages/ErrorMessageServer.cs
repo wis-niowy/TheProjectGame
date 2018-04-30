@@ -1,4 +1,5 @@
-﻿using GameArea.AppMessages;
+﻿using GameArea;
+using GameArea.AppMessages;
 using GameArea.ControllerInterfaces;
 using System;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using System.Xml;
 
 namespace CommunicationServer.ServerMessages
 {
-    public class ErrorMessageServer : ErrorMessage,IServerMessage<IGMController>, IServerMessage<IAgentController>, IServerMessage<IMainController>
+    public class ErrorMessageServer : ErrorMessage,IMessage<IGMController>, IMessage<IAgentController>, IMessage<IMainController>
     {
         private XmlDocument xmlDoc;
         public ErrorMessageServer(string type, string message, string causeName, ulong clientId,XmlDocument document = null) : base(type, message, causeName)

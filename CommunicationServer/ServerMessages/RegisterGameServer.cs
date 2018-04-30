@@ -1,4 +1,5 @@
-﻿using GameArea.AppMessages;
+﻿using GameArea;
+using GameArea.AppMessages;
 using GameArea.ControllerInterfaces;
 using System;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using System.Text;
 
 namespace CommunicationServer.ServerMessages
 {
-    public class RegisterGameServer : RegisterGameMessage, IServerMessage<IMainController>
+    public class RegisterGameServer : RegisterGameMessage, IMessage<IMainController>
     {
         public RegisterGameServer(string name, ulong red, ulong blue, ulong clientId):base(name,red,blue)
         {

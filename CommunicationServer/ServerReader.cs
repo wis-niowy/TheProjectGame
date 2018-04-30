@@ -13,7 +13,7 @@ namespace CommunicationServer
 {
     public class ServerReader
     {
-        public static IServerMessage<T> GetObjectFromXML<T>(string message, ulong clientId)
+        public static IMessage<T> GetObjectFromXML<T>(string message, ulong clientId)
         {
             var xmlDoc = new XmlDocument();
             try
@@ -28,41 +28,35 @@ namespace CommunicationServer
             switch (xmlDoc.DocumentElement.Name)
             {
                 case "Data":
-                    return new DataServer(Deserialize<Data>(message),clientId) as IServerMessage<T>;
+                    return new DataServer(Deserialize<Data>(message),clientId) as IMessage<T>;
                 case "ConfirmJoiningGame":
                     var confirmJoin = Deserialize<ConfirmJoiningGame>(message);
                     return new ConfirmJoiningGameServer(confirmJoin.gameId
                                                          ,new GameArea.GameObjects.Player(confirmJoin.PlayerDefinition.id, confirmJoin.PlayerDefinition.team,confirmJoin.PlayerDefinition.role)
                                                          ,confirmJoin.privateGuid
-                                                         ,confirmJoin.playerId,clientId) as IServerMessage<T>;
+                                                         ,confirmJoin.playerId,clientId) as IMessage<T>;
                 case "Game":
                     var game = Deserialize<Game>(message);
-                    return new GameServer(game,clientId) as IServerMessage<T>;
+                    return new GameServer(game,clientId) as IMessage<T>;
                 case "GameStarted":
                     var gameStarted =  Deserialize<GameStarted>(message);
-                    return new GameStartedServer(gameStarted.gameId,clientId) as IServerMessage<T>;
+                    return new GameStartedServer(gameStarted.gameId,clientId) as IMessage<T>;
                 case "RejectJoiningGame":
                     var rejectJoin =  Deserialize<RejectJoiningGame>(message);
-                    return new RejectJoiningGameServer(rejectJoin.gameName, rejectJoin.playerId) as IServerMessage<T>;
+                    return new RejectJoiningGameServer(rejectJoin.gameName, rejectJoin.playerId) as IMessage<T>;
                 case "GameMasterDisconnected":
                     var gmDisconnected = Deserialize<GameMasterDisconnectedMessage>(message);
-                    return new GameMasterDisconnectedServer(gmDisconnected.gameId,clientId) as IServerMessage<T>;
-                
+                    return new GameMasterDisconnectedServer(gmDisconnected.gameId,clientId) as IMessage<T>;
                 case "RegisterGame":
                     var register = Deserialize<RegisterGame>(message);
-                    return (new RegisterGameServer(register.NewGameInfo.gameName, register.NewGameInfo.redTeamPlayers, register.NewGameInfo.blueTeamPlayers, clientId)) as IServerMessage<T>;
-
-
-
-                //case "GetGames":
-                //    return Deserialize<GetGames>(message);
-                //case "JoinGame":
-                //    return Deserialize<JoinGame>(message);
-
-                //case "PlayerDisconnected":
-                //    return Deserialize<PlayerDisconnected>(message);
+                    return (new RegisterGameServer(register.NewGameInfo.gameName, register.NewGameInfo.redTeamPlayers, register.NewGameInfo.blueTeamPlayers, clientId)) as IMessage<T>;
+                case "GetGames":
+                    return (new GetGamesServer(clientId)) as IMessage<T>;
+                case "JoinGame":
+                    var join =  Deserialize<JoinGame>(message);
+                    return new JoinGameServer(join.gameName, join.preferredTeam, join.preferredRole, clientId, (join.playerIdSpecified ? (long)join.playerId : -1)) as IMessage<T>;
                 default:
-                    return new ErrorMessageServer("ReadingMessage","Warning during reading message to server object, type not recognised\n Message read: " + message, "GetObjectFromXML", clientId, xmlDoc) as IServerMessage<T>; //xmlDoc as default for other actions
+                    return new ErrorMessageServer("ReadingMessage","Warning during reading message to server object, type not recognised\n Message read: " + message, "GetObjectFromXML", clientId, xmlDoc) as IMessage<T>; //xmlDoc as default for other actions
             }
         }
 

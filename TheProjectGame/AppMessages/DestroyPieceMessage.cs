@@ -15,6 +15,7 @@ namespace GameArea.AppMessages
 
         public DestroyPieceMessage(Messages.DestroyPiece destroy) : base(destroy) { }
 
+        public DestroyPieceMessage(string guid, ulong gameId):base(guid,gameId) { }
         public DestroyPiece ToBase()
         {
             return new Messages.DestroyPiece()

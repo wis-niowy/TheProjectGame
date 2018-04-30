@@ -1,5 +1,6 @@
 ﻿using GameArea;
 using GameArea.Parsers;
+using GameMaster;
 using Messages;
 using System;
 using System.Collections.Generic;
@@ -79,10 +80,18 @@ namespace GameMasterMain
                     ConsoleWriter.Show("GameMaster read: \n" + message + "\n");
                     Task.Run(() =>
                     {
-                        var responseMsgs = gameMaster.HandleActionRequest(message);
-                        if(responseMsgs!= null)
-                            foreach (var msg in responseMsgs)
-                                BeginSend(msg);
+                        var msgObject = GMReader.GetObjectFromXML(message);
+                        if (msgObject != null)
+                        {
+                            var responseMsgs = msgObject.Process(gameMaster);
+                            if (responseMsgs != null)
+                                foreach (var msg in responseMsgs)
+                                    BeginSend(msg);
+                        }
+                        else
+                        {
+                            ConsoleWriter.Warning("Could not obtain object from message: \n" + message);
+                        }
                     });
                     BeginRead();
                 }

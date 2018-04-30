@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CommunicationServer
+namespace GameArea
 {
-    public interface IServerMessage<T>
+    public interface IMessage<T>
     {
         ulong ClientId { get; }
         void Process(T controller);

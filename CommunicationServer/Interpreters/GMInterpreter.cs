@@ -14,7 +14,7 @@ namespace CommunicationServer.Interpreters
         IGMController GameController { get; }
         public void ReadMessage(string message, ulong clientId)
         {
-            IServerMessage<IGMController> messageObject = null;
+            IMessage<IGMController> messageObject = null;
             if (message == "client disconnected")
                 GameController.CloseGame();
             else

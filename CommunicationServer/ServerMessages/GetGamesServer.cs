@@ -7,18 +7,17 @@ using System.Text;
 
 namespace CommunicationServer.ServerMessages
 {
-    public class GameStartedServer : GameStartedMessage, IMessage<IGMController>
+    public class GetGamesServer : GetGamesMessage, IMessage<IMainController>
     {
-        public GameStartedServer(ulong id,ulong clientId) : base(id)
+        public GetGamesServer(ulong clientID)
         {
-            ClientId = clientId;
+            ClientId = clientID;
         }
-
         public ulong ClientId { get; }
 
-        public void Process(IGMController controller)
+        public void Process(IMainController controller)
         {
-            controller.BeginGame();
+            controller.GetGames(ClientId);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using GameArea.AppMessages;
+﻿using GameArea;
+using GameArea.AppMessages;
 using GameArea.ControllerInterfaces;
 using Messages;
 using System;
@@ -7,7 +8,7 @@ using System.Text;
 
 namespace CommunicationServer.ServerMessages
 {
-    public class DataServer : DataMessage, IServerMessage<IGMController>
+    public class DataServer : DataMessage, IMessage<IGMController>
     {
         [Obsolete("Zamienić na konstruktor z parametrami.")]
         public DataServer(Data data, ulong clientId) : base(data)

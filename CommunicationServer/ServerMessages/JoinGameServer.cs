@@ -1,4 +1,5 @@
-﻿using GameArea.AppMessages;
+﻿using GameArea;
+using GameArea.AppMessages;
 using GameArea.ControllerInterfaces;
 using Messages;
 using System;
@@ -7,7 +8,7 @@ using System.Text;
 
 namespace CommunicationServer.ServerMessages
 {
-    public class JoinGameServer : JoinGameMessage, IServerMessage<IMainController>
+    public class JoinGameServer : JoinGameMessage, IMessage<IMainController>
     {
         public ulong ClientId { get;}
 

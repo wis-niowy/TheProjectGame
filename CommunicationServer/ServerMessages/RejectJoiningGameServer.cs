@@ -1,4 +1,5 @@
-﻿using GameArea.AppMessages;
+﻿using GameArea;
+using GameArea.AppMessages;
 using GameArea.ControllerInterfaces;
 using System;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using System.Text;
 
 namespace CommunicationServer.ServerMessages
 {
-    public class RejectJoiningGameServer :RejectJoiningGameMessage, IServerMessage<IGMController>
+    public class RejectJoiningGameServer :RejectJoiningGameMessage, IMessage<IGMController>
     {
         public RejectJoiningGameServer(string name, ulong clientId) : base(name, clientId)
         {

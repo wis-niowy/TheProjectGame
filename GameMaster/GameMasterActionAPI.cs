@@ -23,84 +23,19 @@ namespace GameArea
             }
         }
 
-        /// <summary>
-        /// Gets a request xml from an Agent and returns response xml with serialized Data object
-        /// </summary>
-        /// <param name="requestXml">Xml received from Agent</param>
-        /// <returns>Serialized Data object</returns>
-        public string[] HandleActionRequest(string requestXml)
+        public void HandleConfirmGameRegistration(ConfirmGameRegistrationMessage msg)
         {
-            string [] responseData = null;
-
-            object msg = null;
-            XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.LoadXml(requestXml);
-            switch(xmlDoc.DocumentElement.Name)
-            {
-                case nameof(TestPiece):
-                    msg = MessageParser.Deserialize<TestPiece>(requestXml);
-                    responseData = new string[] { HandleTestPieceRequest(msg as TestPieceMessage).Serialize() };
-                    break;
-                case nameof(DestroyPiece):
-                    msg = MessageParser.Deserialize<DestroyPiece>(requestXml);
-                    responseData = new string[] { HandleDestroyPieceRequest(msg as DestroyPieceMessage).Serialize() };
-                    break;
-                case nameof(PlacePiece):
-                    msg = MessageParser.Deserialize<PlacePiece>(requestXml);
-                    responseData = new string[] { HandlePlacePieceRequest(msg as PlacePieceMessage).Serialize()};
-                    break;
-                case nameof(PickUpPiece):
-                    msg = MessageParser.Deserialize<PickUpPiece>(requestXml);
-                    responseData = new string[] { HandlePickUpPieceRequest(msg as PickUpPieceMessage).Serialize() };
-                    break;
-                case nameof(Move):
-                    msg = MessageParser.Deserialize<Move>(requestXml);
-                    responseData = new string[] { HandleMoveRequest(msg as MoveMessage).Serialize() };
-                    break;
-                case nameof(Discover):
-                    msg = MessageParser.Deserialize<Discover>(requestXml);
-                    responseData = new string[] { HandleDiscoverRequest(msg as DiscoverMessage).Serialize() };
-                    break;
-                case nameof(RejectGameRegistration):
-                    ConsoleWriter.Show("Server reject for registering game with given name.");
-                    State = GameMasterState.GameOver;
-                    break;
-                case nameof(ConfirmGameRegistration):
-                    ConsoleWriter.Show("Server confirmed game registration. Awaiting for players...");
-                    msg = MessageParser.Deserialize<ConfirmGameRegistration>(requestXml);
-                    HandleConfirmGameRegistration(msg as ConfirmGameRegistration);
-                    break;
-                case nameof(JoinGame):
-                    msg = MessageParser.Deserialize<JoinGame>(requestXml);
-                    responseData = new string[] {HandleJoinGameRequest(msg as JoinGameMessage) }; //HandleJoin zwraca od razu tresc wiadomosci, bo moga byc 2 rozne typy COnfirm lub Reject
-                    if (GameReady)
-                    {
-                        State = GameMasterState.GameInprogress;
-                        var additionalData = PrepareGameReadyMessages();
-                        responseData = responseData.Union(additionalData).ToArray();
-                    }
-                    break;
-                case nameof(PlayerDisconnected):
-                    msg = MessageParser.Deserialize<PlayerDisconnected>(requestXml);
-                    responseData = new string[] { HandlePlayerDisconnectedRequest(msg as PlayerDisconnectedMessage).Serialize()};
-                    break;
-            }
-
-            return responseData;
-        }
-
-        private void HandleConfirmGameRegistration(ConfirmGameRegistration msg)
-        {
+            ConsoleWriter.Show("Succesfull game registration. Awaiting for clients...");
             State = GameMasterState.AwaitingPlayers;
-            GameId = msg.gameId;
+            GameId = msg.GameId;
         }
 
         private string[] PrepareGameReadyMessages()
         {
             List<string> msgs = new List<string>();
-            msgs.Add(MessageParser.Serialize(new GameStarted() { gameId = GameId }));
+            msgs.Add(new GameStartedMessage(GameId).Serialize());
             foreach (var player in Players)
-                msgs.Add(MessageParser.Serialize(PrepareGameMessageForPlayer(player)));
+                msgs.Add(PrepareGameMessageForPlayer(player).Serialize());
             return msgs.ToArray();
         }
 
@@ -147,7 +82,7 @@ namespace GameArea
             };
         }
 
-        public string HandleJoinGameRequest(JoinGameMessage joinGame)
+        public string[] HandleJoinGameRequest(JoinGameMessage joinGame)
         {
             var expectedPlayersNumberPerTeam = gameSettings.GameDefinition.NumberOfPlayersPerTeam;
             var redPlayersNumber = GetPlayersByTeam(TeamColour.red).Count;
@@ -155,12 +90,14 @@ namespace GameArea
             var prefferedTeam = joinGame.PrefferedTeam;
             var prefferedRole = joinGame.PrefferedRole;
             var playerId = (ulong)joinGame.PlayerId;
+            var responseData = new string[] { };
 
             Player.Player player = null;
 
             if (redPlayersNumber + bluePlayersNumber < 2 * expectedPlayersNumberPerTeam)
             // player can join one of two teams
             {
+                ConsoleWriter.Show("Join request accepted...");
                 if (GetPlayersByTeam(prefferedTeam).Count < expectedPlayersNumberPerTeam)
                 // player can join the team he prefers
                 {
@@ -188,13 +125,22 @@ namespace GameArea
                 }
                 RegisterPlayer(player); // GameMaster rejestruje playera i umieszcza na boardzie
 
-                return  new ConfirmJoiningGameMessage(GameId, messagePlayerObject,GetUniqueGUID(), player.ID).Serialize();
+                responseData =  new string[] { new ConfirmJoiningGameMessage(GameId, messagePlayerObject, GetUniqueGUID(), player.ID).Serialize() };
             }
             else
             // player cannot join any of two teams
             {
-                return new RejectGameRegistrationMessage(gameSettings.GameDefinition.GameName).Serialize();
+                ConsoleWriter.Show("Join request rejected...");
+                responseData = new string[] { new RejectGameRegistrationMessage(gameSettings.GameDefinition.GameName).Serialize() };
             }
+            if (GameReady)
+            {
+                ConsoleWriter.Show("Required number of clients connected. Sending GameReady messages...");
+                State = GameMasterState.GameInprogress;
+                var additionalData = PrepareGameReadyMessages();
+                responseData = responseData.Union(additionalData).ToArray();
+            }
+            return responseData;
 
 
 
@@ -215,11 +161,10 @@ namespace GameArea
             //}
         }
 
-        public AppMessages.PlayerMessage HandlePlayerDisconnectedRequest(PlayerDisconnectedMessage playerDisconnected)
+        public void HandlePlayerDisconnectedRequest(PlayerDisconnectedMessage playerDisconnected)
         {
+            ConsoleWriter.Show("Player disconnected...");
             UnregisterPlayer(playerDisconnected.PlayerID);
-
-            return null;
         }
 
         // --------------------------------------    API
@@ -232,6 +177,7 @@ namespace GameArea
         /// <returns></returns>
         public DataMessage HandleTestPieceRequest(TestPieceMessage msg)
         {
+            ConsoleWriter.Show("Received TestingPiece...");
             string playerGuid = msg.PlayerGUID;
             ulong gameId = msg.GameId;
             Monitor.Enter(lockObject);
@@ -265,6 +211,7 @@ namespace GameArea
         /// <returns></returns>
         public DataMessage HandleDestroyPieceRequest(DestroyPieceMessage msg)
         {
+            ConsoleWriter.Show("Received DestroyPiece...");
             string playerGuid = msg.PlayerGUID;
             ulong gameId = msg.GameId;
             Monitor.Enter(lockObject);
@@ -300,6 +247,7 @@ namespace GameArea
         /// <returns></returns>
         public DataMessage HandlePlacePieceRequest(PlacePieceMessage msg)
         {
+            ConsoleWriter.Show("Received PlacePiece...");
             string playerGuid = msg.PlayerGUID;
             ulong gameId = msg.GameId;
             var location = Players.Where(q => q.GUID == playerGuid).First().GetLocation;
@@ -354,6 +302,7 @@ namespace GameArea
         /// <returns></returns>
         public DataMessage HandlePickUpPieceRequest(PickUpPieceMessage msg)
         {
+            ConsoleWriter.Show("Received PickUpPiece...");
             string playerGuid = msg.PlayerGUID;
             ulong gameId = msg.GameId;
             var location = Players.Where(a => a.GUID == playerGuid).First().GetLocation;
@@ -403,6 +352,7 @@ namespace GameArea
         /// <returns></returns>
         public DataMessage HandleMoveRequest(MoveMessage msg)
         {
+            ConsoleWriter.Show("Received Move ...");
             string playerGuid = msg.PlayerGUID;
             ulong gameId = msg.GameId;
             MoveType direction = (MoveType)msg.Direction;
@@ -482,6 +432,7 @@ namespace GameArea
         /// <returns></returns>
         public DataMessage HandleDiscoverRequest(DiscoverMessage msg)
         {
+            ConsoleWriter.Show("Received Discover ...");
             string playerGuid = msg.PlayerGUID;
             ulong gameId = msg.GameId;
             var location = Players.Where(a => a.GUID == playerGuid).First().GetLocation;
@@ -532,6 +483,11 @@ namespace GameArea
         public RegisterGameMessage RegisterGame()
         {
             return new RegisterGameMessage(gameSettings.GameDefinition.GameName, (ulong)gameSettings.GameDefinition.NumberOfPlayersPerTeam, (ulong)gameSettings.GameDefinition.NumberOfPlayersPerTeam);
+        }
+
+        public void HandlerErrorMessage(AppMessages.ErrorMessage error)
+        {
+            ConsoleWriter.Warning("Received an error from server:\n Type:" + error.Type + "\nCause: " + error.CauseParameterName + "\nMessage: " + error.Message);
         }
 
         #endregion

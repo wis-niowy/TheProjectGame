@@ -15,7 +15,7 @@ namespace CommunicationServer.Interpreters
         IAgentController GameController { get; }
         public void ReadMessage(string message, ulong clientId)
         {
-            IServerMessage<IAgentController> messageObject = null;
+            IMessage<IAgentController> messageObject = null;
             if (message == "client disconnected")
                 GameController.RemoveClientOrAgent(clientId);
             else

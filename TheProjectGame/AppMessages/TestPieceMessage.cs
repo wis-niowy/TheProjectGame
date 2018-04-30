@@ -1,5 +1,4 @@
 ﻿using GameArea.ControllerInterfaces;
-using GameArea.MessageInterfaces;
 using GameArea.Parsers;
 using Messages;
 using System;
@@ -11,6 +10,7 @@ namespace GameArea.AppMessages
     public class TestPieceMessage : GameAbstractMessage, IToBase<TestPiece>
     {
         public TestPieceMessage(TestPiece test):base(test) { }
+        public TestPieceMessage(string guid, ulong gameId):base(guid, gameId) { }
         public virtual string Serialize()
         {
             return MessageParser.Serialize(ToBase());
