@@ -27,7 +27,7 @@ namespace CommunicationServer.Interpreters
                 messageObject = ServerReader.GetObjectFromXML<IMainController>(message,clientId);//message must be without any \0 characters
                 messageObject.Process(mainManager);
             }
-            ConsoleWriter.Show("Unknown Client: " + clientId + " sent message of type: " + messageObject.GetType().Name);
+            ConsoleWriter.Show("Unknown Client: " + clientId + " sent message of type: " + messageObject?.GetType().Name);
         }
     }
 }

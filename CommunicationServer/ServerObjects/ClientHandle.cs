@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace CommunicationServer.ServerObjects
 {
@@ -36,8 +37,11 @@ namespace CommunicationServer.ServerObjects
                     var ns = Client.GetStream();
                     var bytesAvailable = ns.EndRead(result);
                     var message = Encoding.ASCII.GetString(buffer);
-                    message = message.Trim('\0');
-                    MessageInterpreter.ReadMessage(message, ID);
+                    
+                    var task = Task.Run(()=> {
+                        message = message.Trim('\0');
+                        MessageInterpreter.ReadMessage(message, ID);
+                        });
                     BeginRead();
                 }
                 catch (Exception e)

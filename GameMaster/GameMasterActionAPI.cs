@@ -44,7 +44,8 @@ namespace GameArea
             return new AppMessages.GameMessage(player.ID)
             {
                 PlayerLocation = player.GetLocation,
-                Players = Players.Select(q => new GameObjects.Player(q.ID,q.GetTeam,q.Role)).ToArray()
+                Players = Players.Select(q => new GameObjects.Player(q.ID, q.GetTeam, q.Role)).ToArray(),
+                Board = new GameObjects.GameBoard(GetBoard.Width, GetBoard.TaskAreaHeight, GetBoard.GoalAreaHeight)
             };
         }
 

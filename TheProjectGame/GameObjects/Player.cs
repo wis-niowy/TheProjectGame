@@ -31,7 +31,7 @@ namespace GameArea.GameObjects
         {
             ID = id;
             Team = team;
-            Role = Role;
+            Role = role;
         }
 
         public Player(Messages.Player player)

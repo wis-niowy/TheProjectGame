@@ -32,17 +32,26 @@ namespace CommunicationServer.ServerObjects
         public bool SendMessageToAgent(ulong playerId, string message)
         {
             var agent = Agents.Where(q => q.PlayerId == playerId).FirstOrDefault();
-            if (agent != null)
+            if (agent != null && agent.Client != null && agent.Client.IsAlive)
             {
                 agent.SendMessage(message);
                 return true;
+            }
+            else
+            {
+                
             }
             return false;
         }
 
         public void SendMessageToGameMaster(string message)
         {
-            GameMaster.SendMessage(message);
+            if(GameMaster.Client != null && GameMaster.Client.IsAlive)
+                GameMaster.SendMessage(message);
+            else
+            {
+                CloseGame();
+            }
         }
 
         public void SetGM(GM gm)
@@ -63,13 +72,18 @@ namespace CommunicationServer.ServerObjects
 
         public bool SendMessageToClient(ulong clientId, string message) //always first one in JoiningAgents
         {
-            var client = JoiningAgents.Where(q=>q.ID == clientId).FirstOrDefault();
-            if (client != null)
+            var client = JoiningAgents.Where(q => q.ID == clientId).FirstOrDefault();
+            if (client != null && client.IsAlive)
             {
                 client.BeginSend(message);
                 return true;
             }
-            return false;
+            else
+            {
+                RemoveClientOrAgent(clientId);
+                return false;
+
+            }
         }
 
         internal void AddClient(ClientHandle client, JoinGameMessage message)

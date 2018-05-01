@@ -112,7 +112,7 @@ namespace GameArea.Tests
         [TestMethod]
         public void GameMasterPlacesShamPieceOnGoalField()
         {
-            var Player = new Player.Player(TeamColour.blue, "testGUID-0001");
+            var Player = new Player.Player(TeamColour.blue, _guid: "testGUID-0001");
             // equip an Player with a sham piece
             Player.SetPiece(new Piece(PieceType.sham, 70)
             {
@@ -143,7 +143,7 @@ namespace GameArea.Tests
         [TestMethod]
         public void GameMasterPlacesNormalPieceOnGoalFieldOfTypeGoal()
         {
-            var Player = new Player.Player(TeamColour.blue, "testGUID-0001");
+            var Player = new Player.Player(TeamColour.blue, _guid: "testGUID-0001");
             // equip an Player with a sham piece
             Player.SetPiece(new Piece(PieceType.normal, 70)
             {
@@ -176,7 +176,7 @@ namespace GameArea.Tests
         [TestMethod]
         public void GameMasterPlacesNormalPieceOnGoalFieldOfTypeNonGoal()
         {
-            var Player = new Player.Player(TeamColour.blue, "testGUID-0001");
+            var Player = new Player.Player(TeamColour.blue, _guid: "testGUID-0001");
             // equip an Player with a sham piece
             Player.SetPiece(new Piece(PieceType.normal, 70)
             {
@@ -209,7 +209,7 @@ namespace GameArea.Tests
         [TestMethod]
         public void GameMasterPlacesShamPieceOnNotOccupiedTaskField()
         {
-            var Player = new Player.Player(TeamColour.blue, "testGUID-0003");
+            var Player = new Player.Player(TeamColour.blue, _guid: "testGUID-0003");
             // equip an Player with a sham piece
             Player.SetPiece(new Piece(PieceType.sham, 90)
             {
@@ -246,7 +246,7 @@ namespace GameArea.Tests
         [TestMethod]
         public void GameMasterPlacesShamPieceOnOccupiedTaskField()
         {
-            var Player = new Player.Player(TeamColour.blue, "testGUID-0003");
+            var Player = new Player.Player(TeamColour.blue, _guid: "testGUID-0003");
             // equip an Player with a sham piece
             Player.SetPiece(new Piece(PieceType.sham, 90)
             {
@@ -283,7 +283,7 @@ namespace GameArea.Tests
         {
             var currentLocation = new Location(2, 4);
             var futureLocation = new Location(2, 5);
-            var Player = new Player.Player(TeamColour.blue, "testGUID-0013");
+            var Player = new Player.Player(TeamColour.blue, _guid: "testGUID-0013");
             Player.SetLocation(2, 4);
 
             defaultGameMaster.RegisterPlayer(Player, Player.GUID, findFreeLocationAndPlacePlayer: false);
@@ -321,7 +321,7 @@ namespace GameArea.Tests
         public void GameMasterSetsInfoAboutDiscoveredTaskField()
         {
             List<Messages.TaskField> list = new List<Messages.TaskField>();
-            var Player = new Player.Player(TeamColour.blue, "testGUID-0013");
+            var Player = new Player.Player(TeamColour.blue, _guid: "testGUID-0013");
             var field = defaultGameMaster.GetBoard.GetTaskField(2, 5);
             var piece = new Piece(PieceType.normal, 10);
             field.SetPiece(piece);
@@ -348,7 +348,7 @@ namespace GameArea.Tests
         public void GameMasterSetsInfoAboutDiscoveredGoalkField()
         {
             List<Messages.GoalField> list = new List<Messages.GoalField>();
-            var Player = new Player.Player(TeamColour.blue, "testGUID-0013");
+            var Player = new Player.Player(TeamColour.blue, _guid: "testGUID-0013");
             var field = defaultGameMaster.GetBoard.GetGoalField(2, 2);
             Player.SetLocation(2, 2);
             defaultGameMaster.RegisterPlayer(Player, Player.GUID, findFreeLocationAndPlacePlayer: false);

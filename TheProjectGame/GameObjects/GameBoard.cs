@@ -1,6 +1,7 @@
 ﻿using Messages;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace GameArea.GameObjects
@@ -155,6 +156,58 @@ namespace GameArea.GameObjects
             }
         }
 
-        public GameBoard(Messages.GameBoard board) : this((int)board.width, (int)board.tasksHeight, (int)board.goalsHeight) { }
+        public void UpdatePieces(Piece[] pieceArray)
+        {
+            List<ulong> piecesIds = pieceArray.Select(p => p.ID).ToList();
+            List<TaskField> TaskFieldsList = TaskFields;
+            
+            foreach (var taskField in TaskFieldsList)
+            {
+                if (piecesIds.Contains(taskField.Piece.ID))
+                    // taskField has been received
+                {
+                    var receivedPiece = pieceArray.Where(p => p.ID == taskField.Piece.ID).FirstOrDefault();
+                    if (receivedPiece.TimeStamp > taskField.Piece.TimeStamp)
+                        // received version is more up to date
+                    {
+                        taskField.Piece = receivedPiece;
+                    }
+                }
+            }
+        }
+
+        public void UpdateTaskFields(TaskField[] taskFieldsArray)
+        {
+
+            foreach(var field in taskFieldsArray)
+            {
+                int xCoord = field.X;
+                int yCoord = field.Y;
+                var currentField = GetField(xCoord, yCoord) as TaskField;
+
+                if (currentField != null && currentField.TimeStamp < field.TimeStamp)
+                {
+                    fields[xCoord, yCoord] = field;
+                }
+
+            }
+        }
+
+        public void UpdateGoalFields(GameObjects.GoalField[] goalFieldsArray)
+        {
+
+            foreach (var field in goalFieldsArray)
+            {
+                int xCoord = field.X;
+                int yCoord = field.Y;
+                var currentField = GetGoalField(xCoord, yCoord);
+
+                if (currentField != null && currentField.TimeStamp < field.TimeStamp)
+                {
+                    fields[xCoord, yCoord] = field;
+                }
+
+            }
+        }
     }
 }

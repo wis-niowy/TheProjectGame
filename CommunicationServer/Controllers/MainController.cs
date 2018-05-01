@@ -95,7 +95,7 @@ namespace CommunicationServer
         public void SendToClient(ulong clientId, string message)
         {
             var client = clients.Where(q => q.ID == clientId).FirstOrDefault();
-            if(client != null)
+            if(client != null && client.IsAlive)
             {
                 client.BeginSend(message);
             }

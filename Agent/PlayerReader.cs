@@ -28,7 +28,7 @@ namespace Player
             {
                 case nameof(RegisteredGames):
                     var registeredGames = MessageParser.Deserialize<RegisteredGames>(message);
-                    return new RegisteredGamesAgent(registeredGames.GameInfo.Select(q=>new GameArea.GameObjects.GameInfo(q.gameName,q.redTeamPlayers,q.blueTeamPlayers)).ToArray());
+                    return new RegisteredGamesAgent(registeredGames.GameInfo?.Select(q=>new GameArea.GameObjects.GameInfo(q.gameName,q.redTeamPlayers,q.blueTeamPlayers)).ToArray());
                 case nameof(ConfirmJoiningGame):
                     var confirmJoin = MessageParser.Deserialize<ConfirmJoiningGame>(message);
                     return new ConfirmJoiningGameAgent(confirmJoin.gameId,

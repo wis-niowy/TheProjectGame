@@ -186,7 +186,7 @@ namespace Player
 
         public void RegisteredGames(RegisteredGamesMessage messageObject)
         {
-            GamesList = messageObject.Games.ToList();
+            GamesList = messageObject.Games?.ToList();
             ActionToComplete = ActionType.none;
             State = AgentState.Joining;
         }
@@ -205,14 +205,28 @@ namespace Player
         {
             State = AgentState.Playing;
             ActionToComplete = ActionType.none;
-            throw new NotImplementedException("Otrzymano wiadomość Game - zaktualizować struktury lokalne Agenta o dane gry");
+            myTeam = messageObject.Players.ToList().Where(p => p.Team == team).ToList();
+            otherTeam = messageObject.Players.ToList().Where(p => p.Team != team).ToList();
+            SetBoard(messageObject.Board);
+            location = messageObject.PlayerLocation;
         }
 
         public void GameMasterDisconnected(GameArea.AppMessages.GameMasterDisconnectedMessage messageObject)
         {
             State = AgentState.SearchingForGame;
             ActionToComplete = ActionType.none;
-            throw new NotImplementedException("Wypsiać stan agenta jaki jest aktualny, wyczyścić struktury lokalne Agenta związane z grą - ona już nie istnieje, została zakończona");
+            myTeam = null;
+            otherTeam = null;
+            SetBoard(null);
+            location = null;
+            ConsoleWriter.Show("Player id: " + id + " has state: " + State);
+        }
+
+        public override string ToString()
+        {
+            return "Player id: " + id + ", team: " + team + 
+                " role: " + Role +
+                " in location (" + location.X + ";" + location.Y + ")";
         }
 
         public void ErrorMessage(GameArea.AppMessages.ErrorMessage error)

@@ -99,9 +99,7 @@ namespace GameArea
         /// <param name="findFreeLocationAndPlacePlayer">Ustaw na false aby Game Master nie przydzielal znalezionego przez siebie miejsca i nie ustawial gracza na pozycji</param>
         public void RegisterPlayer(Player.Player Player, string guid = null, bool findFreeLocationAndPlacePlayer = true)
         {
-            var newId = Players.Count > 0 ? Players.Max(q => q.ID) + 1 : 1;
-            Player.ID = newId;
-            Player.SetGuid(guid != null ? guid : "Player" + newId);
+            Player.SetGuid(guid != null ? guid : "Player" + Player.ID);
             Player.SetBoard(new GameObjects.GameBoard((int)GetGameDefinition.BoardWidth, (int)GetGameDefinition.TaskAreaLength, (int)GetGameDefinition.GoalAreaLength));
             if (findFreeLocationAndPlacePlayer)
             {
