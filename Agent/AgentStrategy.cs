@@ -27,13 +27,16 @@ namespace Player
                         //nic nie rób, czekaj na wiadomość Game
                         break;
                     case AgentState.Playing:
-                        if (!HasValidPiece)
+                        if (ActionToComplete == ActionType.none)
                         {
-                            FindAndPickPiece();
-                        }
-                        if (HasValidPiece)
-                        {
-                            FullfillGoal();
+                            if (!HasValidPiece)
+                            {
+                                FindAndPickPiece();
+                            }
+                            if (HasValidPiece)
+                            {
+                                FullfillGoal();
+                            }
                         }
                         break;
                     case AgentState.Dead:
@@ -53,10 +56,11 @@ namespace Player
             }
             else
             {
-                ActionToComplete = ActionType.Joining;
+                
                 var game = GamesList[0];
                 GamesList.RemoveAt(0);
                 Controller.BeginSend(new JoinGameMessage(game.GameName, TeamColour.red, PlayerRole.member).Serialize());
+                ActionToComplete = ActionType.Joining;
             }
         }
 
@@ -75,7 +79,7 @@ namespace Player
         public void GoToNearestPiece() //makes moves until is not on piece
         {
             if (InGoalArea)
-                GoToTaskArea(team);
+                GoToTaskArea(Team);
             else
             {
                 if (!OnPiece)
@@ -129,7 +133,7 @@ namespace Player
         public void FullfillGoal()
         {
             if (InTaskArea)
-                GoToGoalArea(team);
+                GoToGoalArea(Team);
             else if(InGoalArea && GetCurrentGoalField.Type != GoalFieldType.unknown)
                 GoToNotFullfilledGoal();
             else if(InGoalArea && GetCurrentGoalField.Type == GoalFieldType.unknown)

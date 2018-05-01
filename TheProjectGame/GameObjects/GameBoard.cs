@@ -143,34 +143,37 @@ namespace GameArea.GameObjects
             {
                 for (int j = 0; j < Width; j++)
                 {
-                    fields[j, i] = new GoalField(j, i, TeamColour.blue, defaultGoalType);
-                    fields[j, i + taskAreaHeight + goalAreaHeight] = new GoalField(j, i + taskAreaHeight + goalAreaHeight, TeamColour.red, defaultGoalType);
+                    fields[j, i] = new GoalField(j, i, DateTime.Now, TeamColour.blue, defaultGoalType);
+                    fields[j, i + taskAreaHeight + goalAreaHeight] = new GoalField(j, i + taskAreaHeight + goalAreaHeight, DateTime.Now, TeamColour.red, defaultGoalType);
                 }
             }
             for (int i = GoalAreaHeight; i < Height - GoalAreaHeight; i++)
             {
                 for (int j = 0; j < Width; j++)
                 {
-                    fields[j, i] = new TaskField(j, i);
+                    fields[j, i] = new TaskField(j, i,DateTime.Now);
                 }
             }
         }
 
         public void UpdatePieces(Piece[] pieceArray)
         {
-            List<ulong> piecesIds = pieceArray.Select(p => p.ID).ToList();
-            List<TaskField> TaskFieldsList = TaskFields;
-            
-            foreach (var taskField in TaskFieldsList)
+            if (pieceArray != null && pieceArray.Length > 0)
             {
-                if (piecesIds.Contains(taskField.Piece.ID))
-                    // taskField has been received
+                List<ulong> piecesIds = pieceArray.Select(p => p.ID).ToList();
+                List<TaskField> TaskFieldsList = TaskFields;
+
+                foreach (var taskField in TaskFieldsList)
                 {
-                    var receivedPiece = pieceArray.Where(p => p.ID == taskField.Piece.ID).FirstOrDefault();
-                    if (receivedPiece.TimeStamp > taskField.Piece.TimeStamp)
-                        // received version is more up to date
+                    if (piecesIds.Contains(taskField.Piece.ID))
+                    // taskField has been received
                     {
-                        taskField.Piece = receivedPiece;
+                        var receivedPiece = pieceArray.Where(p => p.ID == taskField.Piece.ID).FirstOrDefault();
+                        if (receivedPiece.TimeStamp > taskField.Piece.TimeStamp)
+                        // received version is more up to date
+                        {
+                            taskField.Piece = receivedPiece;
+                        }
                     }
                 }
             }
@@ -178,35 +181,37 @@ namespace GameArea.GameObjects
 
         public void UpdateTaskFields(TaskField[] taskFieldsArray)
         {
-
-            foreach(var field in taskFieldsArray)
+            if (taskFieldsArray != null && taskFieldsArray.Length > 0)
             {
-                int xCoord = field.X;
-                int yCoord = field.Y;
-                var currentField = GetField(xCoord, yCoord) as TaskField;
-
-                if (currentField != null && currentField.TimeStamp < field.TimeStamp)
+                foreach (var field in taskFieldsArray)
                 {
-                    fields[xCoord, yCoord] = field;
-                }
+                    int xCoord = field.X;
+                    int yCoord = field.Y;
+                    var currentField = GetField(xCoord, yCoord) as TaskField;
 
+                    if (currentField != null && currentField.TimeStamp < field.TimeStamp)
+                    {
+                        fields[xCoord, yCoord] = field;
+                    }
+                }
             }
         }
 
         public void UpdateGoalFields(GameObjects.GoalField[] goalFieldsArray)
         {
-
-            foreach (var field in goalFieldsArray)
+            if (goalFieldsArray != null && goalFieldsArray.Length > 0)
             {
-                int xCoord = field.X;
-                int yCoord = field.Y;
-                var currentField = GetGoalField(xCoord, yCoord);
-
-                if (currentField != null && currentField.TimeStamp < field.TimeStamp)
+                foreach (var field in goalFieldsArray)
                 {
-                    fields[xCoord, yCoord] = field;
-                }
+                    int xCoord = field.X;
+                    int yCoord = field.Y;
+                    var currentField = GetGoalField(xCoord, yCoord);
 
+                    if (currentField != null && currentField.TimeStamp < field.TimeStamp)
+                    {
+                        fields[xCoord, yCoord] = field;
+                    }
+                }
             }
         }
     }

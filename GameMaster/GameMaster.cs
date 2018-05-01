@@ -83,7 +83,7 @@ namespace GameArea
 
         public List<Player.Player> GetPlayersByTeam(Messages.TeamColour team)
         {
-            return Players.Where(q => q.GetTeam == team).ToList();
+            return Players.Where(q => q.Team == team).ToList();
         }
 
         public Player.Player GetPlayerByGuid(string guid)
@@ -99,16 +99,16 @@ namespace GameArea
         /// <param name="findFreeLocationAndPlacePlayer">Ustaw na false aby Game Master nie przydzielal znalezionego przez siebie miejsca i nie ustawial gracza na pozycji</param>
         public void RegisterPlayer(Player.Player Player, string guid = null, bool findFreeLocationAndPlacePlayer = true)
         {
-            Player.SetGuid(guid != null ? guid : "Player" + Player.ID);
+            Player.GUID = (guid != null ? guid : "Player" + Player.ID);
             Player.SetBoard(new GameObjects.GameBoard((int)GetGameDefinition.BoardWidth, (int)GetGameDefinition.TaskAreaLength, (int)GetGameDefinition.GoalAreaLength));
             if (findFreeLocationAndPlacePlayer)
             {
-                var playerField = GetEmptyFieldForPlayer(Player.GetTeam);
+                var playerField = GetEmptyFieldForPlayer(Player.Team);
                 Player.SetLocation(playerField);
-                playerField.Player = new GameObjects.Player(Player.ID, Player.GetTeam);
+                playerField.Player = new GameObjects.Player(Player.ID, Player.Team);
             }
             Players.Add(Player);
-            ConsoleWriter.Show("Registered Player with params: GUID: " + Player.GUID + ", ID: " + Player.ID + " , Location: " + Player.GetLocation + ", Team: " + Player.GetTeam);
+            ConsoleWriter.Show("Registered Player with params: GUID: " + Player.GUID + ", ID: " + Player.ID + " , Location: " + Player.Location + ", Team: " + Player.Team);
 
             if (Players.Count == 2 * GetGameDefinition.NumberOfPlayersPerTeam)
             {
@@ -121,7 +121,7 @@ namespace GameArea
             var player = Players.Where(p => p.ID == id).FirstOrDefault();
             if (player != null)
             {
-                GetBoard.GetField(player.GetLocation.X, player.GetLocation.Y).Player = null;
+                GetBoard.GetField(player.Location.X, player.Location.Y).Player = null;
                 Players.Remove(player);
             }
         }
@@ -166,7 +166,7 @@ namespace GameArea
         {
             foreach (var goal in goals)
             {
-                actualBoard.SetGoalField(new GameArea.GameMasterGoalField(goal.X, goal.Y, goal.Team, goal.Type));
+                actualBoard.SetGoalField(new GameArea.GameMasterGoalField(goal.X, goal.Y,DateTime.Now, goal.Team, goal.Type));
             }
         }
 
@@ -256,7 +256,7 @@ namespace GameArea
                 Player.myTeam = new List<GameObjects.Player>();
                 Player.otherTeam = new List<GameObjects.Player>();
                 //player from another team
-                if (otherPlayer.GetTeam != Player.GetTeam)
+                if (otherPlayer.Team != Player.Team)
                     Player.otherTeam.Add(otherPlayer.ConvertToMessagePlayer());
                 //player from the same team
                 else

@@ -19,7 +19,7 @@ namespace Player.Tests
             Assert.IsNotNull(Player);
             Assert.AreEqual(0, Player.GetLocation.x);
             Assert.AreEqual(0, Player.GetLocation.y);
-            Assert.AreEqual(TeamColour.blue, Player.GetTeam);
+            Assert.AreEqual(TeamColour.blue, Player.Team);
             Assert.AreEqual("TEST_GUID", Player.GUID);
         }
 
@@ -1117,7 +1117,7 @@ namespace Player.Tests
 
 
             //powinno byc Player1.GoToGoalArea()
-            Player1.GoToGoalArea(Player1.GetTeam);
+            Player1.GoToGoalArea(Player1.Team);
             Location expectedLocationPlayer = new Location(PlayerLocation.x,PlayerLocation.y-1);
 
             Assert.AreEqual(expectedLocationPlayer, Player1.GetLocation);
@@ -1136,7 +1136,7 @@ namespace Player.Tests
 
 
             //powinno byc Player1.GoToGoalArea()
-            Player1.GoToGoalArea(Player1.GetTeam);
+            Player1.GoToGoalArea(Player1.Team);
             Location expectedLocationPlayer = new Location(PlayerLocation.x, PlayerLocation.y + 1);
 
             Assert.AreEqual(expectedLocationPlayer, Player1.GetLocation);

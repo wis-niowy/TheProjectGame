@@ -20,11 +20,12 @@ namespace GameArea.GameObjects
             Player = task.playerIdSpecified ? new Player(task.playerId) : null;
         }
 
-        public TaskField(int x, int y, int distanceToPiece = int.MaxValue, Piece piece = null, Player player = null) : base(x, y)
+        public TaskField(int x, int y, DateTime timestamp, int distanceToPiece = int.MaxValue, Piece piece = null, Player player = null) : base(x, y)
         {
             DistanceToPiece = distanceToPiece;
             Piece = piece;
             Player = player;
+            TimeStamp = timestamp;
         }
 
         public override string ToString()

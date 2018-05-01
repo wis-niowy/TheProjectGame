@@ -59,15 +59,17 @@ namespace Player
                     return new DataAgent(data.playerId)
                     {
                         GameFinished = data.gameFinished,
-                        Goals = data.GoalFields.Select(q => new GameArea.GameObjects.GoalField((int)q.x,
+                        Goals = data.GoalFields?.Select(q => new GameArea.GameObjects.GoalField((int)q.x,
                                                                                              (int)q.y,
+                                                                                             q.timestamp,
                                                                                               q.team,
                                                                                               q.type)).ToArray(),
-                        Pieces = data.Pieces.Select(q => new GameArea.GameObjects.Piece(q.id, q.timestamp, q.type, (q.playerIdSpecified ? (long)q.playerId : -1))).ToArray(),
+                        Pieces = data.Pieces?.Select(q => new GameArea.GameObjects.Piece(q.id, q.timestamp, q.type, (q.playerIdSpecified ? (long)q.playerId : -1))).ToArray(),
                         PlayerGUID = data.playerGuid,
-                        PlayerLocation = new GameArea.GameObjects.Location((int)data.PlayerLocation.x, (int)data.PlayerLocation.y),
-                        Tasks = data.TaskFields.Select(q => new GameArea.GameObjects.TaskField((int)q.x,
-                                                                                             (int)q.y,
+                        PlayerLocation = data.PlayerLocation != null ? new GameArea.GameObjects.Location((int)data.PlayerLocation.x, (int)data.PlayerLocation.y) : null,
+                        Tasks = data.TaskFields?.Select(q => new GameArea.GameObjects.TaskField((int)q.x,
+                                                                                             (int)q.y, 
+                                                                                             q.timestamp,
                                                                                              q.distanceToPiece,
                                                                                              (q.pieceIdSpecified ? new GameArea.GameObjects.Piece(q.pieceId, DateTime.Now) : null),
                                                                                              (q.playerIdSpecified ? new GameArea.GameObjects.Player(q.playerId) : null))).ToArray()

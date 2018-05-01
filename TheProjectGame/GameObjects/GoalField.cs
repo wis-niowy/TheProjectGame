@@ -16,11 +16,11 @@ namespace GameArea.GameObjects
             Team = field.team;
         }
 
-        public GoalField(int x, int y, TeamColour team, GoalFieldType type = GoalFieldType.goal):base(x,y)
+        public GoalField(int x, int y,DateTime timeStamp, TeamColour team, GoalFieldType type = GoalFieldType.goal):base(x,y)
         {
             Type = type;
             Team = team;
-            TimeStamp = DateTime.Now;
+            TimeStamp = timeStamp;
         }
 
         public override FieldType GetFieldType => FieldType.Goal;
@@ -50,7 +50,7 @@ namespace GameArea.GameObjects
             return value.ToString();
         }
 
-        Messages.GoalField IToBase<Messages.GoalField>.ToBase()
+        public Messages.GoalField ToBase()
         {
             return new Messages.GoalField()
             {

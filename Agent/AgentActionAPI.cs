@@ -20,8 +20,8 @@ namespace Player
         public bool TestPiece()
         {
             if (GetPiece != null)
-                ConsoleWriter.Show(GUID + " tries to test piece: " + GetPiece.ID + " on location: " + GetLocation);
-            TestPieceMessage msg = new TestPieceMessage(GUID, gameId);
+                ConsoleWriter.Show(GUID + " tries to test piece: " + GetPiece.ID + " on location: " + Location);
+            TestPieceMessage msg = new TestPieceMessage(GUID, GameId);
             LastActionTaken = ActionToComplete = ActionType.TestPiece;
             try
             {
@@ -43,7 +43,7 @@ namespace Player
         /// <returns></returns>
         public bool PlacePiece()
         {
-            ConsoleWriter.Show(guid + " places piece: " + piece.ID + " of type: " + piece.Type + " on location: " + GetLocation);
+            ConsoleWriter.Show(GUID + " places piece: " + piece.ID + " of type: " + piece.Type + " on location: " + Location);
             // should we check if received location is the same as the actual one?
             PlacePieceMessage msg = new PlacePieceMessage(GUID, GameId);
             LastActionTaken = ActionToComplete = ActionType.PlacePiece;
@@ -54,7 +54,7 @@ namespace Player
 
         public bool PickUpPiece()
         {
-            ConsoleWriter.Show(guid + " picks up piece on location: " + GetLocation);
+            ConsoleWriter.Show(GUID + " picks up piece on location: " + Location);
             PickUpPieceMessage msg = new PickUpPieceMessage(GUID, GameId);
             LastActionTaken = ActionToComplete = ActionType.PickUpPiece;
             Controller.BeginSend(msg.Serialize()); //każda akcja od razu się wysyła, ustawia również LastActionTaken i dla move LastMoveTaken !!!!!
@@ -64,21 +64,21 @@ namespace Player
 
         public bool Move(MoveType direction)
         {
-            ConsoleWriter.Show(guid + " wants to move from: " + GetLocation + " in direction: " + direction);
+            ConsoleWriter.Show(GUID + " wants to move from: " + Location + " in direction: " + direction);
             MoveMessage msg = new MoveMessage(GUID, GameId, direction);
             LastActionTaken = ActionToComplete = ActionType.Move;
             LastMoveTaken = direction;
-            var futureLocation = CalculateFutureLocation(GetLocation, direction);
+            var futureLocation = CalculateFutureLocation(Location, direction);
             Controller.BeginSend(msg.Serialize()); //każda akcja od razu się wysyła, ustawia również LastActionTaken i dla move LastMoveTaken !!!!!
             WaitForActionComplete();
 
-            return GetLocation.Equals(futureLocation);
+            return Location.Equals(futureLocation);
         }
 
 
         public bool Discover()
         {
-            ConsoleWriter.Show(guid + " discovers on location: " + GetLocation);
+            ConsoleWriter.Show(GUID + " discovers on location: " + Location);
             DiscoverMessage msg = new DiscoverMessage(GUID, GameId);
             LastActionTaken = ActionToComplete = ActionType.Discover;
 
@@ -89,7 +89,7 @@ namespace Player
 
         public bool Destroy()
         {
-            ConsoleWriter.Show(guid + " tries to destroy piece: " + piece.ID + " which is: " + piece.Type + "on location: " + GetLocation);
+            ConsoleWriter.Show(GUID + " tries to destroy piece: " + piece.ID + " which is: " + piece.Type + "on location: " + Location);
             DestroyPieceMessage msg = new DestroyPieceMessage(GUID, GameId);
             LastActionTaken = ActionToComplete = ActionType.Destroy;
 
@@ -97,7 +97,7 @@ namespace Player
             WaitForActionComplete();
             return !HasPiece;
         }
-        
+
         // additional methods
 
         public bool UpdateLocalBoard(DataMessage responseMessage, ActionType action, MoveType direction = MoveType.up)
@@ -108,16 +108,17 @@ namespace Player
 
             if (playerId == this.ID && !gameFinished)
             {
+                if (responseMessage.PlayerLocation != null)
+                    SetLocation(responseMessage.PlayerLocation.X, responseMessage.PlayerLocation.Y);
                 GetBoard.UpdateGoalFields(responseMessage.Goals);
                 GetBoard.UpdateTaskFields(responseMessage.Tasks);
                 GetBoard.UpdatePieces(responseMessage.Pieces);
 
-                ConsoleWriter.Show("Updated state by: " + guid + " from action: " + action);
+                ConsoleWriter.Show("Updated state by: " + GUID + " from action: " + action);
                 updated = true;
             }
-
+            ActionToComplete = ActionType.none;
             return updated;
-
         }
 
         // helpers ---------------------

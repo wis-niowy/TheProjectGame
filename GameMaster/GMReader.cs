@@ -22,7 +22,7 @@ namespace GameMaster
             catch (Exception e)
             {
                 ConsoleWriter.Error("Could not load message to XML. \nMessage content: \n" + message);
-                xmlDoc = null;
+                return null;
             }
             switch (xmlDoc.DocumentElement.Name)
             {

@@ -20,81 +20,33 @@ namespace Player
         public ActionType? LastActionTaken { get; set; } //ustawiana przy wykonywaniu dowolnej akcji związanej z grą
         public MoveType? LastMoveTaken{ get; set; } //ustawiany przy każdym wykonaniu ruchu
         public ActionType ActionToComplete { get; set; }
-        private ulong id;
         public AgentState State { get; set; }
-        public ulong ID
-        {
-            get
-            {
-                return id;
-            }
-            set
-            {
-                this.id = value;
-            }
-        }
-
-        private string guid;
-        public string GUID
-        {
-            get
-            {
-                return guid;
-            }
-        }
-
-        public void SetGuid(string newGuid) // setter?
-        {
-            guid = newGuid;
-        }
-
-        private ulong gameId;
+        public ulong ID { get; set; }
+        public string GUID { get; set; }
 
         public List<GameArea.GameObjects.Player> myTeam;
         public List<GameArea.GameObjects.Player> otherTeam;
 
-        public ulong GameId
-        {
-            get
-            {
-                return gameId;
-            }
-            set
-            {
-                gameId = value;
-            }
-        }
-
-        private TeamColour team;
-        public TeamColour GetTeam
-        {
-            get
-            {
-                return team;
-            }
-        }
-
-        public void SetTeam(TeamColour newTeam) // setter?
-        {
-            team = newTeam;
-        }
+        public ulong GameId { get; set; }
+        public TeamColour Team { get; set; }
 
         public Player(TeamColour team, PlayerController gameController = null, string _guid = "TEST_GUID", IGameMaster gm = null)
         {
-            this.gameMaster = gm;
-            this.team = team;
-            this.SetGuid(_guid);
-            this.location = new GameArea.GameObjects.Location(0, 0);
-            State = AgentState.SearchingForGame;
+            gameMaster = gm;
+            Team = team;
+            GUID = _guid;
+            Location = new GameArea.GameObjects.Location(0, 0);
             Controller = gameController;
+            State = AgentState.SearchingForGame;
+            LastMoveTaken = MoveType.up;
         }
 
         public Player(Player original)
         {
-            this.team = original.GetTeam;
-            this.guid = original.GUID;
-            this.id = original.id;
-            this.location = new GameArea.GameObjects.Location(original.location.X, original.location.Y);
+           Team = original.Team;
+           GUID = original.GUID;
+           ID = original.ID;
+           Location = new GameArea.GameObjects.Location(original.Location.X, original.Location.Y);
             if (original.piece != null)
                 this.piece = new GameArea.GameObjects.Piece(original.piece.ID, original.piece.TimeStamp, original.piece.Type, original.piece.PlayerId); // player can't see original piece (sham or goal info must be hidden)
         }
@@ -160,73 +112,67 @@ namespace Player
             }
         }
 
-        private GameArea.GameObjects.Location location;
-        public GameArea.GameObjects.Location GetLocation
-        {
-            get
-            {
-                return location;
-            }
-        }
+        public GameArea.GameObjects.Location Location { get;set; }
 
         public void SetLocation(GameArea.GameObjects.Location point)
         {
-            location = new GameArea.GameObjects.Location(point.X, point.Y);
+            Location = new GameArea.GameObjects.Location(point.X, point.Y);
         }
 
         public void SetLocation(int x, int y)
         {
-            location = new GameArea.GameObjects.Location(x, y);
+            Location = new GameArea.GameObjects.Location(x, y);
         }
 
         public GameArea.GameObjects.Player ConvertToMessagePlayer()
         {
-            return new GameArea.GameObjects.Player(ID, team, PlayerRole.member);
+            return new GameArea.GameObjects.Player(ID, Team, PlayerRole.member);
         }
 
         public void RegisteredGames(RegisteredGamesMessage messageObject)
         {
             GamesList = messageObject.Games?.ToList();
-            ActionToComplete = ActionType.none;
             State = AgentState.Joining;
+            ActionToComplete = ActionType.none;
         }
 
         public void ConfirmJoiningGame(ConfirmJoiningGameMessage info)
         {
+            
+            GameId = info.GameId;
+            ID = info.PlayerId; //u nas serwerowe ID i playerId na planszy to jedno i to samo
+            GUID = info.GUID;
+            Team = info.PlayerDefinition.Team;
             State = AgentState.AwaitingForStart;
             ActionToComplete = ActionType.none;
-            gameId = info.GameId;
-            ID = info.PlayerId; //u nas serwerowe ID i playerId na planszy to jedno i to samo
-            guid = info.GUID;
-            team = info.PlayerDefinition.Team;
         }
 
         public void GameStarted(GameArea.AppMessages.GameMessage messageObject)
         {
+            myTeam = messageObject.Players.ToList().Where(p => p.Team == Team).ToList();
+            otherTeam = messageObject.Players.ToList().Where(p => p.Team != Team).ToList();
+            SetBoard(messageObject.Board);
+            Location = messageObject.PlayerLocation;
             State = AgentState.Playing;
             ActionToComplete = ActionType.none;
-            myTeam = messageObject.Players.ToList().Where(p => p.Team == team).ToList();
-            otherTeam = messageObject.Players.ToList().Where(p => p.Team != team).ToList();
-            SetBoard(messageObject.Board);
-            location = messageObject.PlayerLocation;
         }
 
         public void GameMasterDisconnected(GameArea.AppMessages.GameMasterDisconnectedMessage messageObject)
         {
-            State = AgentState.SearchingForGame;
-            ActionToComplete = ActionType.none;
             myTeam = null;
             otherTeam = null;
             SetBoard(null);
-            location = null;
-            ConsoleWriter.Show("Player id: " + id + " has state: " + State);
+            Location = null;
+            ConsoleWriter.Show("Player id: " + ID+ " has state: " + State);
+            State = AgentState.SearchingForGame;
+            ActionToComplete = ActionType.none;
         }
 
         public override string ToString()
         {
-            return "Player id: " + id + ", team: " + team + 
+            return "Player id: " + ID + ", team: " + Team + 
                 " role: " + Role +
-                " in location (" + location.X + ";" + location.Y + ")";
+                " in location (" + Location.X + ";" + Location.Y + ")";
         }
 
         public void ErrorMessage(GameArea.AppMessages.ErrorMessage error)

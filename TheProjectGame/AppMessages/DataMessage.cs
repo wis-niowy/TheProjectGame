@@ -20,30 +20,25 @@ namespace GameArea.AppMessages
         { }
         public DataMessage(Messages.Data data):base(data.playerId)
         {
-            Tasks = data.TaskFields.Select(q=>new GameObjects.TaskField(q)).ToArray();
-            Goals = data.GoalFields.Select(q => new GameObjects.GoalField(q)).ToArray();
+            Tasks = data.TaskFields?.Select(q=>new GameObjects.TaskField(q)).ToArray();
+            Goals = data.GoalFields?.Select(q => new GameObjects.GoalField(q)).ToArray();
             GameFinished = data.gameFinished;
             PlayerGUID = data.playerGuid;
-            PlayerLocation = new GameObjects.Location(data.PlayerLocation);
-            Pieces = data.Pieces.Select(q=>new GameObjects.Piece(q)).ToArray();
+            PlayerLocation = data.PlayerLocation != null ? new GameObjects.Location(data.PlayerLocation) : null;
+            Pieces = data.Pieces?.Select(q=>new GameObjects.Piece(q)).ToArray();
         }
         public Data ToBase()
         {
             return new Data()
             {
                 gameFinished = GameFinished,
-                GoalFields = Goals?.Select(q => (Messages.GoalField)q.ToBase()).ToArray(),
                 Pieces = Pieces?.Select(q => q.ToBase()).ToArray(),
                 playerGuid = PlayerGUID,
                 playerId = PlayerId,
                 PlayerLocation = PlayerLocation?.ToBase(),
-                TaskFields = Tasks?.Select(q => (Messages.TaskField)q.ToBase()).ToArray()
+                TaskFields = Tasks?.Select(q =>q.ToBase()).ToArray(),
+                GoalFields = Goals?.Select(q => q.ToBase()).ToArray()
             };
-        }
-
-        Data IToBase<Data>.ToBase()
-        {
-            throw new NotImplementedException();
         }
 
         public override string Serialize()

@@ -69,11 +69,14 @@ namespace Player
                         msgObject.Process(Player);
                     else
                         ConsoleWriter.Warning("Not recognised message object\n Message object is null \n Received message: \n" + message);
-                    BeginRead();
                 }
                 catch (Exception e)
                 {
                     ConsoleWriter.Error("Error while handling message from communication server." + "\n Error message: \n" + e.ToString() + "\n");
+                }
+                finally
+                {
+                    BeginRead();
                 }
             }
             else

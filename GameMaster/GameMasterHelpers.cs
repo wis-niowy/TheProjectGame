@@ -26,7 +26,7 @@ namespace GameArea
             // if TaskField is not occupied
             if (currentTaskField.Piece == null)
             {
-                fieldMessage = new GameObjects.TaskField(location.X, location.Y)
+                fieldMessage = new GameObjects.TaskField(location.X, location.Y, DateTime.Now)
                 {
                     PlayerId = (long)Player.ID,
                     Piece = Player.GetPiece,
@@ -49,9 +49,9 @@ namespace GameArea
         /// <returns></returns>
         public GameObjects.GoalField[] TryPlaceShamPieceOnGoalField(GameObjects.Location location, string playerGuid)
         {
-            var teamColour = Players.Where(q => q.GUID == playerGuid).First().GetTeam;
+            var teamColour = Players.Where(q => q.GUID == playerGuid).First().Team;
             var Player = Players.Where(q => q.GUID == playerGuid).First();
-            var fieldMessage = new GameObjects.GoalField(location.X, location.Y, teamColour);
+            var fieldMessage = new GameObjects.GoalField(location.X, location.Y, DateTime.Now, teamColour);
 
             return new GameObjects.GoalField[] { fieldMessage };
         }
@@ -64,10 +64,10 @@ namespace GameArea
         /// <returns></returns>
         public GameObjects.GoalField[] TryPlaceNormalPieceOnGoalField(GameObjects.Location location, string playerGuid)
         {
-            var teamColour = Players.Where(q => q.GUID == playerGuid).First().GetTeam;
+            var teamColour = Players.Where(q => q.GUID == playerGuid).First().Team;
             var goalFieldType = actualBoard.GetGoalField(location.X, location.Y).Type;
             var Player = Players.Where(q => q.GUID == playerGuid).First();
-            var fieldMessage = new GameObjects.GoalField(location.X, location.Y, teamColour, goalFieldType)
+            var fieldMessage = new GameObjects.GoalField(location.X, location.Y, DateTime.Now, teamColour, goalFieldType)
             {
                 PlayerId = (long)Player.ID
             };
@@ -176,7 +176,7 @@ namespace GameArea
                                                     GameObjects.Field field, List<GameObjects.TaskField> TaskFieldList)
         {
             //basic information
-            GameObjects.TaskField responseField = new GameObjects.TaskField(location.X + dx, location.Y + dy)
+            GameObjects.TaskField responseField = new GameObjects.TaskField(location.X + dx, location.Y + dy, DateTime.Now)
             {
                 TimeStamp = DateTime.Now,
                 DistanceToPiece = (field as GameObjects.TaskField).DistanceToPiece
@@ -217,7 +217,7 @@ namespace GameArea
         public void SetInfoAboutDiscoveredGoalField(GameObjects.Location location, int dx, int dy,
                                                     GameObjects.Field field, List<GameObjects.GoalField> GoalFieldList)
         {
-            GameObjects.GoalField responseField = new GameObjects.GoalField(location.X + dx, location.Y + dy, (field as GameObjects.GoalField).Team)
+            GameObjects.GoalField responseField = new GameObjects.GoalField(location.X + dx, location.Y + dy, DateTime.Now, (field as GameObjects.GoalField).Team)
             {
                 TimeStamp = DateTime.Now
             };
@@ -344,7 +344,7 @@ namespace GameArea
         {
             var player = Players.Where(q => q.GUID == guid).First();
 
-            var team = Players.Where(q => q.GUID == guid).First().GetTeam;
+            var team = Players.Where(q => q.GUID == guid).First().Team;
             if (ValidateFieldPosition(x, y, team))
             {
                 Players.Where(q => q.GUID == guid).First().SetLocation(x, y);

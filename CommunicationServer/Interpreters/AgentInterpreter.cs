@@ -21,9 +21,9 @@ namespace CommunicationServer.Interpreters
             else
             {
                 messageObject = ServerReader.GetObjectFromXML<IAgentController>(message, clientId);//message must be without any \0 characters
-                messageObject.Process(GameController);
+                messageObject?.Process(GameController);
             }
-            ConsoleWriter.Show("Agent/Joiner Client: " + clientId + " sent message of type: " + messageObject.GetType().Name);
+            ConsoleWriter.Show("Agent/Joiner Client: " + clientId + " sent message of type: " + messageObject?.GetType().Name);
         }
 
         public AgentInterpreter(IAgentController controller)

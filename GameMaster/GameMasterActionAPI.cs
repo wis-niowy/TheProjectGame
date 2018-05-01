@@ -43,8 +43,8 @@ namespace GameArea
         {
             return new AppMessages.GameMessage(player.ID)
             {
-                PlayerLocation = player.GetLocation,
-                Players = Players.Select(q => new GameObjects.Player(q.ID, q.GetTeam, q.Role)).ToArray(),
+                PlayerLocation = player.Location,
+                Players = Players.Select(q => new GameObjects.Player(q.ID, q.Team, q.Role)).ToArray(),
                 Board = new GameObjects.GameBoard(GetBoard.Width, GetBoard.TaskAreaHeight, GetBoard.GoalAreaHeight)
             };
         }
@@ -79,7 +79,8 @@ namespace GameArea
             return new Player.Player(colour)
             {
                 ID = id,
-                GameId = 0
+                GameId = 0,
+                GUID = GetUniqueGUID()
             };
         }
 
@@ -126,7 +127,7 @@ namespace GameArea
                 }
                 RegisterPlayer(player); // GameMaster rejestruje playera i umieszcza na boardzie
 
-                responseData =  new string[] { new ConfirmJoiningGameMessage(GameId, messagePlayerObject, GetUniqueGUID(), player.ID).Serialize() };
+                responseData =  new string[] { new ConfirmJoiningGameMessage(GameId, messagePlayerObject,player.GUID , player.ID).Serialize() };
             }
             else
             // player cannot join any of two teams
@@ -251,7 +252,7 @@ namespace GameArea
             ConsoleWriter.Show("Received PlacePiece...");
             string playerGuid = msg.PlayerGUID;
             ulong gameId = msg.GameId;
-            var location = Players.Where(q => q.GUID == playerGuid).First().GetLocation;
+            var location = Players.Where(q => q.GUID == playerGuid).First().Location;
             var Player = Players.Where(q => q.GUID == playerGuid).First();
             // basic information
             var response = new DataMessage(Player.ID)
@@ -306,7 +307,7 @@ namespace GameArea
             ConsoleWriter.Show("Received PickUpPiece...");
             string playerGuid = msg.PlayerGUID;
             ulong gameId = msg.GameId;
-            var location = Players.Where(a => a.GUID == playerGuid).First().GetLocation;
+            var location = Players.Where(a => a.GUID == playerGuid).First().Location;
             var Player = Players.Where(q => q.GUID == playerGuid).First();
             GameObjects.Piece[] pieces = new GameObjects.Piece[] { null };
 
@@ -357,8 +358,8 @@ namespace GameArea
             string playerGuid = msg.PlayerGUID;
             ulong gameId = msg.GameId;
             MoveType direction = (MoveType)msg.Direction;
-            var currentLocation = Players.Where(a => a.GUID == playerGuid).First().GetLocation;
-            var team = Players.Where(a => a.GUID == playerGuid).First().GetTeam;
+            var currentLocation = Players.Where(a => a.GUID == playerGuid).First().Location;
+            var team = Players.Where(a => a.GUID == playerGuid).First().Team;
             var Player = Players.Where(q => q.GUID == playerGuid).First();
 
             // perform location delta and get future field
@@ -436,8 +437,8 @@ namespace GameArea
             ConsoleWriter.Show("Received Discover ...");
             string playerGuid = msg.PlayerGUID;
             ulong gameId = msg.GameId;
-            var location = Players.Where(a => a.GUID == playerGuid).First().GetLocation;
-            var team = Players.Where(q => q.GUID == playerGuid).First().GetTeam;
+            var location = Players.Where(a => a.GUID == playerGuid).First().Location;
+            var team = Players.Where(q => q.GUID == playerGuid).First().Team;
             List<GameObjects.TaskField> TaskFieldList = new List<GameObjects.TaskField>();
             List<GameObjects.GoalField> GoalFieldList = new List<GameObjects.GoalField>();
 

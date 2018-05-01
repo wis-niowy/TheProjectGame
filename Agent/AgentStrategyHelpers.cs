@@ -31,13 +31,13 @@ namespace Player
             switch (direction)
             {
                 case MoveType.left:
-                    return PlayerBoard.GetTaskField(location.X - 1, location.Y);
+                    return PlayerBoard.GetTaskField(Location.X - 1, Location.Y);
                 case MoveType.right:
-                    return PlayerBoard.GetTaskField(location.X + 1, location.Y);
+                    return PlayerBoard.GetTaskField(Location.X + 1, Location.Y);
                 case MoveType.up:
-                    return PlayerBoard.GetTaskField(location.X, location.Y + 1);
+                    return PlayerBoard.GetTaskField(Location.X, Location.Y + 1);
                 case MoveType.down:
-                    return PlayerBoard.GetTaskField(location.X, location.Y - 1);
+                    return PlayerBoard.GetTaskField(Location.X, Location.Y - 1);
             }
             return null;
         }
@@ -47,13 +47,13 @@ namespace Player
             switch (direction)
             {
                 case MoveType.left:
-                    return PlayerBoard.GetField(location.X - 1, location.Y);
+                    return PlayerBoard.GetField(Location.X - 1, Location.Y);
                 case MoveType.right:
-                    return PlayerBoard.GetField(location.X + 1, location.Y);
+                    return PlayerBoard.GetField(Location.X + 1, Location.Y);
                 case MoveType.up:
-                    return PlayerBoard.GetField(location.X, location.Y + 1);
+                    return PlayerBoard.GetField(Location.X, Location.Y + 1);
                 case MoveType.down:
-                    return PlayerBoard.GetField(location.X, location.Y - 1);
+                    return PlayerBoard.GetField(Location.X, Location.Y - 1);
             }
             return null;
         }
@@ -62,7 +62,7 @@ namespace Player
         {
             get
             {
-                return PlayerBoard.GetTaskField(location);
+                return PlayerBoard.GetTaskField(Location);
             }
         }
 
@@ -70,7 +70,7 @@ namespace Player
         {
             get
             {
-                return PlayerBoard.GetGoalField(location);
+                return PlayerBoard.GetGoalField(Location);
             }
         }
 
@@ -78,7 +78,7 @@ namespace Player
         {
             get
             {
-                return PlayerBoard.GetField(location.X, location.Y) is GameArea.GameObjects.GoalField;
+                return PlayerBoard.GetField(Location.X, Location.Y) is GameArea.GameObjects.GoalField;
             }
         }
 
@@ -86,7 +86,7 @@ namespace Player
         {
             get
             {
-                return PlayerBoard.GetField(location.X, location.Y) is GameArea.GameObjects.TaskField;
+                return PlayerBoard.GetField(Location.X, Location.Y) is GameArea.GameObjects.TaskField;
             }
         }
 
@@ -94,7 +94,7 @@ namespace Player
         {
             get
             {
-                var field = PlayerBoard.GetField(location.X, location.Y);
+                var field = PlayerBoard.GetField(Location.X, Location.Y);
                 if (field is GameArea.GameObjects.TaskField)
                 {
                     return ((GameArea.GameObjects.TaskField)field).Piece != null;
@@ -231,7 +231,7 @@ namespace Player
 
         public MoveType GetClosestUnknownGoalDirection()
         {
-            return (new GoalDirectionInfo(PlayerBoard.GoalFields(team),team,location).GetClosestDirection());
+            return (new GoalDirectionInfo(PlayerBoard.GoalFields(Team),Team,Location).GetClosestDirection());
         }
 
        

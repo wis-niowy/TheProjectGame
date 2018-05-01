@@ -23,7 +23,7 @@ namespace CommunicationServer
             catch (Exception e)
             {
                 ConsoleWriter.Error("Could not load message to XML. \nMessage content: \n" + message);
-                xmlDoc = null;
+                return null;
             }
             switch (xmlDoc.DocumentElement.Name)
             {
@@ -55,6 +55,24 @@ namespace CommunicationServer
                 case "JoinGame":
                     var join =  Deserialize<JoinGame>(message);
                     return new JoinGameServer(join.gameName, join.preferredTeam, join.preferredRole, clientId, (join.playerIdSpecified ? (long)join.playerId : -1)) as IMessage<T>;
+                case "TestPiece":
+                    var test = Deserialize<TestPiece>(message);
+                    return new TestPieceServer(test.playerGuid, test.gameId) as IMessage<T>;
+                case "DestroyPiece":
+                    var destroy = Deserialize<DestroyPiece>(message);
+                    return new DestroyPieceServer(destroy.playerGuid, destroy.gameId) as IMessage<T>;
+                case "PlacePiece":
+                    var place = Deserialize<PlacePiece>(message);
+                    return new PlacePieceServer(place.playerGuid, place.gameId) as IMessage<T>;
+                case "PickUpPiece":
+                    var pick = Deserialize<PickUpPiece>(message);
+                    return new PickUpPieceServer(pick.playerGuid, pick.gameId) as IMessage<T>;
+                case "Move":
+                    var move = Deserialize<Move>(message);
+                    return new MoveServer(move.playerGuid, move.gameId, (MoveType?)move.direction) as IMessage<T>;
+                case "Discover":
+                    var discover = Deserialize<Discover>(message);
+                    return new DiscoverServer(discover.playerGuid, discover.gameId) as IMessage<T>;
                 default:
                     return new ErrorMessageServer("ReadingMessage","Warning during reading message to server object, type not recognised\n Message read: " + message, "GetObjectFromXML", clientId, xmlDoc) as IMessage<T>; //xmlDoc as default for other actions
             }
