@@ -1,14 +1,31 @@
-﻿using GameArea.GameObjects;
+﻿using GameArea;
+using GameArea.GameObjects;
 using Messages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace Player
 {
     public partial class Player
     {
+        /// <summary>
+        /// Awaits for property change.
+        /// Returns true if value has changed.
+        /// Returns false after timeout.
+        /// </summary>
+        /// <param name="miliSec">Miliseconds of timeout</param>
+        public bool WaitForActionComplete(int miliSec = 5000)
+        {
+            var result =  SpinWait.SpinUntil(() => ActionToComplete == ActionType.none,miliSec);
+            if(!result)
+            {
+                ConsoleWriter.Warning("Waiting for operation complete timeout: " + ActionToComplete);
+            }
+            return result;
+        }
         public GameArea.GameObjects.TaskField GetTaskFromDirection(MoveType direction)
         {
             switch (direction)
@@ -22,9 +39,23 @@ namespace Player
                 case MoveType.down:
                     return PlayerBoard.GetTaskField(location.X, location.Y - 1);
             }
-
             return null;
+        }
 
+        public GameArea.GameObjects.Field GetFieldFromDirection(MoveType direction)
+        {
+            switch (direction)
+            {
+                case MoveType.left:
+                    return PlayerBoard.GetField(location.X - 1, location.Y);
+                case MoveType.right:
+                    return PlayerBoard.GetField(location.X + 1, location.Y);
+                case MoveType.up:
+                    return PlayerBoard.GetField(location.X, location.Y + 1);
+                case MoveType.down:
+                    return PlayerBoard.GetField(location.X, location.Y - 1);
+            }
+            return null;
         }
 
         public GameArea.GameObjects.TaskField GetCurrentTaksField
@@ -109,21 +140,21 @@ namespace Player
         {
             if (untilSucces) //try to move until succes; if can't move - go Alternative1 or Alternative2 and then try move 3 times, if fail then go back and return
             {
-                bool moved = Move(gameMaster, direction);
+                bool moved = Move(direction);
                 for (int i = 0; i < 3 && !moved; i++)
                 {
                     
-                    if (!Move(gameMaster, Alternative1(direction)))
-                        Move(gameMaster, Alternative2(direction));
-                    moved = Move(gameMaster, direction);
+                    if (!Move(Alternative1(direction)))
+                        Move(Alternative2(direction));
+                    moved = Move(direction);
                 }
                 if (!moved)
-                    Move(gameMaster, OppositeDirection(direction));
+                    Move(OppositeDirection(direction));
                 return moved;
             }
             else //only try, if not possible - don't try to force move
             {
-                return Move(gameMaster, direction);
+                return Move(direction);
             }
         }
 

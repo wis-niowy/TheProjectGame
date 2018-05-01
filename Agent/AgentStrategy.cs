@@ -1,4 +1,5 @@
 ﻿using GameArea;
+using GameArea.AppMessages;
 using GameArea.Parsers;
 using Messages;
 using System;
@@ -11,48 +12,52 @@ namespace Player
     {
         public void DoStrategy()
         {
-            switch (State)
+            while (State != AgentState.Dead)
             {
-                case AgentState.SearchingForGame:
-                    Controller.BeginSend(MessageParser.Serialize(new GetGames()));
-                    break;
-                case AgentState.Joining:
-                    TryJoinGame();
-                    break;
-                case AgentState.AwaitingForStart:
-                    //nic nie rób, czekaj na wiadomość Game
-                    break;
-                case AgentState.Playing:
-                    if (!HasValidPiece)
-                    {
-                        FindAndPickPiece();
-                    }
-                    if (HasValidPiece)
-                    {
-                        FullfillGoal();
-                    }
-                    break;
-                case AgentState.Dead:
-                    //agent martwy
-                    break;
+                switch (State)
+                {
+                    case AgentState.SearchingForGame:
+                        ActionToComplete = ActionType.SearchingForGame;
+                        Controller.BeginSend(new GetGamesMessage().Serialize());
+                        break;
+                    case AgentState.Joining:
+                        TryJoinGame();
+                        break;
+                    case AgentState.AwaitingForStart:
+                        //nic nie rób, czekaj na wiadomość Game
+                        break;
+                    case AgentState.Playing:
+                        if (!HasValidPiece)
+                        {
+                            FindAndPickPiece();
+                        }
+                        if (HasValidPiece)
+                        {
+                            FullfillGoal();
+                        }
+                        break;
+                    case AgentState.Dead:
+                        //agent martwy
+                        break;
+                }
+                WaitForActionComplete();
             }
         }
 
         private void TryJoinGame()
         {
-            if(GamesList == null || GamesList.Count == 0)
+            if (GamesList == null || GamesList.Count == 0)
             {
                 State = AgentState.SearchingForGame;
-                DoStrategy(); //sprobuj wysuzkac gry
+                //nie ustawiamy akcji, strategia sama dojdzie do tego co ma zrobić
             }
-            var game = GamesList[0];
-            GamesList.RemoveAt(0);
-            Controller.BeginSend(MessageParser.Serialize(new JoinGame()
+            else
             {
-                gameName = game.GameName,
-                preferredRole = PlayerRole.member,
-                preferredTeam = TeamColour.red
-            }));
+                ActionToComplete = ActionType.Joining;
+                var game = GamesList[0];
+                GamesList.RemoveAt(0);
+                Controller.BeginSend(new JoinGameMessage(game.GameName, TeamColour.red, PlayerRole.member).Serialize());
+            }
         }
 
         public void FindAndPickPiece()
@@ -79,7 +84,7 @@ namespace Player
                     {
                         return;
                     }
-                    Discover(gameMaster);
+                    Discover();
                     if (OnPiece)
                         return;
                     MoveType direction = FindNearestPieceDirection();
@@ -108,17 +113,17 @@ namespace Player
 
         public bool TryPickPiece()
         {
-            return PickUpPiece(gameMaster);
+            return PickUpPiece();
         }
 
         public bool TryTestPiece()
         {
-            return TestPiece(gameMaster);
+            return TestPiece();
         }
 
         public bool DestroyPiece()
         {
-            return Destroy(gameMaster);
+            return Destroy();
         }
 
         public void FullfillGoal()
@@ -146,7 +151,7 @@ namespace Player
 
         public bool TryPlacePiece()
         {
-            var goalFullfilled = PlacePiece(gameMaster);
+            var goalFullfilled = PlacePiece();
             if(!goalFullfilled) //found non-goal field in goalarea
             {
                 GetCurrentGoalField.Type = GoalFieldType.nongoal;

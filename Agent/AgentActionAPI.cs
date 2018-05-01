@@ -11,30 +11,21 @@ namespace Player
 {
     public partial class Player
     {
-        public T PrepareMessageObject<T>(string guid, ulong gameId) where T: Messages.GameMessage, new()
-        {
-            T msg = new T
-            {
-                playerGuid = guid,
-                gameId = gameId
-            };
-            return msg;
-        }
 
         /// <summary>
         /// Method to send request to test the piece
         /// </summary>
         /// <param name="gameMaster">Addressee of the request</param>
         /// <returns>True - request was valid; False - request was not valid</returns>
-        public bool TestPiece(IGameMaster gameMaster)
+        public bool TestPiece()
         {
             if (GetPiece != null)
                 ConsoleWriter.Show(GUID + " tries to test piece: " + GetPiece.ID + " on location: " + GetLocation);
-            TestPiece msg = PrepareMessageObject<TestPiece>(this.GUID, this.gameId);
-            LastActionTaken = ActionType.TestPiece;
+            TestPieceMessage msg = new TestPieceMessage(GUID, gameId);
+            LastActionTaken = ActionToComplete = ActionType.TestPiece;
             try
             {
-                Controller.BeginSend(MessageParser.Serialize(msg)); //każda akcja od razu się wysyła, ustawia również LastActionTaken i dla move LastMoveTaken !!!!!
+                Controller.BeginSend(msg.Serialize()); //każda akcja od razu się wysyła, ustawia również LastActionTaken i dla move LastMoveTaken !!!!!
             }
             catch (Exception e)
             {
@@ -50,99 +41,61 @@ namespace Player
         /// </summary>
         /// <param name="gameMaster"></param>
         /// <returns></returns>
-        public bool PlacePiece(IGameMaster gameMaster)
+        public bool PlacePiece()
         {
             ConsoleWriter.Show(guid + " places piece: " + piece.ID + " of type: " + piece.Type + " on location: " + GetLocation);
             // should we check if received location is the same as the actual one?
-            PlacePiece msg = PrepareMessageObject<PlacePiece>(this.GUID, this.GameId);
-            LastActionTaken = ActionType.PlacePiece;
-            try
-            {
-                Controller.BeginSend(MessageParser.Serialize(msg)); //każda akcja od razu się wysyła, ustawia również LastActionTaken i dla move LastMoveTaken !!!!!
-            }
-            catch (Exception e)
-            {
-                ConsoleWriter.Error("Error occured when writing message to socket.\n Error text: \n" + e.ToString());
-                State = AgentState.Dead;
-                return false;
-            }
-            return true;
+            PlacePieceMessage msg = new PlacePieceMessage(GUID, GameId);
+            LastActionTaken = ActionToComplete = ActionType.PlacePiece;
+            Controller.BeginSend(msg.Serialize()); //każda akcja od razu się wysyła, ustawia również LastActionTaken i dla move LastMoveTaken !!!!!
+            WaitForActionComplete();
+            return !HasPiece;
         }
 
-        public bool PickUpPiece(IGameMaster gameMaster)
+        public bool PickUpPiece()
         {
             ConsoleWriter.Show(guid + " picks up piece on location: " + GetLocation);
-            PickUpPiece msg = PrepareMessageObject<PickUpPiece>(this.GUID, this.GameId);
-            LastActionTaken = ActionType.PickUpPiece;
-            try
-            {
-                Controller.BeginSend(MessageParser.Serialize(msg)); //każda akcja od razu się wysyła, ustawia również LastActionTaken i dla move LastMoveTaken !!!!!
-            }
-            catch (Exception e)
-            {
-                ConsoleWriter.Error("Error occured when writing message to socket.\n Error text: \n" + e.ToString());
-                State = AgentState.Dead;
-                return false;
-            }
-            return true;
+            PickUpPieceMessage msg = new PickUpPieceMessage(GUID, GameId);
+            LastActionTaken = ActionToComplete = ActionType.PickUpPiece;
+            Controller.BeginSend(msg.Serialize()); //każda akcja od razu się wysyła, ustawia również LastActionTaken i dla move LastMoveTaken !!!!!
+            WaitForActionComplete();
+            return HasPiece;
         }
 
-        public bool Move(IGameMaster gameMaster, MoveType direction)
+        public bool Move(MoveType direction)
         {
             ConsoleWriter.Show(guid + " wants to move from: " + GetLocation + " in direction: " + direction);
-            Move msg = PrepareMessageObject<Move>(this.GUID, this.GameId);
-            msg.direction = direction;
-            msg.directionSpecified = true;
-            LastActionTaken = ActionType.Move;
+            MoveMessage msg = new MoveMessage(GUID, GameId, direction);
+            LastActionTaken = ActionToComplete = ActionType.Move;
             LastMoveTaken = direction;
-            try
-            {
-                Controller.BeginSend(MessageParser.Serialize(msg)); //każda akcja od razu się wysyła, ustawia również LastActionTaken i dla move LastMoveTaken !!!!!
-            }
-            catch (Exception e)
-            {
-                ConsoleWriter.Error("Error occured when writing message to socket.\n Error text: \n" + e.ToString());
-                State = AgentState.Dead;
-                return false;
-            }
-            return true;
+            var futureLocation = CalculateFutureLocation(GetLocation, direction);
+            Controller.BeginSend(msg.Serialize()); //każda akcja od razu się wysyła, ustawia również LastActionTaken i dla move LastMoveTaken !!!!!
+            WaitForActionComplete();
+
+            return GetLocation.Equals(futureLocation);
         }
 
 
-        public bool Discover(IGameMaster gameMaster)
+        public bool Discover()
         {
             ConsoleWriter.Show(guid + " discovers on location: " + GetLocation);
-            Discover msg = PrepareMessageObject<Discover>(this.GUID, this.GameId);
-            LastActionTaken = ActionType.Discover;
-            try
-            {
-                Controller.BeginSend(MessageParser.Serialize(msg)); //każda akcja od razu się wysyła, ustawia również LastActionTaken i dla move LastMoveTaken !!!!!
-            }
-            catch (Exception e)
-            {
-                ConsoleWriter.Error("Error occured when writing message to socket.\n Error text: \n" + e.ToString());
-                State = AgentState.Dead;
-                return false;
-            }
+            DiscoverMessage msg = new DiscoverMessage(GUID, GameId);
+            LastActionTaken = ActionToComplete = ActionType.Discover;
+
+            Controller.BeginSend(msg.Serialize()); //każda akcja od razu się wysyła, ustawia również LastActionTaken i dla move LastMoveTaken !!!!!
+            WaitForActionComplete();
             return true;
         }
 
-        public bool Destroy(IGameMaster gameMaster)
+        public bool Destroy()
         {
             ConsoleWriter.Show(guid + " tries to destroy piece: " + piece.ID + " which is: " + piece.Type + "on location: " + GetLocation);
-            DestroyPiece msg = PrepareMessageObject<DestroyPiece>(this.GUID, this.GameId);
-            LastActionTaken = ActionType.Destroy;
-            try
-            {
-                Controller.BeginSend(MessageParser.Serialize(msg)); //każda akcja od razu się wysyła, ustawia również LastActionTaken i dla move LastMoveTaken !!!!!
-            }
-            catch (Exception e)
-            {
-                ConsoleWriter.Error("Error occured when writing message to socket.\n Error text: \n" + e.ToString());
-                State = AgentState.Dead;
-                return false;
-            }
-            return true;
+            DestroyPieceMessage msg = new DestroyPieceMessage(GUID, GameId);
+            LastActionTaken = ActionToComplete = ActionType.Destroy;
+
+            Controller.BeginSend(msg.Serialize()); //każda akcja od razu się wysyła, ustawia również LastActionTaken i dla move LastMoveTaken !!!!!
+            WaitForActionComplete();
+            return !HasPiece;
         }
         
         // additional methods

@@ -13,19 +13,8 @@ namespace Player
     public class PlayerController
     {
         private TcpClient clientSocket;
-        private IPlayer player;
 
-        public IPlayer Player
-        {
-            get
-            {
-                return player;
-            }
-            set
-            {
-                player = value;
-            }
-        }
+        public IPlayer Player { get; set; }
 
         public PlayerController(IPlayer player)
         {
@@ -54,10 +43,6 @@ namespace Player
             ConsoleWriter.Show("Player is ready ...");
             BeginRead();
             Player.DoStrategy();
-            while(Player.State != AgentState.Dead)
-            {
-                
-            }
         }
 
         public void BeginRead()
@@ -79,7 +64,11 @@ namespace Player
                     var message = Encoding.ASCII.GetString(buffer);
                     message = message.Trim('\0');
                     ConsoleWriter.Show("Agent read: \n" + message + "\n");
-                    DoAgentLogic(message);
+                    var msgObject = PlayerReader.GetObjectFromXML(message);
+                    if (msgObject != null)
+                        msgObject.Process(Player);
+                    else
+                        ConsoleWriter.Warning("Not recognised message object\n Message object is null \n Received message: \n" + message);
                     BeginRead();
                 }
                 catch (Exception e)
@@ -133,14 +122,22 @@ namespace Player
 
         public void BeginSend(string message)
         {
-            if (message != null)
+            try
             {
-                var bytes = Encoding.ASCII.GetBytes(message);
-                var ns = clientSocket.GetStream();
-                ns.BeginWrite(bytes, 0, bytes.Length, EndSend, bytes);
+                if (message != null)
+                {
+                    var bytes = Encoding.ASCII.GetBytes(message);
+                    var ns = clientSocket.GetStream();
+                    ns.BeginWrite(bytes, 0, bytes.Length, EndSend, bytes);
+                }
+                else
+                    ConsoleWriter.Warning("Agent tries to send null message. \n");
             }
-            else
-                ConsoleWriter.Warning("Agent tries to send null message. \n");
+            catch (Exception e)
+            {
+                ConsoleWriter.Error("Error occured when writing message to socket.\n Error text: \n" + e.ToString());
+                Player.State = AgentState.Dead;
+            }
         }
 
         public void EndSend(IAsyncResult result)

@@ -19,6 +19,7 @@ namespace Player
         // pole uzywane przy czytaniu xml Data od servera - obiekt wie, jakiej akcji przed chwila zadal
         public ActionType? LastActionTaken { get; set; } //ustawiana przy wykonywaniu dowolnej akcji związanej z grą
         public MoveType? LastMoveTaken{ get; set; } //ustawiany przy każdym wykonaniu ruchu
+        public ActionType ActionToComplete { get; set; }
         private ulong id;
         public AgentState State { get; set; }
         public ulong ID
@@ -186,12 +187,14 @@ namespace Player
         public void RegisteredGames(RegisteredGamesMessage messageObject)
         {
             GamesList = messageObject.Games.ToList();
+            ActionToComplete = ActionType.none;
             State = AgentState.Joining;
         }
 
         public void ConfirmJoiningGame(ConfirmJoiningGameMessage info)
         {
             State = AgentState.AwaitingForStart;
+            ActionToComplete = ActionType.none;
             gameId = info.GameId;
             ID = info.PlayerId; //u nas serwerowe ID i playerId na planszy to jedno i to samo
             guid = info.GUID;
@@ -201,13 +204,20 @@ namespace Player
         public void GameStarted(GameArea.AppMessages.GameMessage messageObject)
         {
             State = AgentState.Playing;
+            ActionToComplete = ActionType.none;
             throw new NotImplementedException("Otrzymano wiadomość Game - zaktualizować struktury lokalne Agenta o dane gry");
         }
 
         public void GameMasterDisconnected(GameArea.AppMessages.GameMasterDisconnectedMessage messageObject)
         {
             State = AgentState.SearchingForGame;
+            ActionToComplete = ActionType.none;
             throw new NotImplementedException("Wypsiać stan agenta jaki jest aktualny, wyczyścić struktury lokalne Agenta związane z grą - ona już nie istnieje, została zakończona");
+        }
+
+        public void ErrorMessage(GameArea.AppMessages.ErrorMessage error)
+        {
+            ConsoleWriter.Warning("Received an error from server:\n Type:" + error.Type + "\nCause: " + error.CauseParameterName + "\nMessage: " + error.Message);
         }
     }
 }

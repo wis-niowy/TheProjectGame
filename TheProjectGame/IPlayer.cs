@@ -14,7 +14,9 @@ namespace GameArea
         PickUpPiece,
         Move,
         Discover,
-        Destroy
+        Destroy,
+        SearchingForGame,
+        Joining
     };
 
     public enum AgentState
@@ -31,11 +33,15 @@ namespace GameArea
         ActionType? LastActionTaken { get; set; }
         MoveType? LastMoveTaken { get; set; }
 
+        ActionType ActionToComplete { get; set; }
+
         void DoStrategy();
         bool UpdateLocalBoard(DataMessage receivedData, ActionType action, MoveType direction = MoveType.up);
         void RegisteredGames(RegisteredGamesMessage messageObject);
         void ConfirmJoiningGame(ConfirmJoiningGameMessage messageObject);
         void GameStarted(AppMessages.GameMessage messageObject);
         void GameMasterDisconnected(AppMessages.GameMasterDisconnectedMessage messageObject);
+
+        void ErrorMessage(AppMessages.ErrorMessage error);
     }
 }
