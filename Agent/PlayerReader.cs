@@ -24,11 +24,16 @@ namespace Player
                 ConsoleWriter.Error("Could not load message to XML. \nMessage content: \n" + message);
                 xmlDoc = null;
             }
+            if(xmlDoc == null)
+            {
+                return new ErrorMessageAgent("ReadingMessage", "Error during proccessing XML, incorrect syntax\n Message read: " + message, "GetObjectFromXML", xmlDoc); //xmlDoc as default for other actions
+            }
+
             switch (xmlDoc.DocumentElement.Name)
             {
                 case nameof(RegisteredGames):
                     var registeredGames = MessageParser.Deserialize<RegisteredGames>(message);
-                    return new RegisteredGamesAgent(registeredGames.GameInfo?.Select(q=>new GameArea.GameObjects.GameInfo(q.gameName,q.redTeamPlayers,q.blueTeamPlayers)).ToArray());
+                    return new RegisteredGamesAgent(registeredGames.GameInfo?.Select(q => new GameArea.GameObjects.GameInfo(q.gameName, q.redTeamPlayers, q.blueTeamPlayers)).ToArray());
                 case nameof(ConfirmJoiningGame):
                     var confirmJoin = MessageParser.Deserialize<ConfirmJoiningGame>(message);
                     return new ConfirmJoiningGameAgent(confirmJoin.gameId,
@@ -42,6 +47,13 @@ namespace Player
                     return new RejectJoiningGameAgent(rejectJoin.gameName, rejectJoin.playerId);
                 case nameof(Game):
                     var game = MessageParser.Deserialize<Game>(message);
+
+                    GameArea.GameObjects.Player[] players;
+                    if (game.Players != null)
+                        players = game.Players.Select(q => new GameArea.GameObjects.Player(q.id, q.team, q.role)).ToArray();
+                    else
+                        players = null;
+
                     return new GameAgent(game.playerId)
                     {
                         Board = new GameArea.GameObjects.GameBoard((int)game.Board.width,
@@ -49,28 +61,46 @@ namespace Player
                                                                     (int)game.Board.goalsHeight),
                         PlayerLocation = new GameArea.GameObjects.Location((int)game.PlayerLocation.x,
                                                                             (int)game.PlayerLocation.y),
-                        Players = game.Players.Select(q => new GameArea.GameObjects.Player(q.id, q.team, q.role)).ToArray()
+                        Players = players
                     };
                 case nameof(Messages.GameMasterDisconnectedMessage):
                     var gmDisconnected = MessageParser.Deserialize<Messages.GameMasterDisconnectedMessage>(message);
                     return new GameMasterDisconnectedMessageAgent(gmDisconnected.gameId);
                 case nameof(Data):
                     var data = MessageParser.Deserialize<Data>(message);
-                    return new DataAgent(data.playerId)
+
+                    GameArea.GameObjects.GoalField[] goals;
+                    if (data.GoalFields != null)
+                        goals = data.GoalFields.Select(q => new GameArea.GameObjects.GoalField((int)q.x, (int)q.y, q.team, q.type)).ToArray();
+                    else
+                        goals = null;
+
+                    GameArea.GameObjects.Piece[] pieces;
+                    if (data.Pieces != null)
+                        pieces = data.Pieces.Select(q => new GameArea.GameObjects.Piece(q.id, q.timestamp, q.type, (q.playerIdSpecified ? (long)q.playerId : -1))).ToArray();
+                    else
+                        pieces = null;
+
+                    GameArea.GameObjects.TaskField[] tasks;
+                    if (data.TaskFields != null)
                     {
-                        GameFinished = data.gameFinished,
-                        Goals = data.GoalFields.Select(q => new GameArea.GameObjects.GoalField((int)q.x,
-                                                                                             (int)q.y,
-                                                                                              q.team,
-                                                                                              q.type)).ToArray(),
-                        Pieces = data.Pieces.Select(q => new GameArea.GameObjects.Piece(q.id, q.timestamp, q.type, (q.playerIdSpecified ? (long)q.playerId : -1))).ToArray(),
-                        PlayerGUID = data.playerGuid,
-                        PlayerLocation = new GameArea.GameObjects.Location((int)data.PlayerLocation.x, (int)data.PlayerLocation.y),
-                        Tasks = data.TaskFields.Select(q => new GameArea.GameObjects.TaskField((int)q.x,
+                        tasks = data.TaskFields.Select(q => new GameArea.GameObjects.TaskField((int)q.x,
                                                                                              (int)q.y,
                                                                                              q.distanceToPiece,
                                                                                              (q.pieceIdSpecified ? new GameArea.GameObjects.Piece(q.pieceId, DateTime.Now) : null),
-                                                                                             (q.playerIdSpecified ? new GameArea.GameObjects.Player(q.playerId) : null))).ToArray()
+                                                                                             (q.playerIdSpecified ? new GameArea.GameObjects.Player(q.playerId) : null))).ToArray();
+                    }
+                    else
+                        tasks = null;
+
+                    return new DataAgent(data.playerId)
+                    {
+                        GameFinished = data.gameFinished,
+                        Goals = goals,
+                        Pieces = pieces,
+                        PlayerGUID = data.playerGuid,
+                        PlayerLocation = new GameArea.GameObjects.Location((int)data.PlayerLocation.x, (int)data.PlayerLocation.y),
+                        Tasks = tasks
                     };
                 default:
                     return new ErrorMessageAgent("ReadingMessage", "Warning during reading message to server object, type not recognised\n Message read: " + message, "GetObjectFromXML", xmlDoc); //xmlDoc as default for other actions
