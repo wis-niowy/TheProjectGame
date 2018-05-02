@@ -36,12 +36,11 @@ namespace Player
                     return new RegisteredGamesAgent(registeredGames.GameInfo?.Select(q => new GameArea.GameObjects.GameInfo(q.gameName, q.redTeamPlayers, q.blueTeamPlayers)).ToArray());
                 case nameof(ConfirmJoiningGame):
                     var confirmJoin = MessageParser.Deserialize<ConfirmJoiningGame>(message);
-                    return new ConfirmJoiningGameAgent(confirmJoin.gameId,
-                                                        new GameArea.GameObjects.Player(confirmJoin.PlayerDefinition.id,
+                    return new ConfirmJoiningGameAgent(confirmJoin.gameId, new GameArea.GameObjects.Player(confirmJoin.PlayerDefinition.id,
                                                                                         confirmJoin.PlayerDefinition.team,
                                                                                         confirmJoin.PlayerDefinition.role),
-                                                        confirmJoin.privateGuid,
-                                                        confirmJoin.playerId);
+                                                                                        confirmJoin.privateGuid,
+                                                                                        confirmJoin.playerId);
                 case nameof(RejectJoiningGame):
                     var rejectJoin = MessageParser.Deserialize<RejectJoiningGame>(message);
                     return new RejectJoiningGameAgent(rejectJoin.gameName, rejectJoin.playerId);
@@ -57,10 +56,10 @@ namespace Player
                     return new GameAgent(game.playerId)
                     {
                         Board = new GameArea.GameObjects.GameBoard((int)game.Board.width,
-                                                                    (int)game.Board.tasksHeight,
-                                                                    (int)game.Board.goalsHeight),
+                                                                   (int)game.Board.tasksHeight,
+                                                                   (int)game.Board.goalsHeight),
                         PlayerLocation = new GameArea.GameObjects.Location((int)game.PlayerLocation.x,
-                                                                            (int)game.PlayerLocation.y),
+                                                                           (int)game.PlayerLocation.y),
                         Players = players
                     };
                 case nameof(Messages.GameMasterDisconnectedMessage):
@@ -71,7 +70,7 @@ namespace Player
 
                     GameArea.GameObjects.GoalField[] goals;
                     if (data.GoalFields != null)
-                        goals = data.GoalFields.Select(q => new GameArea.GameObjects.GoalField((int)q.x, (int)q.y, q.team, q.type)).ToArray();
+                        goals = data.GoalFields.Select(q => new GameArea.GameObjects.GoalField((int)q.x, (int)q.y, DateTime.Now, q.team, q.type)).ToArray();
                     else
                         goals = null;
 
@@ -85,10 +84,11 @@ namespace Player
                     if (data.TaskFields != null)
                     {
                         tasks = data.TaskFields.Select(q => new GameArea.GameObjects.TaskField((int)q.x,
-                                                                                             (int)q.y,
-                                                                                             q.distanceToPiece,
-                                                                                             (q.pieceIdSpecified ? new GameArea.GameObjects.Piece(q.pieceId, DateTime.Now) : null),
-                                                                                             (q.playerIdSpecified ? new GameArea.GameObjects.Player(q.playerId) : null))).ToArray();
+                                                                                                (int)q.y,
+                                                                                                DateTime.Now,
+                                                                                                q.distanceToPiece,
+                                                                                                (q.pieceIdSpecified ? new GameArea.GameObjects.Piece(q.pieceId, DateTime.Now) : null),
+                                                                                                (q.playerIdSpecified ? new GameArea.GameObjects.Player(q.playerId) : null))).ToArray();
                     }
                     else
                         tasks = null;
@@ -98,11 +98,9 @@ namespace Player
                         GameFinished = data.gameFinished,
                         Goals = goals,
                         Pieces = pieces,
-                                                                                             q.timestamp,
                         PlayerGUID = data.playerGuid,
                         PlayerLocation = data.PlayerLocation != null ? new GameArea.GameObjects.Location((int)data.PlayerLocation.x, (int)data.PlayerLocation.y) : null,
                         Tasks = tasks
-                                                                                             q.timestamp,
                     };
                 default:
                     return new ErrorMessageAgent("ReadingMessage", "Warning during reading message to server object, type not recognised\n Message read: " + message, "GetObjectFromXML", xmlDoc); //xmlDoc as default for other actions
