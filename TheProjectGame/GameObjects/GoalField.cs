@@ -14,6 +14,7 @@ namespace GameArea.GameObjects
         {
             Type = field.type;
             Team = field.team;
+            Player = field.playerIdSpecified ? new Player(field.playerId) : null;
         }
 
         public GoalField(int x, int y,DateTime timeStamp, TeamColour team, GoalFieldType type = GoalFieldType.goal):base(x,y)

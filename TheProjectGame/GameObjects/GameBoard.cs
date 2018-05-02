@@ -158,14 +158,16 @@ namespace GameArea.GameObjects
 
         public void UpdatePieces(Piece[] pieceArray)
         {
-            if (pieceArray != null && pieceArray.Length > 0)
-            {
+            // array with one 'null' element is received, when Player attempts to pick up piece from an empty field
+            if (pieceArray == null || pieceArray[0] == null)
+                return;
+
                 List<ulong> piecesIds = pieceArray.Select(p => p.ID).ToList();
                 List<TaskField> TaskFieldsList = TaskFields;
 
                 foreach (var taskField in TaskFieldsList)
                 {
-                    if (piecesIds.Contains(taskField.Piece.ID))
+                    if (taskField.Piece != null && piecesIds.Contains(taskField.Piece.ID))
                     // taskField has been received
                     {
                         var receivedPiece = pieceArray.Where(p => p.ID == taskField.Piece.ID).FirstOrDefault();
@@ -176,13 +178,15 @@ namespace GameArea.GameObjects
                         }
                     }
                 }
-            }
         }
 
         public void UpdateTaskFields(TaskField[] taskFieldsArray)
         {
-            if (taskFieldsArray != null && taskFieldsArray.Length > 0)
-            {
+            // array with one 'null' element is received, when Player attempts to place piece on occupied field
+            if (taskFieldsArray == null || taskFieldsArray[0] == null)
+                return;
+
+            
                 foreach (var field in taskFieldsArray)
                 {
                     int xCoord = field.X;
@@ -194,13 +198,12 @@ namespace GameArea.GameObjects
                         fields[xCoord, yCoord] = field;
                     }
                 }
-            }
         }
 
         public void UpdateGoalFields(GameObjects.GoalField[] goalFieldsArray)
         {
-            if (goalFieldsArray != null && goalFieldsArray.Length > 0)
-            {
+            if (goalFieldsArray == null)
+                return;
                 foreach (var field in goalFieldsArray)
                 {
                     int xCoord = field.X;
@@ -212,7 +215,7 @@ namespace GameArea.GameObjects
                         fields[xCoord, yCoord] = field;
                     }
                 }
-            }
         }
+
     }
 }

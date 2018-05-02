@@ -36,7 +36,7 @@ namespace GameArea
         ActionType ActionToComplete { get; set; }
 
         void DoStrategy();
-        bool UpdateLocalBoard(DataMessage receivedData, ActionType action, MoveType direction = MoveType.up);
+        bool UpdateLocalBoard(DataMessage receivedData, ActionType action);
         void RegisteredGames(RegisteredGamesMessage messageObject);
         void ConfirmJoiningGame(ConfirmJoiningGameMessage messageObject);
         void GameStarted(AppMessages.GameMessage messageObject);

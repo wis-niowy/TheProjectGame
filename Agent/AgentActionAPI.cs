@@ -100,12 +100,12 @@ namespace Player
 
         // additional methods
 
-        public bool UpdateLocalBoard(DataMessage responseMessage, ActionType action, MoveType direction = MoveType.up)
+        public bool UpdateLocalBoard(DataMessage responseMessage, ActionType action)
         {
             bool updated = false;
             var gameFinished = responseMessage.GameFinished;
             var playerId = responseMessage.PlayerId;
-
+            
             if (playerId == this.ID && !gameFinished)
             {
                 if (responseMessage.PlayerLocation != null)
@@ -114,12 +114,79 @@ namespace Player
                 GetBoard.UpdateTaskFields(responseMessage.Tasks);
                 GetBoard.UpdatePieces(responseMessage.Pieces);
 
-                ConsoleWriter.Show("Updated state by: " + GUID + " from action: " + action);
+                //if (responseMessage.Pieces != null && responseMessage.Pieces.Select(p => p.ID).ToList().Contains(this.GetPiece.ID))
+                //    // update the piece that this Player holds
+                //{
+                //    this.SetPiece(responseMessage.Pieces.Where(p => p.ID == GetPiece.ID).FirstOrDefault());
+                //}
+
+                if (responseMessage.Pieces != null && responseMessage.Pieces.Length == 1)
+                {
+                    var piece = responseMessage.Pieces[0];
+                    if (piece != null)
+                    {
+                        if (GetPiece == null)
+                            // Player picks up piece
+                        {
+                            this.SetPiece(piece);
+                            GetBoard.GetTaskField(Location).Piece = null;
+                        }
+                        else if (GetPiece.ID == piece.ID)
+                            // Player tests piece
+                        {
+                            this.SetPiece(piece);
+                        }
+                    }
+                }
+
+                if (responseMessage.Tasks != null && responseMessage.Tasks.Length == 1)
+                {
+                    var field = responseMessage.Tasks[0];
+                    if (field != null)
+                    {
+                        if (field.Piece != null && field.X == Location.X && field.Y == Location.Y && field.Piece.ID == GetPiece.ID)
+                        // player put down a piece
+                        {
+                            SetPiece(null);
+                        }
+                        else if (field.X != Location.X || field.Y != Location.Y)
+                        // player moves to TaskField
+                        {
+                            if (!field.HasPlayer())
+                                // move was legal
+                            {
+                                Location.X = field.X; Location.Y = field.Y;
+                            }
+                        }
+                    }
+                        
+                }
+
+                if (responseMessage.Goals != null && responseMessage.Goals.Length == 1)
+                {
+                    var field = responseMessage.Goals[0];
+                    if (field.Type == GoalFieldType.goal && field.X == Location.X && field.Y == Location.Y)
+                    {
+                        SetPiece(null);
+                    }
+                    else if (field.X != Location.X || field.Y != Location.Y)
+                    // player moves to GoalField
+                    {
+                        if (!field.HasPlayer())
+                        // move was legal
+                        {
+                            Location.X = field.X; Location.Y = field.Y;
+                        }
+                    }
+                }
+
                 updated = true;
             }
             ActionToComplete = ActionType.none;
             return updated;
         }
+
+
 
         // helpers ---------------------
 
