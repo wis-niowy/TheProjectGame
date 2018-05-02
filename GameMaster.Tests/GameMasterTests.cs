@@ -49,8 +49,9 @@ namespace GameArea.Tests
         [TestMethod]
         public void InitBoard()
         {
+            InitGameMaster();
             var taskFields = defaultGameMaster.GetBoard.TaskFields;
-            Assert.AreEqual(defaultSettings.GameDefinition.InitialNumberOfPieces, taskFields.Where(q => q.Piece != null).Count());
+            Assert.AreEqual((int)defaultSettings.GameDefinition.InitialNumberOfPieces, taskFields.Where(q => q.Piece != null).Count());
             var ids = new List<ulong>();
             foreach (var piece in taskFields.Where(q=>q.Piece!= null).Select(q=> q.Piece))
             {
@@ -62,6 +63,7 @@ namespace GameArea.Tests
         [TestMethod]
         public void InitPlayersList()
         {
+            InitGameMaster();
             Assert.IsNotNull(defaultGameMaster.GetPlayers);
             Assert.AreEqual(0, defaultGameMaster.GetPlayers.Count);
         }
@@ -69,12 +71,14 @@ namespace GameArea.Tests
         [TestMethod]
         public void GameMasterAfterInitState()
         {
-            Assert.AreEqual(GameMasterState.AwaitingPlayers, defaultGameMaster.GetState);
+            InitGameMaster();
+            Assert.AreEqual(GameMasterState.RegisteringGame, defaultGameMaster.GetState);
         }
 
         [TestMethod]
         public void GameMasterInitialGoals()
         {
+            InitGameMaster();
             var blueGoalFields = defaultGameMaster.GetBoard.GetBlueGoalAreaFields.Where(q => q.Type == GoalFieldType.goal).ToList();
             var blueGoals = defaultGameMaster.GetGameDefinition.Goals.Where(q => q.team == TeamColour.blue).ToList();
             Assert.AreEqual(blueGoals.Count, blueGoalFields.Count);
@@ -162,7 +166,7 @@ namespace GameArea.Tests
             Assert.AreEqual(true, setPositionResult);
             Assert.AreEqual(1, actionResult[0].X);
             Assert.AreEqual(2, actionResult[0].Y);
-            Assert.AreEqual(Player.ID, actionResult[0].PlayerId);
+            Assert.AreEqual((long)Player.ID, actionResult[0].PlayerId);
             Assert.IsTrue(defaultGameMaster.GetBoard.GetGoalField(1,2).HasPlayer());
             Assert.AreEqual(GoalFieldType.unknown, actionResult[0].Type);
         }
@@ -191,7 +195,7 @@ namespace GameArea.Tests
             Assert.AreEqual(true, setPositionResult);
             Assert.AreEqual(1, actionResult[0].X);
             Assert.AreEqual(1, actionResult[0].Y);
-            Assert.AreEqual(Player.ID, actionResult[0].PlayerId);
+            Assert.AreEqual((long)Player.ID, actionResult[0].PlayerId);
             Assert.IsTrue(defaultGameMaster.GetBoard.GetGoalField(1, 1).HasPlayer());
             Assert.AreEqual(GoalFieldType.goal, actionResult[0].Type);
             Assert.AreEqual(expectedScore, defaultGameMaster.GoalsBlueLeft);
@@ -221,7 +225,7 @@ namespace GameArea.Tests
             Assert.AreEqual(true, setPositionResult);
             Assert.AreEqual(2, actionResult[0].X);
             Assert.AreEqual(1, actionResult[0].Y);
-            Assert.AreEqual(Player.ID, actionResult[0].PlayerId);
+            Assert.AreEqual((long)Player.ID, actionResult[0].PlayerId);
             Assert.IsTrue(defaultGameMaster.GetBoard.GetGoalField(2, 1).HasPlayer());
             Assert.AreEqual(GoalFieldType.nongoal, actionResult[0].Type);
             Assert.AreEqual(expectedScore, defaultGameMaster.GoalsBlueLeft);
@@ -231,7 +235,7 @@ namespace GameArea.Tests
         public void GameMasterPlacesShamPieceOnNotOccupiedTaskField()
         {
             InitGameMaster();
-            var Player = GetPlayer("testGUID-0001", 10, TeamColour.blue, ActionType.PlacePiece);
+            var Player = GetPlayer("testGUID-0003", 10, TeamColour.blue, ActionType.PlacePiece);
             // equip an Player with a sham piece
             var messagePieceKnown = new Piece(PieceType.sham, 90)
             {
@@ -254,7 +258,7 @@ namespace GameArea.Tests
             Assert.AreEqual(true, setPositionResult);
             Assert.AreEqual(1, actionResult[0].X);
             Assert.AreEqual(5, actionResult[0].Y);
-            Assert.AreEqual(Player.ID, actionResult[0].PlayerId);
+            Assert.AreEqual((long)Player.ID, actionResult[0].PlayerId);
             Assert.IsTrue(defaultGameMaster.GetBoard.GetTaskField(1, 5).HasPlayer());
             Assert.IsNotNull(defaultGameMaster.GetBoard.GetTaskField(1, 5).Piece);
             Assert.AreEqual(90ul, defaultGameMaster.GetBoard.GetTaskField(1, 5).Piece.ID);
@@ -265,7 +269,7 @@ namespace GameArea.Tests
         public void GameMasterPlacesShamPieceOnOccupiedTaskField()
         {
             InitGameMaster();
-            var Player = GetPlayer("testGUID-0001", 10, TeamColour.blue, ActionType.PlacePiece);
+            var Player = GetPlayer("testGUID-0003", 10, TeamColour.blue, ActionType.PlacePiece);
             // equip an Player with a sham piece
             var messagePieceKnown = new Piece(PieceType.sham, 90)
             {
@@ -296,9 +300,10 @@ namespace GameArea.Tests
         [TestMethod]
         public void GameMasterPerformsMoveActionToTaskField()
         {
+            InitGameMaster();
+            var Player = GetPlayer("testGUID-0013", 10, TeamColour.blue, ActionType.Move);
             var currentLocation = new GameArea.GameObjects.Location(2, 4);
             var futureLocation = new GameArea.GameObjects.Location(2, 5);
-            var Player = new Player.Player(TeamColour.blue, _guid: "testGUID-0013");
             Player.SetLocation(2, 4);
 
             defaultGameMaster.RegisterPlayer(Player, Player.GUID, findFreeLocationAndPlacePlayer: false);
@@ -335,8 +340,9 @@ namespace GameArea.Tests
         [TestMethod]
         public void GameMasterSetsInfoAboutDiscoveredTaskField()
         {
+            InitGameMaster();
+            var Player = GetPlayer("testGUID-0013", 10, TeamColour.blue, ActionType.Discover);
             List<GameArea.GameObjects.TaskField> list = new List<GameArea.GameObjects.TaskField>();
-            var Player = new Player.Player(TeamColour.blue, _guid: "testGUID-0013");
             var field = defaultGameMaster.GetBoard.GetTaskField(2, 5);
             var piece = new Messages.Piece(PieceType.normal, 10);
             field.Piece = new GameObjects.Piece(piece);
@@ -360,8 +366,9 @@ namespace GameArea.Tests
         [TestMethod]
         public void GameMasterSetsInfoAboutDiscoveredGoalkField()
         {
+            InitGameMaster();
+            var Player = GetPlayer("testGUID-0013", 10, TeamColour.blue, ActionType.Discover);
             List<GameArea.GameObjects.GoalField> list = new List<GameArea.GameObjects.GoalField>();
-            var Player = new Player.Player(TeamColour.blue, _guid: "testGUID-0013");
             var field = defaultGameMaster.GetBoard.GetGoalField(2, 2);
             Player.SetLocation(2, 2);
             defaultGameMaster.RegisterPlayer(Player, Player.GUID, findFreeLocationAndPlacePlayer: false);

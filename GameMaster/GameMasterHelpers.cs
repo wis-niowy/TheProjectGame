@@ -50,8 +50,11 @@ namespace GameArea
         public GameObjects.GoalField[] TryPlaceShamPieceOnGoalField(GameObjects.Location location, string playerGuid)
         {
             var teamColour = Players.Where(q => q.GUID == playerGuid).First().Team;
-            var Player = Players.Where(q => q.GUID == playerGuid).First();
-            var fieldMessage = new GameObjects.GoalField(location.X, location.Y, DateTime.Now, teamColour);
+            var player = Players.Where(q => q.GUID == playerGuid).First();
+            var fieldMessage = new GameObjects.GoalField(location.X, location.Y, DateTime.Now, teamColour, GoalFieldType.unknown)
+            {
+                PlayerId = (long)player.ID,
+            };
 
             return new GameObjects.GoalField[] { fieldMessage };
         }
