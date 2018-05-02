@@ -14,6 +14,11 @@ namespace Player
     {
         public static IAgentMessage GetObjectFromXML(string message)
         {
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                ConsoleWriter.Show("Read empty or whitespace message.");
+                return null;
+            }
             var xmlDoc = new XmlDocument();
             try
             {
@@ -22,7 +27,7 @@ namespace Player
             catch (Exception e)
             {
                 ConsoleWriter.Error("Could not load message to XML. \nMessage content: \n" + message);
-                xmlDoc = null;
+                return null;
             }
             if(xmlDoc == null)
             {

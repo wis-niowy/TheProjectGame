@@ -1,6 +1,7 @@
 ﻿using GameArea;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ namespace CommunicationServer.ServerObjects
 {
     public class ClientHandle
     {
+        public DateTime LastKeepAlive {get;set;}
         public ulong ID { get; set; }
         TcpClient Client { get; }
         public IInterpreter MessageInterpreter { get; set; } //odpowiada za poprawny odczyt i wykonanie akcji na daną wiadomość
@@ -18,6 +20,7 @@ namespace CommunicationServer.ServerObjects
             Client = me;
             ID = id;
             MessageInterpreter = interpreter;
+            LastKeepAlive = DateTime.Now;
         }
 
         public void BeginRead()
@@ -36,12 +39,19 @@ namespace CommunicationServer.ServerObjects
                 {
                     var ns = Client.GetStream();
                     var bytesAvailable = ns.EndRead(result);
-                    var message = Encoding.ASCII.GetString(buffer);
-                    
-                    var task = Task.Run(()=> {
-                        message = message.Trim('\0');
-                        MessageInterpreter.ReadMessage(message, ID);
+                    var messages = Encoding.ASCII.GetString(buffer).Split((char)23);
+                    LastKeepAlive = DateTime.Now;
+                    if (messages != null)
+                    {
+                        Task.Run(() =>
+                        {
+                            foreach (var message in messages.Select(q => q.Trim('\0')))
+                            {
+                                ConsoleWriter.Show("Server read: \n" + message + "\n");
+                                MessageInterpreter.ReadMessage(message, ID);
+                            }
                         });
+                    }
                     BeginRead();
                 }
                 catch (Exception e)
@@ -60,7 +70,7 @@ namespace CommunicationServer.ServerObjects
         public void BeginSend(string message)
         {
             message = message.Trim('\0');
-            var bytes = Encoding.ASCII.GetBytes(message);
+            var bytes = Encoding.ASCII.GetBytes(message + (char)23);
             var ns = Client.GetStream();
             ns.BeginWrite(bytes, 0, bytes.Length, EndSend, bytes);
         }

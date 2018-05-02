@@ -32,7 +32,7 @@ namespace GameArea.AppMessages
             return new Data()
             {
                 gameFinished = GameFinished,
-                Pieces = Pieces?.Select(q => q.ToBase()).ToArray(),
+                Pieces = Pieces?.Select(q => q?.ToBase()).ToArray(),
                 playerGuid = PlayerGUID,
                 playerId = PlayerId,
                 PlayerLocation = PlayerLocation?.ToBase(),

@@ -39,7 +39,6 @@ namespace CommunicationServer
 
                         if (clientTask.Result != null)
                         {
-                            
                             Console.WriteLine("Client connected. Waiting for data.");
                             var client = clientTask.Result;
 

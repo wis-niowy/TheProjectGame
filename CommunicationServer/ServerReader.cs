@@ -15,6 +15,11 @@ namespace CommunicationServer
     {
         public static IMessage<T> GetObjectFromXML<T>(string message, ulong clientId)
         {
+            if(string.IsNullOrWhiteSpace(message))
+            {
+                ConsoleWriter.Show("Read empty or whitespace message.");
+                return null;
+            }
             var xmlDoc = new XmlDocument();
             try
             {

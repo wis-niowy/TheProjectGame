@@ -114,11 +114,6 @@ namespace Player
                 GetBoard.UpdateTaskFields(responseMessage.Tasks);
                 GetBoard.UpdatePieces(responseMessage.Pieces);
 
-                //if (responseMessage.Pieces != null && responseMessage.Pieces.Select(p => p.ID).ToList().Contains(this.GetPiece.ID))
-                //    // update the piece that this Player holds
-                //{
-                //    this.SetPiece(responseMessage.Pieces.Where(p => p.ID == GetPiece.ID).FirstOrDefault());
-                //}
 
                 if (responseMessage.Pieces != null && responseMessage.Pieces.Length == 1)
                 {
@@ -142,21 +137,12 @@ namespace Player
                 if (responseMessage.Tasks != null && responseMessage.Tasks.Length == 1)
                 {
                     var field = responseMessage.Tasks[0];
-                    if (field != null)
+                    if (field != null && GetPiece != null)
                     {
                         if (field.Piece != null && field.X == Location.X && field.Y == Location.Y && field.Piece.ID == GetPiece.ID)
                         // player put down a piece
                         {
                             SetPiece(null);
-                        }
-                        else if (field.X != Location.X || field.Y != Location.Y)
-                        // player moves to TaskField
-                        {
-                            if (!field.HasPlayer())
-                                // move was legal
-                            {
-                                Location.X = field.X; Location.Y = field.Y;
-                            }
                         }
                     }
                         
@@ -168,15 +154,7 @@ namespace Player
                     if (field.Type == GoalFieldType.goal && field.X == Location.X && field.Y == Location.Y)
                     {
                         SetPiece(null);
-                    }
-                    else if (field.X != Location.X || field.Y != Location.Y)
-                    // player moves to GoalField
-                    {
-                        if (!field.HasPlayer())
-                        // move was legal
-                        {
-                            Location.X = field.X; Location.Y = field.Y;
-                        }
+                        PlayerBoard.GetGoalField(Location.X, Location.Y).TimeStamp = DateTime.Now.AddYears(100);
                     }
                 }
 

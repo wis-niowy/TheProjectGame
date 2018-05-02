@@ -4,9 +4,11 @@ using GameMaster;
 using Messages;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace GameMasterMain
@@ -55,7 +57,7 @@ namespace GameMasterMain
             ConsoleWriter.Show("GameMaster is ready ...");
             BeginRead();
             BeginSend(gameMaster.RegisterGame().Serialize());
-            while (gameMaster.State != GameMasterState.GameOver);
+            SpinWait.SpinUntil(() => gameMaster.State == GameMasterState.GameOver);
         }
 
 
@@ -75,51 +77,65 @@ namespace GameMasterMain
                 {
                     var ns = clientSocket.GetStream();
                     var bytesAvailable = ns.EndRead(result);
-                    var message = Encoding.ASCII.GetString(buffer);
-                    message = message.Trim('\0');
-                    ConsoleWriter.Show("GameMaster read: \n" + message + "\n");
-                    Task.Run(() =>
+                    var messages = Encoding.ASCII.GetString(buffer).Split((char)23);
+
+                    if (messages != null)
                     {
-                        var msgObject = GMReader.GetObjectFromXML(message);
-                        if (msgObject != null)
+                        Task.Run(() =>
                         {
-                            var responseMsgs = msgObject.Process(gameMaster);
-                            if (responseMsgs != null)
-                                foreach (var msg in responseMsgs)
-                                    BeginSend(msg);
-                        }
-                        else
-                        {
-                            ConsoleWriter.Warning("Could not obtain object from message: \n" + message);
-                        }
-                    });
-                    
+                            foreach (var message in messages.Select(q=>q.Trim('\0')))
+                            {
+                                ConsoleWriter.Show("GameMaster read: \n" + message + "\n");
+                                var msgObject = GMReader.GetObjectFromXML(message);
+                                if (msgObject != null)
+                                {
+                                    var responseMsgs = msgObject.Process(gameMaster);
+                                    if (responseMsgs != null)
+                                        foreach (var msg in responseMsgs)
+                                            BeginSend(msg);
+                                }
+                                else
+                                    ConsoleWriter.Warning("Could not obtain object from message: \n" + message);
+                            }
+                        });
+                    }
+                    BeginRead();
                 }
                 catch (Exception e)
                 {
                     ConsoleWriter.Error("Error while handling message from communication server." + "\n Error message: \n" + e.ToString() + "\n");
+                    gameMaster.State = GameMasterState.GameOver;
                 }
-                finally
-                {
-                    BeginRead();
-                }
+
             }
             else
             {
                 ConsoleWriter.Warning("Communication server connection lost\n");
+                gameMaster.State = GameMasterState.GameOver;
             }
         }
 
         public void BeginSend(string message)
         {
-            if (message != null)
+            if (clientSocket.Connected)
             {
-                var bytes = Encoding.ASCII.GetBytes(message);
-                var ns = clientSocket.GetStream();
-                ns.BeginWrite(bytes, 0, bytes.Length, EndSend, bytes);
+                var bytes = Encoding.ASCII.GetBytes(message + (char)23);
+                try
+                {
+                    var ns = clientSocket.GetStream();
+                    ns.BeginWrite(bytes, 0, bytes.Length, EndSend, bytes);
+                }
+                catch(Exception e)
+                {
+                    ConsoleWriter.Error("Error during BeginSend operation.\nErrorMessage:" + e.Message + "\nStackTrace: " + e.StackTrace);
+                    GameMaster.State = GameMasterState.GameOver;
+                }
             }
             else
-                ConsoleWriter.Warning("GameMaster tries to send null message.\n");
+            {
+                ConsoleWriter.Warning("GameMaster socket lost connection.\n");
+                gameMaster.State = GameMasterState.GameOver;
+            }
         }
 
         public void EndSend(IAsyncResult result)

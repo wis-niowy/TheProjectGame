@@ -14,6 +14,11 @@ namespace GameMaster
     {
         public static IGMMessage GetObjectFromXML(string message)
         {
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                ConsoleWriter.Show("Read empty or whitespace message.");
+                return null;
+            }
             var xmlDoc = new XmlDocument();
             try
             {

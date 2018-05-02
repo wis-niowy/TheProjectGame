@@ -35,7 +35,8 @@ namespace GameArea.GameObjects
                 id = ID,
                 playerId = (ulong)PlayerId,
                 timestamp = TimeStamp,
-                playerIdSpecified = PlayerId >= 0
+                playerIdSpecified = PlayerId >= 0,
+                type = Type
             };
         }
 

@@ -132,12 +132,21 @@ namespace CommunicationServer
                 {
                     foreach (var agent in gameObj.Agents)
                         if (agent.Client.IsAlive)
+                        {
+                            agent.Client.MessageInterpreter = new NewClientInterpreter(this);
                             clients.Add(agent.Client);
+                        }
                     if (gameObj.GameMaster != null && gameObj.GameMaster.Client.IsAlive)
+                    {
+                        gameObj.GameMaster.Client.MessageInterpreter = new NewClientInterpreter(this);
                         clients.Add(gameObj.GameMaster.Client);
+                    }
                     foreach (var client in gameObj.JoiningAgents)
                         if (client.IsAlive)
+                        {
+                            client.MessageInterpreter = new NewClientInterpreter(this);
                             clients.Add(client);
+                        }
                 }
                 gameDefinitions.Remove(game);
             }
