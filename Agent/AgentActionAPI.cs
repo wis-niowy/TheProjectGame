@@ -119,16 +119,25 @@ namespace Player
                     if (piece != null)
                     {
                         if (GetPiece == null)
-                            // Player picks up piece
+                        // Player picks up piece
                         {
                             this.SetPiece(piece);
                             GetBoard.GetTaskField(Location).Piece = null;
                         }
                         else if (GetPiece.ID == piece.ID)
-                            // Player tests piece
+                        // Player tests piece
                         {
                             this.SetPiece(piece);
                         }
+                    }
+                    else
+                    {
+                        if (GetPiece != null)
+                        // Player destroys piece
+                        {
+                            this.SetPiece(piece);
+                        }
+
                     }
                 }
 
