@@ -321,7 +321,7 @@ namespace GameArea
             {
                 var currentTaskField = actualBoard.GetField(location.X, location.Y) as GameObjects.TaskField;
                 // the TaskField contains a piece
-                if (currentTaskField != null && currentTaskField.Piece != null)
+                if (currentTaskField != null && currentTaskField.Piece != null && Player.GetPiece == null)
                 {
                     GameObjects.Piece pieceDataToSend = new GameObjects.Piece(currentTaskField.Piece.ID, DateTime.Now, playerId: (long)Player.ID);
 

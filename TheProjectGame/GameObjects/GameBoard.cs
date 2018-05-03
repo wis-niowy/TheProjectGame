@@ -159,7 +159,7 @@ namespace GameArea.GameObjects
         public void UpdatePieces(Piece[] pieceArray)
         {
             // array with one 'null' element is received, when Player attempts to pick up piece from an empty field
-            if (pieceArray == null || pieceArray[0] == null)
+            if (pieceArray == null || (pieceArray.Length == 1 && pieceArray[0] == null))
                 return;
 
                 List<ulong> piecesIds = pieceArray.Select(p => p.ID).ToList();
@@ -183,7 +183,7 @@ namespace GameArea.GameObjects
         public void UpdateTaskFields(TaskField[] taskFieldsArray)
         {
             // array with one 'null' element is received, when Player attempts to place piece on occupied field
-            if (taskFieldsArray == null || taskFieldsArray[0] == null)
+            if (taskFieldsArray == null || (taskFieldsArray.Length == 1 && taskFieldsArray[0] == null))
                 return;
 
             
