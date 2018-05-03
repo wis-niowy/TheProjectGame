@@ -34,6 +34,7 @@ namespace GameArea
                 };
 
                 var piece = Player.GetPiece;
+                piece.PlayerId = 0;
                 currentTaskField.Piece = piece; // the piece is put on the field
                 Player.SetPiece(null); // the piece is no longer possesed by an Player
                 UpdateDistancesFromAllPieces();

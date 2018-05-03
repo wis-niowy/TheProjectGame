@@ -328,6 +328,7 @@ namespace GameArea
                     response.Pieces[0] = pieceDataToSend;
 
                     var piece = currentTaskField.Piece;
+                    piece.PlayerId = (long)Player.ID;
                     Player.SetPiece(piece); // Player picks up a piece
                     currentTaskField.Piece =null; // the piece is no longer on the field  
                     UpdateDistancesFromAllPieces();
@@ -404,6 +405,7 @@ namespace GameArea
                     SetInfoAboutDiscoveredGoalField(futureLocation, 0, 0, field, tempList);
                     response.Goals = tempList.ToArray();
                     responseField = response.Goals[0];
+                    (responseField as GameObjects.GoalField).Type = GoalFieldType.unknown; // after move request Player receives no info about GoalField type
                 }
 
                 // check if there is another Player on the field we're trying to enter

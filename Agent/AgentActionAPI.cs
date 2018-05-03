@@ -108,8 +108,6 @@ namespace Player
             
             if (playerId == this.ID && !gameFinished)
             {
-                if (responseMessage.PlayerLocation != null)
-                    SetLocation(responseMessage.PlayerLocation.X, responseMessage.PlayerLocation.Y);
                 GetBoard.UpdateGoalFields(responseMessage.Goals);
                 GetBoard.UpdateTaskFields(responseMessage.Tasks);
                 GetBoard.UpdatePieces(responseMessage.Pieces);
@@ -157,6 +155,9 @@ namespace Player
                         PlayerBoard.GetGoalField(Location.X, Location.Y).TimeStamp = DateTime.Now.AddYears(100);
                     }
                 }
+
+                if (responseMessage.PlayerLocation != null)
+                    SetLocation(responseMessage.PlayerLocation.X, responseMessage.PlayerLocation.Y);
 
                 updated = true;
             }
