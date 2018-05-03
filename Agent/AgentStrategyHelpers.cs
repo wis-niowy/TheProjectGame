@@ -17,7 +17,7 @@ namespace Player
         /// Returns false after timeout.
         /// </summary>
         /// <param name="miliSec">Miliseconds of timeout</param>
-        public bool WaitForActionComplete(int miliSec = int.MaxValue)
+        public bool WaitForActionComplete(int miliSec = 5000)
         {
             var result =  SpinWait.SpinUntil(() => ActionToComplete == ActionType.none,miliSec);
             if(!result)
