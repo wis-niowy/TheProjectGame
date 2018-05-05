@@ -13,9 +13,9 @@ namespace GameArea.AppMessages
         {
             PlayerId = player.playerId;
         }
-        public PlayerMessage(ulong id)
+        public PlayerMessage(ulong playerId)
         {
-            PlayerId = id;
+            PlayerId = playerId;
         }
 
         public abstract string Serialize();
