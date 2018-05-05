@@ -1,4 +1,5 @@
 ﻿using GameArea;
+using GameMaster.GMConfiguration;
 using GameMaster.GMMessages;
 using Messages;
 using System;
@@ -61,6 +62,10 @@ namespace GameMaster
                 case nameof(PlayerDisconnected):
                     var playerDisconnected = MessageParser.Deserialize<PlayerDisconnected>(message);
                     return new PlayerDisconnectedGM(playerDisconnected.playerId);
+
+                case nameof(Configuration.GameMasterSettings):
+                    var settings = MessageParser.Deserialize<Configuration.GameMasterSettings>(message);
+                    return new GameMasterSettingsGM(settings);
 
                 default:
                     return new ErrorMessageGM("ReadingMessage", "Warning during reading message to server object, type not recognised\n Message read: " + message, "GetObjectFromXML", xmlDoc); //xmlDoc as default for other actions

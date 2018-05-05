@@ -73,6 +73,12 @@ namespace GameArea
                     return Deserialize<GameMasterDisconnectedMessage>(message);
                 case "PlayerDisconnected":
                     return Deserialize<PlayerDisconnected>(message);
+
+                case "GameMasterSettings":
+                    return Deserialize<Configuration.GameMasterSettings>(message);
+                case "PlayerSettings":
+                    return Deserialize<Configuration.PlayerSettings>(message);
+
                 default:
                     return xmlDoc; //xmlDoc as default for other actions
             }

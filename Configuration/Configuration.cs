@@ -329,6 +329,19 @@ namespace Configuration
                 this.gameNameField = value;
             }
         }
+
+        /// <remarks/>
+        public int NumberOfGoalsPerGame
+        {
+            get
+            {
+                return this.numberOfGoalsPerGame;
+            }
+            set
+            {
+                this.numberOfGoalsPerGame = value;
+            }
+        }
     }
 
     ///// <remarks/>

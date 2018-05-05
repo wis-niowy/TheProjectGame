@@ -1,6 +1,7 @@
 ﻿using GameArea;
 using GameArea.AppMessages;
 using Messages;
+using Player.PlayerConfiguration;
 using Player.PlayerMessages;
 using System;
 using System.Collections.Generic;
@@ -107,6 +108,11 @@ namespace Player
                         PlayerLocation = data.PlayerLocation != null ? new GameArea.GameObjects.Location((int)data.PlayerLocation.x, (int)data.PlayerLocation.y) : null,
                         Tasks = tasks
                     };
+
+                case nameof(Configuration.PlayerSettings):
+                    var settings = MessageParser.Deserialize<Configuration.PlayerSettings>(message);
+                    return new PlayerSettingsAgent(settings);
+
                 default:
                     return new ErrorMessageAgent("ReadingMessage", "Warning during reading message to server object, type not recognised\n Message read: " + message, "GetObjectFromXML", xmlDoc); //xmlDoc as default for other actions
             }
