@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using Messages;
+using GameArea.AppConfiguration;
 
 namespace MainApp
 {
     public static class Validator
     {
 
-        public static string ValidateSettings(GameMasterSettings settings)
+        public static string ValidateSettings(GameMasterSettingsConfiguration settings)
         {
             var gameDefinitions = settings.GameDefinition;
             var errors = new StringBuilder();
@@ -118,7 +119,7 @@ namespace MainApp
         }
 
         // goals
-        public static string ValidateGoals(GoalField[] goals, int goalAreaLength, int taskAreaLength, int boardWidth)
+        public static string ValidateGoals(GameArea.GameObjects.GoalField[] goals, int goalAreaLength, int taskAreaLength, int boardWidth)
         {
             if (goals == null)
                 return ValidatorMessages.NULL_GOALFIELD_ARRAY;
@@ -127,27 +128,27 @@ namespace MainApp
                 if (g == null)
                     return ValidatorMessages.NULL_GOALFIELD;
             }
-            if (goals.Select(q=> new { x = q.x, y = q.y }).Distinct().Count() != goals.Count()) // override equals()
+            if (goals.Select(q=> new { x = q.X, y = q.Y }).Distinct().Count() != goals.Count()) // override equals()
                 return ValidatorMessages.GOALS_ARE_NOT_UNIQUE;
-            if (!goals.Where(q => q.team == TeamColour.blue).Any())
+            if (!goals.Where(q => q.Team == TeamColour.blue).Any())
                 return ValidatorMessages.BLUE_TEAM_HAS_NO_GOAL;
-            if (!goals.Where(q => q.team == TeamColour.red).Any())
+            if (!goals.Where(q => q.Team == TeamColour.red).Any())
                 return ValidatorMessages.RED_TEAM_HAS_NO_GOAL;
 
             foreach (var g in goals)
             {
-                if ((g.y >= goalAreaLength && g.y < taskAreaLength + goalAreaLength) || (g.x >= boardWidth) || g.y >= taskAreaLength + 2 * goalAreaLength)
+                if ((g.Y >= goalAreaLength && g.Y < taskAreaLength + goalAreaLength) || (g.X >= boardWidth) || g.Y >= taskAreaLength + 2 * goalAreaLength)
                     return ValidatorMessages.GOALS_OUTSIDE_GOAL_AREA;
-                if (g.team == TeamColour.blue && g.y >= goalAreaLength)
+                if (g.Team == TeamColour.blue && g.Y >= goalAreaLength)
                     return ValidatorMessages.BLUE_GOAL_IN_RED_GOAL_AREA;
-                if (g.team == TeamColour.red && g.y < goalAreaLength)
+                if (g.Team == TeamColour.red && g.Y < goalAreaLength)
                     return ValidatorMessages.RED_GOAL_IN_BLUE_GOAL_AREA;
             }
 
             return "";
         }
 
-        public static string ValidateActionCosts(GameMasterSettingsActionCosts settings)
+        public static string ValidateActionCosts(GameMasterSettingsActionCostsConfiguration settings)
         {
             if (settings == null)
                 return ValidatorMessages.ACTION_COSTS_NULL;

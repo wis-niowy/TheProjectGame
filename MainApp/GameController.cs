@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using GameArea.AppConfiguration;
 
 namespace MainApp
 {
@@ -14,7 +15,7 @@ namespace MainApp
         public List<IPlayer> Players { get; set; }
         private bool TestMode;
 
-        public GameController(GameMasterSettings settings,bool testing = false)
+        public GameController(GameMasterSettingsConfiguration settings,bool testing = false)
         {
             GM = new GameArea.GameMaster(settings);
             Players = new List<IPlayer>();

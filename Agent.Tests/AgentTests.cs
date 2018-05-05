@@ -5,19 +5,20 @@ using System;
 using Configuration;
 using Player.PlayerMessages;
 using System.Collections.Generic;
+using GameArea.AppConfiguration;
 
 namespace Player.Tests
 {
     [TestClass]
     public class PlayerTests
     {
-        GameMasterSettings settings;
+        GameMasterSettingsConfiguration settings;
         GameArea.GameMaster gameMaster;
         string guid;
 
         public void InitGameMaster()
         {
-            settings = GameMasterSettings.GetDefaultGameMasterSettings();
+            settings = new GameMasterSettingsConfiguration(GameMasterSettings.GetDefaultGameMasterSettings());
             gameMaster = new GameArea.GameMaster(settings);
         }
         public Player GetPlayer(string guid, ulong id, TeamColour tc, ActionType action)
@@ -486,7 +487,7 @@ namespace Player.Tests
             {
                 PlayerGUID = guid,
                 GameFinished = false,
-                PlayerLocation = Player.Location,
+                PlayerLocation = new GameArea.GameObjects.Location(2, 5),
                 Tasks = new GameArea.GameObjects.TaskField[] { new GameArea.GameObjects.TaskField(taskField) }
             };
 
@@ -558,7 +559,7 @@ namespace Player.Tests
             {
                 PlayerGUID = guid,
                 GameFinished = false,
-                PlayerLocation = Player.Location,
+                PlayerLocation = new GameArea.GameObjects.Location(2, 2),
                 Goals = new GameArea.GameObjects.GoalField[] { new GameArea.GameObjects.GoalField(goalField) }
             };
 

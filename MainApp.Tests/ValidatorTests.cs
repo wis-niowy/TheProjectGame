@@ -2,17 +2,16 @@ using Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Messages;
 using System;
+using GameArea.AppConfiguration;
 
 namespace MainApp.Tests
 {
     [TestClass]
     public class ValidatorTests
     {
-        GameMasterSettings defaultSettings = new GameMasterSettings()
-        {
-            ActionCosts = GameMasterSettingsActionCosts.GetDefaultCosts(),
-            GameDefinition =  GameMasterSettingsGameDefinition.GetDefaultGameDefinition()
-        };
+        GameMasterSettingsConfiguration defaultSettings = new GameMasterSettingsConfiguration(Configuration.GameMasterSettings.GetDefaultGameMasterSettings());
+
+
 
         [TestMethod]
         public void ShamProbabiltyValid()
@@ -263,7 +262,8 @@ namespace MainApp.Tests
         [TestMethod]
         public void GoalFieldsArrayContainsNullGoal()
         {
-            defaultSettings.GameDefinition.Goals = new GoalField[]{ new GoalField(1, 2, TeamColour.red), null};
+            var field = new GoalField(1, 2, TeamColour.red);
+            defaultSettings.GameDefinition.Goals = new GameArea.GameObjects.GoalField[]{ new GameArea.GameObjects.GoalField(field), null};
             var message = Validator.ValidateGoals(defaultSettings.GameDefinition.Goals,
                 defaultSettings.GameDefinition.GoalAreaLength,
                 defaultSettings.GameDefinition.TaskAreaLength,
@@ -276,7 +276,12 @@ namespace MainApp.Tests
         [TestMethod]
         public void GoalFieldsNotDistinct()
         {
-            defaultSettings.GameDefinition.Goals = new GoalField[] { new GoalField(10,2,TeamColour.red), new GoalField(1, 2,TeamColour.blue), new GoalField(1,2,TeamColour.blue)};
+            var field1 = new GoalField(10, 2, TeamColour.red);
+            var field2 = new GoalField(1, 2, TeamColour.blue);
+            var field3 = new GoalField(1, 2, TeamColour.blue);
+            defaultSettings.GameDefinition.Goals = new GameArea.GameObjects.GoalField[] { new GameArea.GameObjects.GoalField(field1),
+                                                                                          new GameArea.GameObjects.GoalField(field2),
+                                                                                          new GameArea.GameObjects.GoalField(field3)};
             var message = Validator.ValidateGoals(defaultSettings.GameDefinition.Goals,
                 defaultSettings.GameDefinition.GoalAreaLength,
                 defaultSettings.GameDefinition.TaskAreaLength,
@@ -288,7 +293,12 @@ namespace MainApp.Tests
         [TestMethod]
         public void GoalFieldsRedTeamNoGoals()
         {
-            defaultSettings.GameDefinition.Goals = new GoalField[] { new GoalField(1, 3, TeamColour.blue), new GoalField(1, 2, TeamColour.blue), new GoalField(0, 3, TeamColour.blue) };
+            var field1 = new GoalField(1, 3, TeamColour.blue);
+            var field2 = new GoalField(1, 2, TeamColour.blue);
+            var field3 = new GoalField(0, 3, TeamColour.blue);
+            defaultSettings.GameDefinition.Goals = new GameArea.GameObjects.GoalField[] { new GameArea.GameObjects.GoalField(field1),
+                                                                                          new GameArea.GameObjects.GoalField(field2),
+                                                                                          new GameArea.GameObjects.GoalField(field3)};
             var message = Validator.ValidateGoals(defaultSettings.GameDefinition.Goals,
                 defaultSettings.GameDefinition.GoalAreaLength,
                 defaultSettings.GameDefinition.TaskAreaLength,
@@ -301,7 +311,12 @@ namespace MainApp.Tests
         [TestMethod]
         public void GoalFieldsBlueTeamNoGoals()
         {
-            defaultSettings.GameDefinition.Goals = new GoalField[] { new GoalField(11, 2, TeamColour.red), new GoalField(10, 2, TeamColour.red), new GoalField(10, 3, TeamColour.red) };
+            var field1 = new GoalField(11, 2, TeamColour.red);
+            var field2 = new GoalField(10, 2, TeamColour.red);
+            var field3 = new GoalField(10, 3, TeamColour.red);
+            defaultSettings.GameDefinition.Goals = new GameArea.GameObjects.GoalField[] { new GameArea.GameObjects.GoalField(field1),
+                                                                                          new GameArea.GameObjects.GoalField(field2),
+                                                                                          new GameArea.GameObjects.GoalField(field3)};
             var message = Validator.ValidateGoals(defaultSettings.GameDefinition.Goals,
                 defaultSettings.GameDefinition.GoalAreaLength,
                 defaultSettings.GameDefinition.TaskAreaLength,
@@ -314,7 +329,10 @@ namespace MainApp.Tests
         [TestMethod]
         public void GoalInTaskArea()
         {
-            defaultSettings.GameDefinition.Goals = new GoalField[] { new GoalField(6, 2, TeamColour.red), new GoalField(10, 2, TeamColour.blue) };
+            var field1 = new GoalField(6, 2, TeamColour.red);
+            var field2 = new GoalField(10, 2, TeamColour.blue);
+            defaultSettings.GameDefinition.Goals = new GameArea.GameObjects.GoalField[] { new GameArea.GameObjects.GoalField(field1),
+                                                                                          new GameArea.GameObjects.GoalField(field2) };
             var message = Validator.ValidateGoals(defaultSettings.GameDefinition.Goals,
                 defaultSettings.GameDefinition.GoalAreaLength,
                 defaultSettings.GameDefinition.TaskAreaLength,
@@ -327,7 +345,12 @@ namespace MainApp.Tests
         [TestMethod]
         public void RedGoalInBlueGoalArea()
         {
-            defaultSettings.GameDefinition.Goals = new GoalField[] { new GoalField(1, 2, TeamColour.red), new GoalField(1,3,TeamColour.blue), new GoalField(10, 2, TeamColour.red) };
+            var field1 = new GoalField(1, 2, TeamColour.red);
+            var field2 = new GoalField(1, 3, TeamColour.blue);
+            var field3 = new GoalField(10, 2, TeamColour.red);
+            defaultSettings.GameDefinition.Goals = new GameArea.GameObjects.GoalField[] { new GameArea.GameObjects.GoalField(field1),
+                                                                                          new GameArea.GameObjects.GoalField(field2),
+                                                                                          new GameArea.GameObjects.GoalField(field3)};
             var message = Validator.ValidateGoals(defaultSettings.GameDefinition.Goals,
                 defaultSettings.GameDefinition.GoalAreaLength,
                 defaultSettings.GameDefinition.TaskAreaLength,
@@ -340,7 +363,12 @@ namespace MainApp.Tests
         [TestMethod]
         public void BlueGoalInRedGoalArea()
         {
-            defaultSettings.GameDefinition.Goals = new GoalField[] { new GoalField(2, 1, TeamColour.blue), new GoalField(3, 10, TeamColour.red), new GoalField(2, 10, TeamColour.blue) };
+            var field1 = new GoalField(2, 1, TeamColour.blue);
+            var field2 = new GoalField(3, 10, TeamColour.red);
+            var field3 = new GoalField(2, 10, TeamColour.blue);
+            defaultSettings.GameDefinition.Goals = new GameArea.GameObjects.GoalField[] { new GameArea.GameObjects.GoalField(field1),
+                                                                                          new GameArea.GameObjects.GoalField(field2),
+                                                                                          new GameArea.GameObjects.GoalField(field3)};
             var message = Validator.ValidateGoals(defaultSettings.GameDefinition.Goals,
                 defaultSettings.GameDefinition.GoalAreaLength,
                 defaultSettings.GameDefinition.TaskAreaLength,

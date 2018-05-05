@@ -8,6 +8,7 @@ using System.Net;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
+using GameArea.AppConfiguration;
 
 namespace Player
 {
@@ -19,7 +20,7 @@ namespace Player
         {
             IPAddress serverIP;
             int serverPort;
-            PlayerSettings settings;
+            PlayerSettingsConfiguration settings;
             var valid = ValidateArgs(args);
             Messages.TeamColour colour;
 
@@ -44,7 +45,7 @@ namespace Player
                 serverIP = IPAddress.Parse("127.0.0.1");
                 serverPort = Int32.Parse("5678");
                 colour = Messages.TeamColour.blue;
-                settings = new PlayerSettings();
+                settings = new PlayerSettingsConfiguration(new Configuration.PlayerSettings());
             }
 
             ConsoleWriter.Show("Settings loaded. Establishing connection to server.");
@@ -55,7 +56,7 @@ namespace Player
             }
         }
 
-        public static bool StartPlayer(IPAddress ip, Int32 port, PlayerSettings settings, Messages.TeamColour colour)
+        public static bool StartPlayer(IPAddress ip, Int32 port, PlayerSettingsConfiguration settings, Messages.TeamColour colour)
         {
             var player = new Player(colour);
             PController = new PlayerController(player);
@@ -93,7 +94,7 @@ namespace Player
             return valid;
         }
 
-        public static PlayerSettings LoadSettingsFromFile(string path)
+        public static PlayerSettingsConfiguration LoadSettingsFromFile(string path)
         {
             PlayerSettings settings = null;
             try
@@ -105,7 +106,7 @@ namespace Player
                     if (serializer.CanDeserialize(xmlReader))
                     {
                         settings = (PlayerSettings)serializer.Deserialize(xmlReader);
-                        var errors = Validator.ValidateSettings(settings);
+                        var errors = Validator.ValidateSettings(new PlayerSettingsConfiguration(settings));
                         if (!string.IsNullOrEmpty(errors))
                         {
                             ConsoleWriter.Error(Constants.ERRORS_WHILE_PARSING_XML);
@@ -120,7 +121,7 @@ namespace Player
                 ConsoleWriter.Error(Constants.UNEXPECTED_ERROR + e.Message);
                 ConsoleWriter.Show(e.StackTrace);
             }
-            return settings;
+            return new PlayerSettingsConfiguration(settings);
         }
 
         private static Messages.TeamColour StringToTeamColour(string col)

@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GameArea.AppConfiguration;
 
 namespace GameArea.Tests
 {
@@ -13,12 +14,12 @@ namespace GameArea.Tests
         //GameMasterSettingsGameDefinition defaultSettings = GameMasterSettingsGameDefinition.GetDefaultGameDefinition();
         //GameMaster defaultGameMaster = new GameMaster(GameMasterSettings.GetDefaultGameMasterSettings());
 
-        GameMasterSettings defaultSettings;
+        GameMasterSettingsConfiguration defaultSettings;
         GameMaster defaultGameMaster;
 
         public void InitGameMaster()
         {
-            defaultSettings = GameMasterSettings.GetDefaultGameMasterSettings();
+            defaultSettings = new GameMasterSettingsConfiguration(GameMasterSettings.GetDefaultGameMasterSettings());
             defaultGameMaster = new GameArea.GameMaster(defaultSettings);
         }
         public Player.Player GetPlayer(string guid, ulong id, TeamColour tc, ActionType action)
@@ -80,29 +81,29 @@ namespace GameArea.Tests
         {
             InitGameMaster();
             var blueGoalFields = defaultGameMaster.GetBoard.GetBlueGoalAreaFields.Where(q => q.Type == GoalFieldType.goal).ToList();
-            var blueGoals = defaultGameMaster.GetGameDefinition.Goals.Where(q => q.team == TeamColour.blue).ToList();
+            var blueGoals = defaultGameMaster.GetGameDefinition.Goals.Where(q => q.Team == TeamColour.blue).ToList();
             Assert.AreEqual(blueGoals.Count, blueGoalFields.Count);
             foreach(var blueGoal in blueGoalFields)
             {
-                Assert.IsTrue(blueGoals.Where(q => q.x == blueGoal.X && q.y == blueGoal.Y && q.type == GoalFieldType.goal && q.team ==TeamColour.blue).Any());
+                Assert.IsTrue(blueGoals.Where(q => q.X == blueGoal.X && q.Y == blueGoal.Y && q.Type == GoalFieldType.goal && q.Team ==TeamColour.blue).Any());
             }
 
 
             var redGoalFields = defaultGameMaster.GetBoard.GetRedGoalAreaFields.Where(q => q.Type == GoalFieldType.goal).ToList();
-            var redGoals = defaultGameMaster.GetGameDefinition.Goals.Where(q => q.team == TeamColour.red).ToList();
+            var redGoals = defaultGameMaster.GetGameDefinition.Goals.Where(q => q.Team == TeamColour.red).ToList();
             Assert.AreEqual(redGoals.Count, redGoals.Count);
             foreach (var redGoal in redGoalFields)
             {
-                Assert.IsTrue(redGoals.Where(q => q.x == redGoal.X && q.y == redGoal.Y && q.type == GoalFieldType.goal && q.team == TeamColour.red).Any());
+                Assert.IsTrue(redGoals.Where(q => q.X == redGoal.X && q.Y == redGoal.Y && q.Type == GoalFieldType.goal && q.Team == TeamColour.red).Any());
             }
         }
 
         [TestMethod]
         public void ManhattanDistance()
         {
-            GameMasterSettingsGameDefinition settings = GameMasterSettingsGameDefinition.GetDefaultGameDefinition();
+            GameMasterSettingsGameDefinitionConfiguration settings = new GameMasterSettingsGameDefinitionConfiguration(GameMasterSettingsGameDefinition.GetDefaultGameDefinition());
             settings.InitialNumberOfPieces = 0;
-            GameMaster defaultGameMaster = new GameMaster(GameMasterSettings.GetGameMasterSettings(settings));
+            GameMaster defaultGameMaster = new GameMaster(new GameMasterSettingsConfiguration(GameMasterSettings.GetGameMasterSettings(settings.ToBase())));
 
             //first piece
             defaultGameMaster.SetPieceInLocation(2, 5, TeamColour.blue, PieceType.sham, 97);

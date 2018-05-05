@@ -9,6 +9,7 @@ using System.Net;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
+using GameArea.AppConfiguration;
 
 namespace GameMaster
 {
@@ -20,7 +21,7 @@ namespace GameMaster
         {
             IPAddress serverIP;
             int serverPort;
-            GameMasterSettings settings;
+            GameMasterSettingsConfiguration settings;
             var valid = ValidateArgs(args);
 
             if (valid)
@@ -41,7 +42,7 @@ namespace GameMaster
                 ConsoleWriter.Warning("Invalid args, loading default!");
                 serverIP = IPAddress.Parse("127.0.0.1");
                 serverPort = Int32.Parse("5678");
-                settings = GameMasterSettings.GetDefaultGameMasterSettings();
+                settings = new GameMasterSettingsConfiguration();
             }
 
             ConsoleWriter.Show("Settings loaded. Establishing connection to server.");
@@ -52,7 +53,7 @@ namespace GameMaster
             }
         }
 
-        public static bool StartGameMaster(IPAddress ip, Int32 port, GameMasterSettings settings)
+        public static bool StartGameMaster(IPAddress ip, Int32 port, GameMasterSettingsConfiguration settings)
         {
             GMController = new GameMasterController(new GameArea.GameMaster(settings));
             return GMController.ConnectToServer(ip, port);
@@ -82,7 +83,7 @@ namespace GameMaster
             return valid;
         }
 
-        public static GameMasterSettings LoadSettingsFromFile(string path)
+        public static GameMasterSettingsConfiguration LoadSettingsFromFile(string path)
         {
             GameMasterSettings settings = null;
             try
@@ -94,7 +95,7 @@ namespace GameMaster
                     if (serializer.CanDeserialize(xmlReader))
                     {
                         settings = (GameMasterSettings)serializer.Deserialize(xmlReader);
-                        var errors = Validator.ValidateSettings(settings);
+                        var errors = Validator.ValidateSettings(new GameMasterSettingsConfiguration(settings));
                         if (!string.IsNullOrEmpty(errors))
                         {
                             ConsoleWriter.Error(Constants.ERRORS_WHILE_PARSING_XML);
@@ -109,7 +110,7 @@ namespace GameMaster
                 ConsoleWriter.Error(Constants.UNEXPECTED_ERROR + e.Message);
                 ConsoleWriter.Show(e.StackTrace);
             }
-            return settings;
+            return new GameMasterSettingsConfiguration(settings);
         }
     }
 

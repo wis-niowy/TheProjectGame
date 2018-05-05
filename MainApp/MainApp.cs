@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
+using GameArea.AppConfiguration;
 
 namespace MainApp
 {
@@ -14,7 +15,7 @@ namespace MainApp
     {
         public static void Main(string[] args)
         {
-            GameMasterSettings settings;
+            GameMasterSettingsConfiguration settings;
             ConsoleWriter.Show(Constants.MAIN_APP_START);
             if (args.Length == 0)
             {
@@ -41,7 +42,7 @@ namespace MainApp
         }
 
 
-        public static GameMasterSettings LoadSettingsFromFile(string path)
+        public static GameMasterSettingsConfiguration LoadSettingsFromFile(string path)
         {
             GameMasterSettings settings = null;
             //try
@@ -53,7 +54,7 @@ namespace MainApp
                     if (serializer.CanDeserialize(xmlReader))
                     {
                         settings = (GameMasterSettings)serializer.Deserialize(xmlReader);
-                        var errors = Validator.ValidateSettings(settings);
+                        var errors = Validator.ValidateSettings(new GameMasterSettingsConfiguration(settings));
                         if (!string.IsNullOrEmpty(errors))
                         {
                             ConsoleWriter.Error(Constants.ERRORS_WHILE_PARSING_XML);
@@ -68,10 +69,10 @@ namespace MainApp
             //    ConsoleWriter.Error(Constants.UNEXPECTED_ERROR + e.Message);
             //    ConsoleWriter.Show(e.StackTrace);
             //}
-            return settings;
+            return new GameMasterSettingsConfiguration(settings);
         }
 
-        public static void DoGame(GameMasterSettings settings,bool  testing = false)
+        public static void DoGame(GameMasterSettingsConfiguration settings,bool  testing = false)
         {
             var GameController = new GameController(settings, testing);
             GameController.RegisterPlayers();

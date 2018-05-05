@@ -7,6 +7,7 @@ using GameArea;
 using Configuration;
 using System.Threading;
 using System.Timers;
+using GameArea.AppConfiguration;
 
 namespace GameArea
 {
@@ -23,7 +24,7 @@ namespace GameArea
         //private List<Piece> pieces;
         private Dictionary<string, ulong> PlayerIdDictionary;
         private GameObjects.GameBoard actualBoard;
-        private GameMasterSettings gameSettings;
+        private GameMasterSettingsConfiguration gameSettings;
         private System.Timers.Timer pieceAdder;
 
         public ulong GoalsRedLeft
@@ -64,7 +65,7 @@ namespace GameArea
             }
         }
 
-        public GameMasterSettingsGameDefinition GetGameDefinition
+        public GameMasterSettingsGameDefinitionConfiguration GetGameDefinition
         {
             get
             {
@@ -72,7 +73,7 @@ namespace GameArea
             }
         }
 
-        public GameMasterSettingsActionCosts GetCosts
+        public GameMasterSettingsActionCostsConfiguration GetCosts
         {
             get
             {
@@ -134,13 +135,13 @@ namespace GameArea
             }
         }
 
-        public GameMaster(GameMasterSettings settings)
+        public GameMaster(GameMasterSettingsConfiguration settings)
         {
             State = GameMasterState.RegisteringGame;
             random = new Random();
             Players = new List<Player.Player>();
-            goalsRedLeft = (ulong)settings.GameDefinition.Goals.Where(q => q.team == TeamColour.red).Count();
-            goalsBlueLeft = (ulong)settings.GameDefinition.Goals.Where(q => q.team == TeamColour.blue).Count();
+            goalsRedLeft = (ulong)settings.GameDefinition.Goals.Where(q => q.Team == TeamColour.red).Count();
+            goalsBlueLeft = (ulong)settings.GameDefinition.Goals.Where(q => q.Team == TeamColour.blue).Count();
             PlayerIdDictionary = new Dictionary<string, ulong>();
             gameSettings = settings;
             InitBoard(gameSettings.GameDefinition);
@@ -155,11 +156,11 @@ namespace GameArea
             pieceAdder.Start();
         }
 
-        private void InitBoard(GameMasterSettingsGameDefinition settings)
+        private void InitBoard(GameMasterSettingsGameDefinitionConfiguration settings)
         {
             actualBoard = new GameObjects.GameBoard((int)settings.BoardWidth, (int)settings.TaskAreaLength, (int)settings.GoalAreaLength,GoalFieldType.nongoal);
             PlaceInitialPieces((int)settings.InitialNumberOfPieces);
-            PlaceInitialGoals(settings.Goals.Select(q=>new GameObjects.GoalField(q)).ToArray());
+            PlaceInitialGoals(settings.Goals.Select(q=>q).ToArray());
         }
 
         private void PlaceInitialGoals(GameObjects.GoalField[] goals)

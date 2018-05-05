@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using Messages;
+using GameArea.AppConfiguration;
 
 namespace Player
 {
     public static class Validator
     {
 
-        public static string ValidateSettings(PlayerSettings settings)
+        public static string ValidateSettings(PlayerSettingsConfiguration settings)
         {
             var gameDefinitions = settings;
             var errors = new StringBuilder();
