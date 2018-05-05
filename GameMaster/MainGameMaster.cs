@@ -15,7 +15,7 @@ namespace GameMaster
 {
     public static class MainGameMaster
     {
-        private static GameMasterController GMController { get; set; }
+        public static GameMasterController GMController { get; set; }
 
         public static void Main(string[] args)
         {

@@ -64,6 +64,15 @@ namespace Player
             return PController.ConnectToServer(ip, port);
         }
 
+        public static bool TestStartPlayer(IPAddress ip, Int32 port, PlayerSettingsConfiguration settings, Messages.TeamColour colour, out PlayerController PController)
+        {
+            var player = new Player(colour);
+            PController = new PlayerController(player);
+            player.Controller = PController;
+            return PController.ConnectToServer(ip, port);
+        }
+
+
         private static bool ValidateArgs(string[] args)
         {
             var valid = true;

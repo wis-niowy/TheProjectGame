@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace CommunicationServer
 {
-    class CS
+    public class CS
     {
-        class TcpHelper
+        public class TcpHelper
         {
             private static TcpListener listener { get; set; }
             private static bool accept { get; set; } = false;
@@ -49,7 +49,7 @@ namespace CommunicationServer
                 }
             }
         }
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             IPAddress IP;
             int port;
