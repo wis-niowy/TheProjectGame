@@ -504,6 +504,8 @@ namespace GameArea
             else
             {
                 ConsoleWriter.Show("Message sent to PlayerID: " + addressee.ID);
+                exchangeRequestList.Add(new ExchengeRequestContainer(sender.ID, addressee.ID)); // przechowujemy probe komunikacji - po otrzymaniu DataMessege dopiszemy do struktury
+
                 returnMsg = new KnowledgeExchangeRequestMessage(msg.WithPlayerId, fromId);
             }
 
@@ -512,13 +514,26 @@ namespace GameArea
 
         public RejectKnowledgeExchangeMessage HandleRejectKnowledgeExchange(RejectKnowledgeExchangeMessage msg)
         {
-            // gracz odbierajacy taki reject message musi sobie zapisac, jezeli to bylo permanentne
+            // gracz odbierajacy taki reject message musi sobie zapisac, jezeli to bylo permanentne ?
+
+            var request = exchangeRequestList.Where(r => r.SenderID == msg.SenderPlayerId).Where(r => r.AddresseeID == msg.PlayerId).FirstOrDefault();
+            
+            if (request != null)
+            {
+                exchangeRequestList.Remove(request);
+            }
+
+            ConsoleWriter.Show("Player with ID: " + msg.SenderPlayerId + " rejected knowledge exchange with Player ID: " + msg.PlayerId);
+
             return new RejectKnowledgeExchangeMessage(msg.PlayerId, msg.SenderPlayerId, msg.Permanent, msg.PlayerGUID);
         }
 
         public AcceptExchangeRequestMessage HandleAcceptKnowledgeExchange(AcceptExchangeRequestMessage msg)
         {
-            
+            // request zostanie usuniety z listy dopiero po otrzymaniu Data od addressee - wtedy wysylamy w obie strony odpowiednie DataMessage i usuwamy zl sity
+
+            ConsoleWriter.Show("Player with ID: " + msg.SenderPlayerId + " accepted knowledge exchange with Player ID: " + msg.PlayerId);
+
             return new AcceptExchangeRequestMessage(msg.PlayerId, msg.SenderPlayerId);
         }
 
@@ -526,17 +541,37 @@ namespace GameArea
 
         public SuggestActionMessage HandleSuggestAction(SuggestActionMessage msg)
         {
-            throw new NotImplementedException();
+            return msg;
         }
 
         public SuggestActionResponseMessage HandleSuggestActionResponse(SuggestActionResponseMessage msg)
         {
-            throw new NotImplementedException();
+            return msg;
         }
 
-        public DataMessage HandleData(DataMessage data)
+        public string[] HandleData(DataMessage data)
         {
-            throw new NotImplementedException();
+            // jezeli otrzymalismy DataMessage od sender - zapisujemy do struktury
+            // jezeli otrzmyalismy DataMessage od addressee - przesylamy do sender, jednoczesnie wyciagamy DataMessage z listy i wysylamy do addressee, na koniec usuwamy request z listy
+
+            var request = exchangeRequestList.Where(r => r.AddresseeID == data.PlayerId).FirstOrDefault(); // szukamy requestu wyslania wiadomosci do adresata
+            if (request != null && request.SenderData == null) // otrzymano DataMessage od sender - jego widok gry dla addressee
+            {
+                ConsoleWriter.Show("Data from Player ID: " + request.SenderID + " for Player ID: " + request.AddresseeID + " received!");
+                request.SenderData = data;
+                return new string[] { };
+            }
+
+            request = exchangeRequestList.Where(r => r.SenderID == data.PlayerId).FirstOrDefault(); // szukamy requestu wyslania odpowiedzi do sendera
+            if (request != null)
+            {
+                ConsoleWriter.Show("Data messages sent to both sides");
+                var dataForSender = data;
+                var dataForAddressee = request.SenderData;
+                return new string[] { dataForSender.Serialize(), dataForAddressee.Serialize() };
+            }
+
+            return null;
         }
 
 
@@ -555,5 +590,19 @@ namespace GameArea
 
         #endregion
 
+    }
+
+    public class ExchengeRequestContainer
+    {
+        public ulong SenderID { get; set; }
+        public ulong AddresseeID { get; set; }
+        public DataMessage SenderData { get; set; }
+
+        public ExchengeRequestContainer(ulong senderid, ulong addresseeid)
+        {
+            SenderID = senderid;
+            AddresseeID = addresseeid;
+            SenderData = null;
+        }
     }
 }

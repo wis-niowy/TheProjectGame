@@ -19,7 +19,7 @@ namespace GameMaster.GMMessages
 
         public string[] Process(IGameMaster gameMaster)
         {
-            return new string[] { gameMaster.HandleData(this).Serialize() };
+            return gameMaster.HandleData(this);
         }
     }
 }

@@ -20,6 +20,7 @@ namespace GameArea
         private ulong goalsRedLeft;
         private ulong goalsBlueLeft;
         private Random random;
+        private List<ExchengeRequestContainer> exchangeRequestList = new List<ExchengeRequestContainer>();
         private List<Player.Player> Players;
         //private List<Piece> pieces;
         private Dictionary<string, ulong> PlayerIdDictionary;

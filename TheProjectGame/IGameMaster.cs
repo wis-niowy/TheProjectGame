@@ -27,7 +27,7 @@ namespace GameArea
         AcceptExchangeRequestMessage HandleAcceptKnowledgeExchange(AcceptExchangeRequestMessage msg);
         SuggestActionMessage HandleSuggestAction(SuggestActionMessage msg);
         SuggestActionResponseMessage HandleSuggestActionResponse(SuggestActionResponseMessage msg);
-        DataMessage HandleData(DataMessage data);
+        string[] HandleData(DataMessage data);
 
         void HandlerErrorMessage(AppMessages.ErrorMessage error);
     }
