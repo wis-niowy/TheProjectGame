@@ -322,6 +322,11 @@ namespace Player
         private MoveType GetDirectionToGoal(GameArea.GameObjects.GoalField goal)
         {
             MoveType direction = MoveType.left;
+            if(goal == null)
+            {
+                ConsoleWriter.Warning("Null goal in getdirectiontogoal");
+                return Team == TeamColour.blue ? MoveType.down : MoveType.up;
+            }
             long xDiff = Math.Abs(goal.X - PlayerLocation.X);
             long yDiff = Math.Abs(goal.Y - PlayerLocation.Y);
 

@@ -19,21 +19,16 @@ namespace Player
         /// <returns>True - request was valid; False - request was not valid</returns>
         public bool TestPiece()
         {
-            if (GetPiece != null)
-                ConsoleWriter.Show(GUID + " tries to test piece: " + GetPiece.ID + " on location: " + Location);
-            TestPieceMessage msg = new TestPieceMessage(GUID, GameId);
-            LastActionTaken = ActionToComplete = ActionType.TestPiece;
-            try
+            if (gameFinished != true)
             {
+                if (GetPiece != null)
+                    ConsoleWriter.Show(GUID + " tries to test piece: " + GetPiece.ID + " on location: " + Location);
+                TestPieceMessage msg = new TestPieceMessage(GUID, GameId);
+                LastActionTaken = ActionToComplete = ActionType.TestPiece;
                 Controller.BeginSend(msg.Serialize()); //każda akcja od razu się wysyła, ustawia również LastActionTaken i dla move LastMoveTaken !!!!!
+                return true;
             }
-            catch (Exception e)
-            {
-                ConsoleWriter.Error("Error occured when writing message to socket.\n Error text: \n" + e.ToString());
-                State = AgentState.Dead;
-                return false;
-            }
-            return true;
+            return false;
         }
 
         /// <summary>
@@ -43,48 +38,64 @@ namespace Player
         /// <returns></returns>
         public bool PlacePiece()
         {
-            ConsoleWriter.Show(GUID + " places piece: " + piece.ID + " of type: " + piece.Type + " on location: " + Location);
-            // should we check if received location is the same as the actual one?
-            PlacePieceMessage msg = new PlacePieceMessage(GUID, GameId);
-            LastActionTaken = ActionToComplete = ActionType.PlacePiece;
-            Controller.BeginSend(msg.Serialize()); //każda akcja od razu się wysyła, ustawia również LastActionTaken i dla move LastMoveTaken !!!!!
-            WaitForActionComplete();
-            return !HasPiece;
+            if (gameFinished != true)
+            {
+                ConsoleWriter.Show(GUID + " places piece: " + piece.ID + " of type: " + piece.Type + " on location: " + Location);
+                // should we check if received location is the same as the actual one?
+                PlacePieceMessage msg = new PlacePieceMessage(GUID, GameId);
+                LastActionTaken = ActionToComplete = ActionType.PlacePiece;
+                Controller.BeginSend(msg.Serialize()); //każda akcja od razu się wysyła, ustawia również LastActionTaken i dla move LastMoveTaken !!!!!
+                WaitForActionComplete(-1); //czekaj aż się wykona akcja
+                return !HasPiece;
+            }
+            return false;
         }
 
         public bool PickUpPiece()
         {
-            ConsoleWriter.Show(GUID + " picks up piece on location: " + Location);
-            PickUpPieceMessage msg = new PickUpPieceMessage(GUID, GameId);
-            LastActionTaken = ActionToComplete = ActionType.PickUpPiece;
-            Controller.BeginSend(msg.Serialize()); //każda akcja od razu się wysyła, ustawia również LastActionTaken i dla move LastMoveTaken !!!!!
-            WaitForActionComplete();
-            return HasPiece;
+            if (gameFinished != true)
+            {
+                ConsoleWriter.Show(GUID + " picks up piece on location: " + Location);
+                PickUpPieceMessage msg = new PickUpPieceMessage(GUID, GameId);
+                LastActionTaken = ActionToComplete = ActionType.PickUpPiece;
+                Controller.BeginSend(msg.Serialize()); //każda akcja od razu się wysyła, ustawia również LastActionTaken i dla move LastMoveTaken !!!!!
+                WaitForActionComplete();
+                return HasPiece;
+            }
+            return false;
         }
 
         public bool Move(MoveType direction)
         {
-            ConsoleWriter.Show(GUID + " wants to move from: " + Location + " in direction: " + direction);
-            MoveMessage msg = new MoveMessage(GUID, GameId, direction);
-            LastActionTaken = ActionToComplete = ActionType.Move;
-            LastMoveTaken = direction;
-            var futureLocation = CalculateFutureLocation(Location, direction);
-            Controller.BeginSend(msg.Serialize()); //każda akcja od razu się wysyła, ustawia również LastActionTaken i dla move LastMoveTaken !!!!!
-            WaitForActionComplete();
+            if (gameFinished != true)
+            {
+                ConsoleWriter.Show(GUID + " wants to move from: " + Location + " in direction: " + direction);
+                MoveMessage msg = new MoveMessage(GUID, GameId, direction);
+                LastActionTaken = ActionToComplete = ActionType.Move;
+                LastMoveTaken = direction;
+                var futureLocation = CalculateFutureLocation(Location, direction);
+                Controller.BeginSend(msg.Serialize()); //każda akcja od razu się wysyła, ustawia również LastActionTaken i dla move LastMoveTaken !!!!!
+                WaitForActionComplete();
 
-            return Location.Equals(futureLocation);
+                return Location != null && Location.Equals(futureLocation);
+            }
+            return false;
         }
 
 
         public bool Discover()
         {
-            ConsoleWriter.Show(GUID + " discovers on location: " + Location);
-            DiscoverMessage msg = new DiscoverMessage(GUID, GameId);
-            LastActionTaken = ActionToComplete = ActionType.Discover;
+            if (gameFinished != true)
+            {
+                ConsoleWriter.Show(GUID + " discovers on location: " + Location);
+                DiscoverMessage msg = new DiscoverMessage(GUID, GameId);
+                LastActionTaken = ActionToComplete = ActionType.Discover;
 
-            Controller.BeginSend(msg.Serialize()); //każda akcja od razu się wysyła, ustawia również LastActionTaken i dla move LastMoveTaken !!!!!
-            WaitForActionComplete();
-            return true;
+                Controller.BeginSend(msg.Serialize()); //każda akcja od razu się wysyła, ustawia również LastActionTaken i dla move LastMoveTaken !!!!!
+                WaitForActionComplete();
+                return true;
+            }
+            return false;
         }
 
         public bool Destroy()
@@ -112,7 +123,8 @@ namespace Player
                 GetBoard.UpdateTaskFields(responseMessage.Tasks);
                 GetBoard.UpdatePieces(responseMessage.Pieces);
 
-
+                if (ActionToComplete == ActionType.Destroy)
+                    SetPiece(null); //haksior, bo serialziacja dla listy nulli zwraca pusta liste bez nulli
                 if (responseMessage.Pieces != null && responseMessage.Pieces.Length == 1)
                 {
                     var piece = responseMessage.Pieces[0];
@@ -169,6 +181,10 @@ namespace Player
                     SetLocation(responseMessage.PlayerLocation.X, responseMessage.PlayerLocation.Y);
 
                 updated = true;
+            }
+            else if (gameFinished)
+            {
+                State = AgentState.AwaitingForStart;
             }
             ActionToComplete = ActionType.none;
             return updated;

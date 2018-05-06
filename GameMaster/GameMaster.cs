@@ -23,9 +23,8 @@ namespace GameArea
         private List<ExchengeRequestContainer> exchangeRequestList = new List<ExchengeRequestContainer>();
         private List<Player.Player> Players;
         //private List<Piece> pieces;
-        private Dictionary<string, ulong> PlayerIdDictionary;
+        public GameMasterSettingsConfiguration Settings { get; set; }
         private GameObjects.GameBoard actualBoard;
-        private GameMasterSettingsConfiguration gameSettings;
         private System.Timers.Timer pieceAdder;
 
         public ulong GoalsRedLeft
@@ -47,7 +46,7 @@ namespace GameArea
         {
             get
             {
-                return State == GameMasterState.GameOver;
+                return goalsBlueLeft == 0 || goalsRedLeft == 0;
             }
         }
         public List<Player.Player> GetPlayers
@@ -70,7 +69,7 @@ namespace GameArea
         {
             get
             {
-                return gameSettings.GameDefinition;
+                return Settings.GameDefinition;
             }
         }
 
@@ -78,7 +77,7 @@ namespace GameArea
         {
             get
             {
-                return gameSettings.ActionCosts;
+                return Settings.ActionCosts;
             }
         }
 
@@ -143,10 +142,24 @@ namespace GameArea
             Players = new List<Player.Player>();
             goalsRedLeft = (ulong)settings.GameDefinition.Goals.Where(q => q.Team == TeamColour.red).Count();
             goalsBlueLeft = (ulong)settings.GameDefinition.Goals.Where(q => q.Team == TeamColour.blue).Count();
-            PlayerIdDictionary = new Dictionary<string, ulong>();
-            gameSettings = settings;
-            InitBoard(gameSettings.GameDefinition);
+            Settings = settings;
+            InitBoard(GetGameDefinition);
             InitPieceAdder();
+        }
+
+        public string[] RestartGame()
+        {
+            State = GameMasterState.AwaitingPlayers;
+            goalsRedLeft = (ulong)GetGameDefinition.Goals.Where(q => q.Team == TeamColour.red).Count();
+            goalsBlueLeft = (ulong)GetGameDefinition.Goals.Where(q => q.Team == TeamColour.blue).Count();
+            InitBoard(GetGameDefinition);
+
+            var oldPlayers = Players;
+            Players = new List<Player.Player>();
+            foreach (var player in oldPlayers)
+                RegisterPlayer(player, player.GUID, true);
+            State = GameMasterState.GameInprogress;
+            return PrepareGameReadyMessages();    
         }
 
         private void InitPieceAdder()
@@ -208,7 +221,7 @@ namespace GameArea
         private GameObjects.Piece CreatePiece()
         {
             var possibleSham = random.NextDouble();
-            if (possibleSham <= gameSettings.GameDefinition.ShamProbability)
+            if (possibleSham <= GetGameDefinition.ShamProbability)
                 return new GameObjects.Piece(nextPieceId++,DateTime.Now, PieceType.sham );
             else
                 return new GameObjects.Piece(nextPieceId++, DateTime.Now, PieceType.normal );

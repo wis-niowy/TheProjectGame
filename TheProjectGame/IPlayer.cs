@@ -1,4 +1,5 @@
-﻿using GameArea.AppMessages;
+﻿using GameArea.AppConfiguration;
+using GameArea.AppMessages;
 using Messages;
 using System;
 using System.Collections.Generic;
@@ -34,6 +35,7 @@ namespace GameArea
         MoveType? LastMoveTaken { get; set; }
 
         ActionType ActionToComplete { get; set; }
+        PlayerSettingsConfiguration Settings { get; set; }
 
         void DoStrategy();
         bool UpdateLocalBoard(DataMessage receivedData, ActionType action);

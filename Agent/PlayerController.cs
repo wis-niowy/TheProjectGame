@@ -14,7 +14,7 @@ namespace Player
     public class PlayerController
     {
         private TcpClient clientSocket;
-
+        private System.Timers.Timer keppAliveTimer;
         public IPlayer Player { get; set; }
 
         public PlayerController(IPlayer player)
@@ -29,6 +29,7 @@ namespace Player
             try
             {
                 clientSocket.Connect(ip, port);
+                InitKeepAliveTimer();
             }
             catch (Exception e)
             {
@@ -63,14 +64,14 @@ namespace Player
                     var ns = clientSocket.GetStream();
                     var bytesAvailable = ns.EndRead(result);
                     var messages = Encoding.ASCII.GetString(buffer).Split((char)23);
-                    
+
                     if (messages != null)
                     {
                         foreach (var message in messages.Select(q => q.Trim('\0')))
                         {
                             ConsoleWriter.Show("Agent read: \n" + message + "\n");
                             var msgObject = PlayerReader.GetObjectFromXML(message);
-                            if(msgObject != null)
+                            if (msgObject != null)
                                 msgObject.Process(Player);
                             else
                                 ConsoleWriter.Warning("Not recognised message object\n Message object is null \n Received message: \n" + message);
@@ -119,6 +120,22 @@ namespace Player
             var bytes = (byte[])result.AsyncState;
             ConsoleWriter.Show("Agent sent  " + bytes.Length + " bytes to server\n");
             ConsoleWriter.Show("Agent message: \n" + Encoding.ASCII.GetString(bytes).Trim('\0') + "\n");
+        }
+
+        private void InitKeepAliveTimer()
+        {
+            keppAliveTimer = new System.Timers.Timer((Player.Settings.KeepAliveInterval * 2) / 3); //timer częściej aby serwer przedwcześnie go nie ubił
+            keppAliveTimer.Elapsed += KeppAliveTimer_Elapsed; ;
+            keppAliveTimer.AutoReset = true;
+            keppAliveTimer.Start();
+        }
+
+        private void KeppAliveTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            if (clientSocket.Connected)
+                BeginSend("");
+            else
+                keppAliveTimer.Stop();
         }
     }
 }

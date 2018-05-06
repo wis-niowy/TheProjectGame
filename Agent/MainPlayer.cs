@@ -35,7 +35,7 @@ namespace Player
                 var settingsErrors = settings == null ? null : Validator.ValidateSettings(settings);
                 if (settings == null || (settingsErrors != null && settingsErrors != ""))
                 {
-                    ConsoleWriter.Error("Failed to load settings from file. Verify file and try again.\n Closing GameMaster.");
+                    ConsoleWriter.Error("Failed to load settings from file. Verify file and try again.\n Closing Agent.");
                     return;
                 }
             }
@@ -45,7 +45,11 @@ namespace Player
                 serverIP = IPAddress.Parse("127.0.0.1");
                 serverPort = Int32.Parse("5678");
                 colour = Messages.TeamColour.blue;
-                settings = new PlayerSettingsConfiguration(new Configuration.PlayerSettings());
+                settings = new PlayerSettingsConfiguration(new PlayerSettings()
+                {
+                    KeepAliveInterval = 4000,
+                    RetryJoinGameInterval = 4000
+                });
             }
 
             ConsoleWriter.Show("Settings loaded. Establishing connection to server.");
@@ -58,7 +62,7 @@ namespace Player
 
         public static bool StartPlayer(IPAddress ip, Int32 port, PlayerSettingsConfiguration settings, Messages.TeamColour colour)
         {
-            var player = new Player(colour);
+            var player = new Player(colour,settings);
             PController = new PlayerController(player);
             player.Controller = PController;
             return PController.ConnectToServer(ip, port);
@@ -66,7 +70,7 @@ namespace Player
 
         public static bool TestStartPlayer(IPAddress ip, Int32 port, PlayerSettingsConfiguration settings, Messages.TeamColour colour, out PlayerController PController)
         {
-            var player = new Player(colour);
+            var player = new Player(colour, settings);
             PController = new PlayerController(player);
             player.Controller = PController;
             return PController.ConnectToServer(ip, port);

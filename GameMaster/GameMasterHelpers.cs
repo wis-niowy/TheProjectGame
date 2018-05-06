@@ -94,8 +94,9 @@ namespace GameArea
                     }
                     if (goalsBlueLeft == 0 || goalsRedLeft == 0)
                     {
-                        State = GameMasterState.GameOver;
+                        State = GameMasterState.GameResolved;
                         PrintEndGameState();
+                        Thread.Sleep(5000);
                     }
                     Player.SetPiece(null); // the piece is no longer possesed by an Player
                 }

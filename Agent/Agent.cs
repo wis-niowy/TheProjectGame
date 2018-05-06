@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using GameArea.AppMessages;
+using GameArea.AppConfiguration;
 
 namespace Player
 {
@@ -12,6 +13,7 @@ namespace Player
     public partial class Player:IPlayer
     {
         public PlayerRole Role { get; set; }
+        public PlayerSettingsConfiguration Settings { get; set; }
         public PlayerController Controller { get; set; }
         private List<GameArea.GameObjects.GameInfo> GamesList { get; set; }
         private bool gameFinished;
@@ -30,8 +32,9 @@ namespace Player
         public ulong GameId { get; set; }
         public TeamColour Team { get; set; }
 
-        public Player(TeamColour team, PlayerController gameController = null, string _guid = "TEST_GUID", IGameMaster gm = null)
+        public Player(TeamColour team, PlayerSettingsConfiguration settings = null, PlayerController gameController = null, string _guid = "TEST_GUID", IGameMaster gm = null)
         {
+            Settings = settings;
             gameMaster = gm;
             Team = team;
             GUID = _guid;
@@ -149,6 +152,10 @@ namespace Player
 
         public void GameStarted(GameArea.AppMessages.GameMessage messageObject)
         {
+            myTeam = null;
+            otherTeam = null;
+            SetBoard(null);
+            Location = null;
             myTeam = messageObject.Players.ToList().Where(p => p.Team == Team).ToList();
             otherTeam = messageObject.Players.ToList().Where(p => p.Team != Team).ToList();
             SetBoard(messageObject.Board);
@@ -159,12 +166,8 @@ namespace Player
 
         public void GameMasterDisconnected(GameArea.AppMessages.GameMasterDisconnectedMessage messageObject)
         {
-            myTeam = null;
-            otherTeam = null;
-            SetBoard(null);
-            Location = null;
-            ConsoleWriter.Show("Player id: " + ID+ " has state: " + State);
             State = AgentState.SearchingForGame;
+            ConsoleWriter.Show("Player id: " + ID + " has state: " + State);
             ActionToComplete = ActionType.none;
         }
 

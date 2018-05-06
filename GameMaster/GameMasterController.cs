@@ -16,19 +16,8 @@ namespace GameMasterMain
     public class GameMasterController
     {
         private TcpClient clientSocket;
-        private IGameMaster gameMaster;
-
-        public IGameMaster GameMaster
-        {
-            get
-            {
-                return gameMaster;
-            }
-            set
-            {
-                gameMaster = value;
-            }
-        }
+        private System.Timers.Timer keppAliveTimer;
+        public IGameMaster GameMaster { get; set; }
 
         public GameMasterController(IGameMaster gm)
         {
@@ -42,6 +31,7 @@ namespace GameMasterMain
             try
             {
                 clientSocket.Connect(ip, port);
+                InitKeepAliveTimer();
             }
             catch (Exception e)
             {
@@ -56,8 +46,8 @@ namespace GameMasterMain
         {
             ConsoleWriter.Show("GameMaster is ready ...");
             BeginRead();
-            BeginSend(gameMaster.RegisterGame().Serialize());
-            SpinWait.SpinUntil(() => gameMaster.State == GameMasterState.GameOver);
+            BeginSend(GameMaster.RegisterGame().Serialize());
+            SpinWait.SpinUntil(() => GameMaster.State == GameMasterState.GameOver);
         }
 
 
@@ -83,13 +73,13 @@ namespace GameMasterMain
                     {
                         Task.Run(() =>
                         {
-                            foreach (var message in messages.Select(q=>q.Trim('\0')))
+                            foreach (var message in messages.Select(q => q.Trim('\0')))
                             {
                                 ConsoleWriter.Show("GameMaster read: \n" + message + "\n");
                                 var msgObject = GMReader.GetObjectFromXML(message);
                                 if (msgObject != null)
                                 {
-                                    var responseMsgs = msgObject.Process(gameMaster);
+                                    var responseMsgs = msgObject.Process(GameMaster);
                                     if (responseMsgs != null)
                                         foreach (var msg in responseMsgs)
                                             BeginSend(msg);
@@ -104,14 +94,14 @@ namespace GameMasterMain
                 catch (Exception e)
                 {
                     ConsoleWriter.Error("Error while handling message from communication server." + "\n Error message: \n" + e.ToString() + "\n");
-                    gameMaster.State = GameMasterState.GameOver;
+                    GameMaster.State = GameMasterState.GameOver;
                 }
 
             }
             else
             {
                 ConsoleWriter.Warning("Communication server connection lost\n");
-                gameMaster.State = GameMasterState.GameOver;
+                GameMaster.State = GameMasterState.GameOver;
             }
         }
 
@@ -125,7 +115,7 @@ namespace GameMasterMain
                     var ns = clientSocket.GetStream();
                     ns.BeginWrite(bytes, 0, bytes.Length, EndSend, bytes);
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     ConsoleWriter.Error("Error during BeginSend operation.\nErrorMessage:" + e.Message + "\nStackTrace: " + e.StackTrace);
                     GameMaster.State = GameMasterState.GameOver;
@@ -134,7 +124,7 @@ namespace GameMasterMain
             else
             {
                 ConsoleWriter.Warning("GameMaster socket lost connection.\n");
-                gameMaster.State = GameMasterState.GameOver;
+                GameMaster.State = GameMasterState.GameOver;
             }
         }
 
@@ -144,6 +134,21 @@ namespace GameMasterMain
             ConsoleWriter.Show("GameMaster sent  " + bytes.Length + " bytes to server");
             ConsoleWriter.Show("GameMaster sent: \n" + Encoding.ASCII.GetString(bytes).Trim('\0') + "\n");
         }
-    }
 
+        private void InitKeepAliveTimer()
+        {
+            keppAliveTimer = new System.Timers.Timer((GameMaster.Settings.KeepAliveInterval * 2) / 3);//timer częściej aby serwer przedwcześnie go nie ubił
+            keppAliveTimer.Elapsed += KeppAliveTimer_Elapsed; ;
+            keppAliveTimer.AutoReset = true;
+            keppAliveTimer.Start();
+        }
+
+        private void KeppAliveTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            if (clientSocket.Connected)
+                BeginSend("");
+            else
+                keppAliveTimer.Stop();
+        }
+    }
 }

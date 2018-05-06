@@ -1,4 +1,5 @@
-﻿using GameArea.AppMessages;
+﻿using GameArea.AppConfiguration;
+using GameArea.AppMessages;
 using GameArea.Parsers;
 using Messages;
 using System;
@@ -11,7 +12,7 @@ using System.Xml;
 namespace GameArea
 {
     public partial class GameMaster : IGameMaster
-    {
+    { 
         public bool GameReady
         {
             get
@@ -19,7 +20,7 @@ namespace GameArea
                 var redPlayersNumber = GetPlayersByTeam(TeamColour.red).Count;
                 var bluePlayersNumber = GetPlayersByTeam(TeamColour.blue).Count;
 
-                return redPlayersNumber + bluePlayersNumber == 2 * gameSettings.GameDefinition.NumberOfPlayersPerTeam;
+                return redPlayersNumber + bluePlayersNumber == 2 * GetGameDefinition.NumberOfPlayersPerTeam;
             }
         }
 
@@ -86,7 +87,7 @@ namespace GameArea
 
         public string[] HandleJoinGameRequest(JoinGameMessage joinGame)
         {
-            var expectedPlayersNumberPerTeam = gameSettings.GameDefinition.NumberOfPlayersPerTeam;
+            var expectedPlayersNumberPerTeam = GetGameDefinition.NumberOfPlayersPerTeam;
             var redPlayersNumber = GetPlayersByTeam(TeamColour.red).Count;
             var bluePlayersNumber = GetPlayersByTeam(TeamColour.blue).Count;
             var prefferedTeam = joinGame.PrefferedTeam;
@@ -133,7 +134,7 @@ namespace GameArea
             // player cannot join any of two teams
             {
                 ConsoleWriter.Show("Join request rejected...");
-                responseData = new string[] { new RejectGameRegistrationMessage(gameSettings.GameDefinition.GameName).Serialize() };
+                responseData = new string[] { new RejectGameRegistrationMessage(GetGameDefinition.GameName).Serialize() };
             }
             if (GameReady)
             {
@@ -291,7 +292,8 @@ namespace GameArea
                 Monitor.Exit(lockObject);
             }
             PrintBoardState();
-            Thread.Sleep((int)GetCosts.PlacingDelay);
+            if(!IsGameFinished)
+                Thread.Sleep(GetCosts.PlacingDelay);
             return response;
 
         }
@@ -342,7 +344,7 @@ namespace GameArea
                 Monitor.Exit(lockObject);
             }
             PrintBoardState();
-            Thread.Sleep((int)GetCosts.PickUpDelay);
+            Thread.Sleep(GetCosts.PickUpDelay);
             return response;
         }
 
@@ -577,7 +579,7 @@ namespace GameArea
 
         public RegisterGameMessage RegisterGame()
         {
-            return new RegisterGameMessage(gameSettings.GameDefinition.GameName, (ulong)gameSettings.GameDefinition.NumberOfPlayersPerTeam, (ulong)gameSettings.GameDefinition.NumberOfPlayersPerTeam);
+            return new RegisterGameMessage(GetGameDefinition.GameName, (ulong)GetGameDefinition.NumberOfPlayersPerTeam, (ulong)GetGameDefinition.NumberOfPlayersPerTeam);
         }
     
 

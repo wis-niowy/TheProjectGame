@@ -5,6 +5,7 @@ using Messages;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 
 namespace Player
 {
@@ -52,11 +53,11 @@ namespace Player
             if (GamesList == null || GamesList.Count == 0)
             {
                 State = AgentState.SearchingForGame;
+                Thread.Sleep(Settings.RetryJoinGameInterval);
                 //nie ustawiamy akcji, strategia sama dojdzie do tego co ma zrobić
             }
             else
             {
-                
                 var game = GamesList[0];
                 GamesList.RemoveAt(0);
                 Controller.BeginSend(new JoinGameMessage(game.GameName, TeamColour.red, PlayerRole.member).Serialize());
@@ -94,25 +95,24 @@ namespace Player
                     MoveType direction = FindNearestPieceDirection();
                     MoveType secondDirection = direction;
                     var moved = TryMove(direction);
-                    if (!moved && !OnPiece)
+                    if (!moved)
                     {
                         TryMove(direction); //try again
                     }
-                    else
-                        return; //something is blocking action, repeat discovery and move
+                    if (OnPiece)
+                        return;
                     MoveType possibleDirection = GetSecondClosestDirection(direction);
                     var possibleTask = GetTaskFromDirection(possibleDirection);
                     if (possibleTask != null && possibleTask.DistanceToPiece < GetCurrentTaksField.DistanceToPiece)
                         secondDirection = possibleDirection;
                     moved = TryMove(secondDirection);
-                    if (!moved && !OnPiece)
+                    if (!moved)
                     {
                         TryMove(secondDirection); //try again
                     }
                     //end of loop, try move to piece again, until not on piece
                 }
             }
-            
         }
 
         public bool TryPickPiece()
@@ -156,7 +156,7 @@ namespace Player
         public bool TryPlacePiece()
         {
             var goalFullfilled = PlacePiece();
-            if(!goalFullfilled) //found non-goal field in goalarea
+            if(!goalFullfilled && GetCurrentGoalField != null) //found non-goal field in goalarea
             {
                 GetCurrentGoalField.Type = GoalFieldType.nongoal;
                 GetCurrentGoalField.TimeStamp = DateTime.Now.AddYears(100);

@@ -26,6 +26,10 @@ namespace Messages
         private bool gameFinishedField;
 
         private string playerGuidField;
+        public bool ShouldSerializePieces()
+        {
+            return true;
+        }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable = false)]
@@ -430,7 +434,7 @@ namespace Messages
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = true)]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
     public partial class Piece
     {
 

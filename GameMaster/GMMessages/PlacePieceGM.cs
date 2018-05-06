@@ -3,6 +3,7 @@ using GameArea.AppMessages;
 using Messages;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace GameMaster.GMMessages
@@ -15,7 +16,13 @@ namespace GameMaster.GMMessages
 
         public string[] Process(IGameMaster gameMaster)
         {
-            return new string[] { gameMaster.HandlePlacePieceRequest(this).Serialize() };
+            var messages = new  string[] { gameMaster.HandlePlacePieceRequest(this).Serialize() };
+            if(gameMaster.IsGameFinished && gameMaster.State == GameMasterState.GameResolved)
+            {
+                var newGameMessages = gameMaster.RestartGame();
+                messages = messages.Union(newGameMessages).ToArray();
+            }
+            return messages;
         }
     }
 }

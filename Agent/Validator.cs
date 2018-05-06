@@ -16,13 +16,11 @@ namespace Player
             var gameDefinitions = settings;
             var errors = new StringBuilder();
 
-            var message = ValidatorMessages.INVALID_KEEP_ALIVE_INTERVAL;
             if (settings.KeepAliveInterval < 0)
-                errors.AppendLine(message);
+                errors.AppendLine(ValidatorMessages.INVALID_KEEP_ALIVE_INTERVAL);
 
-            message = ValidatorMessages.INVALID_RETRY_JOIN_GAME_INTERVAL;
             if (settings.RetryJoinGameInterval < 0)
-                errors.Append(message);
+                errors.Append(ValidatorMessages.INVALID_KEEP_ALIVE_INTERVAL);
 
             return errors.ToString();
         }

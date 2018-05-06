@@ -17,7 +17,7 @@ namespace CommunicationServer
         {
             if(string.IsNullOrWhiteSpace(message))
             {
-                ConsoleWriter.Show("Read empty or whitespace message.");
+                ConsoleWriter.Show("Read empty or whitespace message. Probably KeepAlive");
                 return null;
             }
             var xmlDoc = new XmlDocument();
