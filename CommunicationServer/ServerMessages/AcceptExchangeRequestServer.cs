@@ -1,27 +1,19 @@
 ﻿using GameArea;
 using GameArea.AppMessages;
 using GameArea.ControllerInterfaces;
-using Messages;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace CommunicationServer.ServerMessages
 {
-    public class DataServer : DataMessage, IMessage<IGMController>,IMessage<IAgentController>
+    public class AcceptExchangeRequestServer : AcceptExchangeRequestMessage, IMessage<IAgentController>
     {
-        [Obsolete("Zamienić na konstruktor z parametrami.")]
-        public DataServer(Data data, ulong clientId) : base(data)
+        public AcceptExchangeRequestServer(ulong id, ulong senderId) : base(id, senderId)
         {
-            ClientId = clientId;
         }
 
         public ulong ClientId { get; }
-
-        public void Process(IGMController controller)
-        {
-            controller.SendMessageToAgent(PlayerId, Serialize());
-        }
 
         public void Process(IAgentController controller)
         {

@@ -5,6 +5,7 @@ using Messages;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
@@ -78,6 +79,35 @@ namespace CommunicationServer
                 case "Discover":
                     var discover = Deserialize<Discover>(message);
                     return new DiscoverServer(discover.playerGuid, discover.gameId) as IMessage<T>;
+                case "AcceptExchangeRequest":
+                    var acceptExchange = Deserialize<AcceptExchangeRequest>(message);
+                    return new AcceptExchangeRequestServer(acceptExchange.playerId, acceptExchange.senderPlayerId) as IMessage<T>;
+                case "AuthorizeKnowledgeExchange":
+                    var authorizeExchange = Deserialize<AuthorizeKnowledgeExchange>(message);
+                    return new AuthorizeKnowledgeExchangeServer(authorizeExchange.playerGuid,authorizeExchange.gameId, authorizeExchange.withPlayerId) as IMessage<T>;
+                case "RejectKnowledgeExchange":
+                    var rejectKnowledge = Deserialize<RejectKnowledgeExchange>(message);
+                    return new RejectKnowledgeExchangeServer(rejectKnowledge.playerId, rejectKnowledge.senderPlayerId, rejectKnowledge.permanent,clientId, rejectKnowledge.playerGuid) as IMessage<T>;
+                case "SuggestAction":
+                    var suggestAction = Deserialize<SuggestAction>(message);
+                    return new SuggestActionServer(suggestAction.playerId, suggestAction.senderPlayerId, suggestAction.playerGuid,suggestAction.gameId, clientId, 
+                        suggestAction.TaskFields?.Select(q=>new GameArea.GameObjects.TaskField((int)q.x,
+                                                                                               (int)q.y,
+                                                                                               q.timestamp,
+                                                                                               q.distanceToPiece,
+                                                                                               q.pieceIdSpecified? new GameArea.GameObjects.Piece(q.pieceId,DateTime.Now):null,
+                                                                                               q.playerIdSpecified ? new GameArea.GameObjects.Player(q.playerId):null)).ToArray(),
+                        suggestAction.GoalFields?.Select(q=>new GameArea.GameObjects.GoalField((int)q.x,(int)q.y,q.timestamp,q.team,q.type)).ToArray()) as IMessage<T>;
+                case "SuggestActionResponse":
+                    var suggestResponse= Deserialize<SuggestActionResponse>(message);
+                    return new SuggestActionServer(suggestResponse.playerId, suggestResponse.senderPlayerId, suggestResponse.playerGuid, suggestResponse.gameId, clientId,
+                        suggestResponse.TaskFields?.Select(q => new GameArea.GameObjects.TaskField((int)q.x,
+                                                                                               (int)q.y,
+                                                                                               q.timestamp,
+                                                                                               q.distanceToPiece,
+                                                                                               q.pieceIdSpecified ? new GameArea.GameObjects.Piece(q.pieceId, DateTime.Now) : null,
+                                                                                               q.playerIdSpecified ? new GameArea.GameObjects.Player(q.playerId) : null)).ToArray(),
+                        suggestResponse.GoalFields?.Select(q => new GameArea.GameObjects.GoalField((int)q.x, (int)q.y, q.timestamp, q.team, q.type)).ToArray()) as IMessage<T>;
                 default:
                     return new ErrorMessageServer("ReadingMessage","Warning during reading message to server object, type not recognised\n Message read: " + message, "GetObjectFromXML", clientId, xmlDoc) as IMessage<T>; //xmlDoc as default for other actions
             }
