@@ -484,15 +484,74 @@ namespace GameArea
             };
         }
 
+        // obsluga wymiany wiadomoci
+
+        public BetweenPlayersAbstractMessage HandleAuthorizeKnowledgeExchange(AuthorizeKnowledgeExchangeMessage msg)
+        {
+            BetweenPlayersAbstractMessage returnMsg = null;
+            var sender = Players.Where(p => p.GUID == msg.PlayerGUID).FirstOrDefault();
+            var addressee = Players.Where(p => p.ID == msg.WithPlayerId).FirstOrDefault();
+            var fromId = sender.ID;
+
+            ConsoleWriter.Show("Received Authorize Knowledge Exchange from " + fromId + " to " + msg.WithPlayerId + " ...");
+
+            if (addressee == null) // nie ma takiego gracza w rozgrywce
+            {
+                ConsoleWriter.Show("Player with ID: " + msg.WithPlayerId + " does not exist!");
+
+                returnMsg = new RejectKnowledgeExchangeMessage(0, sender.ID, true);
+            }
+            else
+            {
+                ConsoleWriter.Show("Message sent to PlayerID: " + addressee.ID);
+                returnMsg = new KnowledgeExchangeRequestMessage(msg.WithPlayerId, fromId);
+            }
+
+            return returnMsg;
+        }
+
+        public RejectKnowledgeExchangeMessage HandleRejectKnowledgeExchange(RejectKnowledgeExchangeMessage msg)
+        {
+            // gracz odbierajacy taki reject message musi sobie zapisac, jezeli to bylo permanentne
+            return new RejectKnowledgeExchangeMessage(msg.PlayerId, msg.SenderPlayerId, msg.Permanent, msg.PlayerGUID);
+        }
+
+        public AcceptExchangeRequestMessage HandleAcceptKnowledgeExchange(AcceptExchangeRequestMessage msg)
+        {
+            
+            return new AcceptExchangeRequestMessage(msg.PlayerId, msg.SenderPlayerId);
+        }
+
+
+
+        public SuggestActionMessage HandleSuggestAction(SuggestActionMessage msg)
+        {
+            throw new NotImplementedException();
+        }
+
+        public SuggestActionResponseMessage HandleSuggestActionResponse(SuggestActionResponseMessage msg)
+        {
+            throw new NotImplementedException();
+        }
+
+        public DataMessage HandleData(DataMessage data)
+        {
+            throw new NotImplementedException();
+        }
+
+
         public RegisterGameMessage RegisterGame()
         {
             return new RegisterGameMessage(gameSettings.GameDefinition.GameName, (ulong)gameSettings.GameDefinition.NumberOfPlayersPerTeam, (ulong)gameSettings.GameDefinition.NumberOfPlayersPerTeam);
         }
+    
 
         public void HandlerErrorMessage(AppMessages.ErrorMessage error)
         {
             ConsoleWriter.Warning("Received an error from server:\n Type:" + error.Type + "\nCause: " + error.CauseParameterName + "\nMessage: " + error.Message);
         }
+    
+
 
         #endregion
 

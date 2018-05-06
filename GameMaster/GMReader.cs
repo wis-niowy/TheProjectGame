@@ -67,6 +67,27 @@ namespace GameMaster
                     var settings = MessageParser.Deserialize<Configuration.GameMasterSettings>(message);
                     return new GameMasterSettingsGM(settings);
 
+                case nameof(AuthorizeKnowledgeExchange):
+                    var authMsg = MessageParser.Deserialize<AuthorizeKnowledgeExchange>(message);
+                    return new AuthorizeKnowledgeExchangeGM(authMsg.playerGuid, authMsg.gameId, authMsg.withPlayerId);
+                case nameof(RejectKnowledgeExchange):
+                    var rejectExchange = MessageParser.Deserialize<RejectKnowledgeExchange>(message);
+                    return new RejectKnowledgeExchangeGM(rejectExchange.playerId, rejectExchange.senderPlayerId, rejectExchange.permanent, rejectExchange.playerGuid);
+                case nameof(AcceptExchangeRequest):
+                    var acceptMsg = MessageParser.Deserialize<AcceptExchangeRequest>(message);
+                    return new AcceptExchangeRequestGM(acceptMsg.playerId, acceptMsg.senderPlayerId);
+                // zalatwic roznice typow TaskField i GoalField nizej - najlepiej konstruktory biorace obiekt z namespace Messages
+                //case nameof(SuggestAction):
+                //    var suggestMsg = MessageParser.Deserialize<SuggestAction>(message);
+                //    return new SuggestActionGM(suggestMsg.playerId, suggestMsg.senderPlayerId, suggestMsg.playerGuid, suggestMsg.gameId, suggestMsg.TaskFields, suggestMsg.GoalFields);
+                //case nameof(SuggestActionResponse):
+                //    var answer = MessageParser.Deserialize<SuggestActionResponse>(message);
+                //    return new SuggestActionResponseGM(answer.playerId, answer.senderPlayerId, answer.playerGuid, answer.TaskFields, answer.GoalFields);
+                case nameof(Data):
+                    var data = MessageParser.Deserialize<Data>(message);
+                    return new DataGM(data);
+
+
                 default:
                     return new ErrorMessageGM("ReadingMessage", "Warning during reading message to server object, type not recognised\n Message read: " + message, "GetObjectFromXML", xmlDoc); //xmlDoc as default for other actions
             }

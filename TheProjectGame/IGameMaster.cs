@@ -22,6 +22,13 @@ namespace GameArea
         void HandlePlayerDisconnectedRequest(PlayerDisconnectedMessage playerDisconnected);
         RegisterGameMessage RegisterGame();
 
+        BetweenPlayersAbstractMessage HandleAuthorizeKnowledgeExchange(AuthorizeKnowledgeExchangeMessage msg);
+        RejectKnowledgeExchangeMessage HandleRejectKnowledgeExchange(RejectKnowledgeExchangeMessage msg);
+        AcceptExchangeRequestMessage HandleAcceptKnowledgeExchange(AcceptExchangeRequestMessage msg);
+        SuggestActionMessage HandleSuggestAction(SuggestActionMessage msg);
+        SuggestActionResponseMessage HandleSuggestActionResponse(SuggestActionResponseMessage msg);
+        DataMessage HandleData(DataMessage data);
+
         void HandlerErrorMessage(AppMessages.ErrorMessage error);
     }
 }

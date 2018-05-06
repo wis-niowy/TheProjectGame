@@ -59,10 +59,10 @@ namespace GameArea
                     return Deserialize<AcceptExchangeRequest>(message);
                 case "RejectKnowledgeExchange":
                     return Deserialize<RejectKnowledgeExchange>(message);
-               //case "SuggestAction":
-               //    return Deserialize<SuggestAction>(message);  //add after shcema update
-               //case "SuggestActionResponse":
-               //    return Deserialize<SuggestActionResponse>(message);
+                case "SuggestAction":
+                    return Deserialize<SuggestAction>(message);
+                case "SuggestActionResponse":
+                    return Deserialize<SuggestActionResponse>(message);
                 case "ConfirmGameRegistration":
                     return Deserialize<ConfirmGameRegistration>(message);
                 case "RejectGameRegistration":
@@ -78,6 +78,8 @@ namespace GameArea
                     return Deserialize<Configuration.GameMasterSettings>(message);
                 case "PlayerSettings":
                     return Deserialize<Configuration.PlayerSettings>(message);
+
+                
 
                 default:
                     return xmlDoc; //xmlDoc as default for other actions
