@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GameArea.AppConfiguration;
+using GameArea.AppMessages;
 
 namespace GameArea.Tests
 {
@@ -385,6 +386,217 @@ namespace GameArea.Tests
             Assert.AreEqual(2, responseField.X);
             Assert.AreEqual(2, responseField.Y);
             Assert.AreEqual(Player.ID, responseField.Player.ID);
+        }
+
+        // Knowledge exchange methods
+
+        [TestMethod]
+        public void AuthorizeKnowledgeExchangeForNonExistingPlayerReceived()
+        {
+            InitGameMaster();
+            var sender = GetPlayer("testGUID-1111", 1, TeamColour.blue, ActionType.none);
+            var addressee = GetPlayer("testGUID-9999", 9, TeamColour.blue, ActionType.none);
+            sender.SetLocation(1, 3);
+            addressee.SetLocation(2, 6);
+
+            defaultGameMaster.RegisterPlayer(sender, sender.GUID, findFreeLocationAndPlacePlayer: false);
+            defaultGameMaster.RegisterPlayer(addressee, addressee.GUID, findFreeLocationAndPlacePlayer: false);
+
+            var msg = new AuthorizeKnowledgeExchangeMessage("testGUID-1111", 1, 10);
+
+            // action
+            var result = defaultGameMaster.HandleAuthorizeKnowledgeExchange(msg);
+
+            // assert
+            Assert.AreEqual(typeof(RejectKnowledgeExchangeMessage), result.GetType());
+            Assert.AreEqual(0ul, result.PlayerId);
+            Assert.AreEqual(sender.ID, result.SenderPlayerId);
+            Assert.IsTrue((result as RejectKnowledgeExchangeMessage).Permanent);
+        }
+
+        [TestMethod]
+        public void AuthorizeKnowledgeExchangeForExistingPlayerFromMyTeamReceived()
+        {
+            InitGameMaster();
+            var sender = GetPlayer("testGUID-1111", 1, TeamColour.blue, ActionType.none);
+            var addressee = GetPlayer("testGUID-9999", 9, TeamColour.blue, ActionType.none);
+            sender.SetLocation(1, 3);
+            addressee.SetLocation(2, 6);
+
+            defaultGameMaster.RegisterPlayer(sender, sender.GUID, findFreeLocationAndPlacePlayer: false);
+            defaultGameMaster.RegisterPlayer(addressee, addressee.GUID, findFreeLocationAndPlacePlayer: false);
+
+            var msg = new AuthorizeKnowledgeExchangeMessage("testGUID-1111", 1, 9);
+
+            // action
+            var result = defaultGameMaster.HandleAuthorizeKnowledgeExchange(msg);
+
+            // assert
+            Assert.AreEqual(typeof(KnowledgeExchangeRequestMessage), result.GetType());
+            Assert.AreEqual(addressee.ID, result.PlayerId);
+            Assert.AreEqual(sender.ID, result.SenderPlayerId);
+        }
+
+        [TestMethod]
+        public void AuthorizeKnowledgeExchangeForExistingPlayerFromOtherTeamReceived()
+        {
+            InitGameMaster();
+            var sender = GetPlayer("testGUID-1111", 1, TeamColour.blue, ActionType.none);
+            var addressee = GetPlayer("testGUID-9999", 9, TeamColour.red, ActionType.none);
+            sender.SetLocation(1, 3);
+            addressee.SetLocation(2, 6);
+
+            defaultGameMaster.RegisterPlayer(sender, sender.GUID, findFreeLocationAndPlacePlayer: false);
+            defaultGameMaster.RegisterPlayer(addressee, addressee.GUID, findFreeLocationAndPlacePlayer: false);
+
+            var msg = new AuthorizeKnowledgeExchangeMessage("testGUID-1111", 1, 9);
+
+            // action
+            var result = defaultGameMaster.HandleAuthorizeKnowledgeExchange(msg);
+
+            // assert
+            Assert.AreEqual(typeof(KnowledgeExchangeRequestMessage), result.GetType());
+            Assert.AreEqual(addressee.ID, result.PlayerId);
+            Assert.AreEqual(sender.ID, result.SenderPlayerId);
+            Assert.IsTrue(defaultGameMaster.exchangeRequestList.Count == 1);
+            Assert.AreEqual(sender.ID ,defaultGameMaster.exchangeRequestList[0].SenderID);
+            Assert.AreEqual(addressee.ID, defaultGameMaster.exchangeRequestList[0].AddresseeID);
+            Assert.IsNull(defaultGameMaster.exchangeRequestList[0].SenderData);
+        }
+
+        [TestMethod]
+        public void RejectKnowledgeExchangeReceived()
+        {
+            InitGameMaster();
+            var sender = GetPlayer("testGUID-1111", 1, TeamColour.blue, ActionType.none);
+            var addressee = GetPlayer("testGUID-9999", 9, TeamColour.red, ActionType.none);
+            sender.SetLocation(1, 3);
+            addressee.SetLocation(2, 6);
+
+            defaultGameMaster.RegisterPlayer(sender, sender.GUID, findFreeLocationAndPlacePlayer: false);
+            defaultGameMaster.RegisterPlayer(addressee, addressee.GUID, findFreeLocationAndPlacePlayer: false);
+
+            defaultGameMaster.exchangeRequestList.Add(new ExchengeRequestContainer(1, 9));
+            defaultGameMaster.exchangeRequestList[0].SenderData = new DataMessage(9);
+
+            var msg = new RejectKnowledgeExchangeMessage(1, 9, false);
+
+            // action
+            var result = defaultGameMaster.HandleRejectKnowledgeExchange(msg);
+
+            // assert
+            Assert.AreEqual(typeof(RejectKnowledgeExchangeMessage), result.GetType());
+            Assert.AreEqual(sender.ID, result.PlayerId); // sender otrzymuje odmowe
+            Assert.AreEqual(addressee.ID, result.SenderPlayerId); // addressee wysyla odmowe
+            Assert.IsTrue(defaultGameMaster.exchangeRequestList.Count == 0);
+        }
+
+        [TestMethod]
+        public void RejectKnowledgeExchangeReceivedWhenNoRequestExists()
+        {
+            InitGameMaster();
+            var sender = GetPlayer("testGUID-1111", 1, TeamColour.blue, ActionType.none);
+            var addressee = GetPlayer("testGUID-9999", 9, TeamColour.red, ActionType.none);
+            sender.SetLocation(1, 3);
+            addressee.SetLocation(2, 6);
+
+            defaultGameMaster.RegisterPlayer(sender, sender.GUID, findFreeLocationAndPlacePlayer: false);
+            defaultGameMaster.RegisterPlayer(addressee, addressee.GUID, findFreeLocationAndPlacePlayer: false);
+
+            var msg = new RejectKnowledgeExchangeMessage(1, 9, false);
+
+            // action
+            var result = defaultGameMaster.HandleRejectKnowledgeExchange(msg);
+
+            // assert
+            Assert.AreEqual(typeof(RejectKnowledgeExchangeMessage), result.GetType());
+            Assert.AreEqual(sender.ID, result.PlayerId); // sender otrzymuje odmowe
+            Assert.AreEqual(addressee.ID, result.SenderPlayerId); // addressee wysyla odmowe
+            Assert.IsTrue(defaultGameMaster.exchangeRequestList.Count == 0);
+        }
+
+        [TestMethod]
+        public void AcceptKnowledgeExchangeReceived()
+        {
+            InitGameMaster();
+            var sender = GetPlayer("testGUID-1111", 1, TeamColour.blue, ActionType.none);
+            var addressee = GetPlayer("testGUID-9999", 9, TeamColour.red, ActionType.none);
+            sender.SetLocation(1, 3);
+            addressee.SetLocation(2, 6);
+
+            defaultGameMaster.RegisterPlayer(sender, sender.GUID, findFreeLocationAndPlacePlayer: false);
+            defaultGameMaster.RegisterPlayer(addressee, addressee.GUID, findFreeLocationAndPlacePlayer: false);
+
+            defaultGameMaster.exchangeRequestList.Add(new ExchengeRequestContainer(1, 9));
+            defaultGameMaster.exchangeRequestList[0].SenderData = new DataMessage(9);
+
+            var msg = new AcceptExchangeRequestMessage(1, 9);
+
+            // action
+            var result = defaultGameMaster.HandleAcceptKnowledgeExchange(msg);
+
+            // assert
+            Assert.AreEqual(typeof(AcceptExchangeRequestMessage), result.GetType());
+            Assert.AreEqual(sender.ID, result.PlayerId); // sender otrzymuje odmowe
+            Assert.AreEqual(addressee.ID, result.SenderPlayerId); // addressee wysyla odmowe
+            Assert.IsTrue(defaultGameMaster.exchangeRequestList.Count == 1);
+        }
+
+        [TestMethod]
+        public void DataMessageFromExchangeRequestSenderReceived()
+        {
+            InitGameMaster();
+            var sender = GetPlayer("testGUID-1111", 1, TeamColour.blue, ActionType.none);
+            var addressee = GetPlayer("testGUID-9999", 9, TeamColour.blue, ActionType.none);
+            sender.SetLocation(1, 3);
+            addressee.SetLocation(2, 6);
+
+            defaultGameMaster.RegisterPlayer(sender, sender.GUID, findFreeLocationAndPlacePlayer: false);
+            defaultGameMaster.RegisterPlayer(addressee, addressee.GUID, findFreeLocationAndPlacePlayer: false);
+
+            defaultGameMaster.exchangeRequestList.Add(new ExchengeRequestContainer(1, 9));
+
+            var msg = new DataMessage(9);
+
+            // action
+            var result = defaultGameMaster.HandleData(msg);
+
+            // assert
+            Assert.AreEqual(typeof(string[]), result.GetType());
+            Assert.IsTrue(result.Length == 0);
+            Assert.IsTrue(defaultGameMaster.exchangeRequestList.Count == 1);
+            Assert.IsNotNull(defaultGameMaster.exchangeRequestList[0].SenderData);
+        }
+
+        [TestMethod]
+        public void DataMessageFromExchangeRequestAddresseeReceived()
+        {
+            InitGameMaster();
+            var sender = GetPlayer("testGUID-1111", 1, TeamColour.blue, ActionType.none);
+            var addressee = GetPlayer("testGUID-9999", 9, TeamColour.blue, ActionType.none);
+            sender.SetLocation(1, 3);
+            addressee.SetLocation(2, 6);
+
+            defaultGameMaster.RegisterPlayer(sender, sender.GUID, findFreeLocationAndPlacePlayer: false);
+            defaultGameMaster.RegisterPlayer(addressee, addressee.GUID, findFreeLocationAndPlacePlayer: false);
+
+            defaultGameMaster.exchangeRequestList.Add(new ExchengeRequestContainer(1, 9));
+
+            var msg = new DataMessage(1);
+
+            // action
+            var result = defaultGameMaster.HandleData(msg);
+
+            var message1 = (Data)MessageParser.Deserialize(result[0]);
+            var message2 = (Data)MessageParser.Deserialize(result[1]);
+
+            // assert
+            Assert.AreEqual(typeof(string[]), result.GetType());
+            Assert.IsTrue(result.Length == 2);
+            Assert.IsTrue(defaultGameMaster.exchangeRequestList.Count == 0);
+            Assert.IsNotNull(defaultGameMaster.exchangeRequestList[0].SenderData);
+            Assert.AreEqual(1ul, message1.playerId);
+            Assert.AreEqual(9ul, message2.playerId);
         }
     }
 }

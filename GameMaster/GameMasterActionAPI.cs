@@ -518,7 +518,7 @@ namespace GameArea
         {
             // gracz odbierajacy taki reject message musi sobie zapisac, jezeli to bylo permanentne ?
 
-            var request = exchangeRequestList.Where(r => r.SenderID == msg.SenderPlayerId).Where(r => r.AddresseeID == msg.PlayerId).FirstOrDefault();
+            var request = exchangeRequestList.Where(r => r.SenderID == msg.PlayerId).Where(r => r.AddresseeID == msg.SenderPlayerId).FirstOrDefault();
             
             if (request != null)
             {
@@ -570,6 +570,7 @@ namespace GameArea
                 ConsoleWriter.Show("Data messages sent to both sides");
                 var dataForSender = data;
                 var dataForAddressee = request.SenderData;
+                exchangeRequestList.Remove(request);
                 return new string[] { dataForSender.Serialize(), dataForAddressee.Serialize() };
             }
 

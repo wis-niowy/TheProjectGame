@@ -16,11 +16,11 @@ namespace GameArea
         static readonly object lockObject = new object();
         public ulong GameId { get; set; }
         public GameMasterState State { get; set; }
+        public List<ExchengeRequestContainer> exchangeRequestList { get; set; }
         private ulong nextPieceId = 0;
         private ulong goalsRedLeft;
         private ulong goalsBlueLeft;
         private Random random;
-        private List<ExchengeRequestContainer> exchangeRequestList = new List<ExchengeRequestContainer>();
         private List<Player.Player> Players;
         //private List<Piece> pieces;
         public GameMasterSettingsConfiguration Settings { get; set; }
@@ -140,6 +140,7 @@ namespace GameArea
             State = GameMasterState.RegisteringGame;
             random = new Random();
             Players = new List<Player.Player>();
+            exchangeRequestList = new List<ExchengeRequestContainer>();
             goalsRedLeft = (ulong)settings.GameDefinition.Goals.Where(q => q.Team == TeamColour.red).Count();
             goalsBlueLeft = (ulong)settings.GameDefinition.Goals.Where(q => q.Team == TeamColour.blue).Count();
             Settings = settings;
