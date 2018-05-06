@@ -100,6 +100,55 @@ namespace GameArea.Tests
         }
 
         [TestMethod]
+        public void GameMasterRestartGame()
+        {
+            InitGameMaster();
+            List<Player.Player> players = new List<Player.Player>();
+            players.Add(GetPlayer("testGUID-0001", 10, TeamColour.blue, ActionType.PlacePiece));
+            players.Add(GetPlayer("testGUID-0002", 11, TeamColour.blue, ActionType.PlacePiece));
+            players.Add(GetPlayer("testGUID-0003", 12, TeamColour.red, ActionType.PlacePiece));
+            players.Add(GetPlayer("testGUID-0004", 13, TeamColour.red, ActionType.PlacePiece));
+
+            foreach (var pl in players)
+                defaultGameMaster.RegisterPlayer(pl);
+
+            //save initial player locations
+            List<GameArea.GameObjects.Location> locationsInit = new List<GameArea.GameObjects.Location>();
+            foreach (var pl in players)
+                locationsInit.Add(pl.Location);
+
+            //move players
+            foreach (var pl in players)
+            {
+                GameArea.GameObjects.Location l = new GameArea.GameObjects.Location(pl.Location.X + 1 % defaultGameMaster.GetBoard.Width, pl.Location.Y);
+                pl.SetLocation(l);
+                defaultGameMaster.SetAbsolutePlayerLocation(l.X, l.Y, pl.GUID);
+            }
+
+            //restart game
+            string[] msg = defaultGameMaster.RestartGame();
+
+            //check if players returned to their locations
+            for (int i=0; i<players.Count; i++)
+                Assert.AreEqual(locationsInit[i], defaultGameMaster.GetPlayers[i].Location);
+
+            Assert.AreEqual(GameMasterState.GameInprogress, defaultGameMaster.State);
+
+            //check if messages are correct
+            Assert.AreEqual(new GameStartedMessage(defaultGameMaster.GameId).Serialize(), msg[0]);
+            for (int i = 0; i < players.Count; i++)
+            {
+                AppMessages.GameMessage expMsg = new AppMessages.GameMessage(defaultGameMaster.GetPlayers[i].ID)
+                {
+                    PlayerLocation = locationsInit[i],
+                    Players = defaultGameMaster.GetPlayers.Select(q => new GameObjects.Player(q.ID, q.Team, q.Role)).ToArray(),
+                    Board = new GameObjects.GameBoard(defaultGameMaster.GetBoard.Width, defaultGameMaster.GetBoard.TaskAreaHeight, defaultGameMaster.GetBoard.GoalAreaHeight)
+                };
+                Assert.AreEqual(expMsg.Serialize(), msg[i+1]);
+            }
+        }
+
+        [TestMethod]
         public void ManhattanDistance()
         {
             GameMasterSettingsGameDefinitionConfiguration settings = new GameMasterSettingsGameDefinitionConfiguration(GameMasterSettingsGameDefinition.GetDefaultGameDefinition());
