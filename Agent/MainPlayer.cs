@@ -45,11 +45,12 @@ namespace Player
                 serverIP = IPAddress.Parse("127.0.0.1");
                 serverPort = Int32.Parse("5678");
                 colour = Messages.TeamColour.blue;
-                settings = new PlayerSettingsConfiguration(new PlayerSettings()
-                {
-                    KeepAliveInterval = 4000,
-                    RetryJoinGameInterval = 4000
-                });
+                settings = LoadSettingsFromFile("PlayerSettings.xml");
+                //settings = new PlayerSettingsConfiguration(new PlayerSettings()
+                //{
+                //    KeepAliveInterval = 4000,
+                //    RetryJoinGameInterval = 4000
+                //});
             }
 
             ConsoleWriter.Show("Settings loaded. Establishing connection to server.");
