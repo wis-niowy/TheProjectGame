@@ -92,6 +92,11 @@ namespace GameArea
             return Players.Where(q => q.GUID == guid).FirstOrDefault();
         }
 
+        public Player.Player GetPlayerById(ulong id)
+        {
+            return Players.Where(q => q.ID == id).FirstOrDefault();
+        }
+
         /// <summary>
         /// 
         /// </summary>
