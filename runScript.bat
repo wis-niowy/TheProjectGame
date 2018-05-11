@@ -1,7 +1,7 @@
 set workingDirectory=%cd%
 
 if "%~1"=="" (
-    echo No parameters have been provided default number of player in team is 2.
+    echo No parameters have been provided default number of player in team is 4.
 	SET numberPlayerInTeam=4
 ) else (
     SET numberPlayerInTeam=%1
