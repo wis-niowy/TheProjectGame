@@ -10,9 +10,9 @@ namespace CommunicationServer.ServerObjects
         public ulong PlayerId { get { return Client.ID; } }
         public DateTime TimeStamp { get; set; }
 
-        public ClientHandle Client { get; }
+        public IClientHandle Client { get; }
 
-        public AGENT(ClientHandle client)
+        public AGENT(IClientHandle client)
         {
             Client = client;
         }

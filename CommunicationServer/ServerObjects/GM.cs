@@ -8,8 +8,8 @@ namespace CommunicationServer.ServerObjects
     public class GM
     {
         public DateTime TimeStamp { get; set; }
-        public ClientHandle Client { get; }
-        public GM(ClientHandle client)
+        public IClientHandle Client { get; }
+        public GM(IClientHandle client)
         {
             Client = client;
         }

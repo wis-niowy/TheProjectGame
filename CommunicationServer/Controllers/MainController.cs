@@ -15,12 +15,12 @@ namespace CommunicationServer
     public class MainController:IMainController
     {
         Dictionary<string, GameController> gameDefinitions;
-        List<ClientHandle> clients;
+        List<IClientHandle> clients;
 
         public MainController()
         {
             gameDefinitions = new Dictionary<string, GameController>();
-            clients = new List<ClientHandle>();
+            clients = new List<IClientHandle>();
         }
 
         public bool RegisterGame(string name, ulong red, ulong blue, ulong clientId)
@@ -77,7 +77,7 @@ namespace CommunicationServer
             return message.Serialize();
         }
 
-        internal ClientHandle RemoveClient(ulong clientId)
+        internal IClientHandle RemoveClient(ulong clientId)
         {
             var client = clients.Where(q => q.ID == clientId).FirstOrDefault();
             if(client != null)
@@ -101,7 +101,7 @@ namespace CommunicationServer
             }
         }
 
-        public void AddClient(ClientHandle client)
+        public void AddClient(IClientHandle client)
         {
             clients.Add(client);
         }
@@ -183,6 +183,33 @@ namespace CommunicationServer
             return clientIds.Distinct().OrderBy(q=>q);
             
 
+        }
+
+        /// <summary>
+        /// Test method
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns>Game Controller for a given game's name</returns>
+        public GameController GetGameControllerByName(string name)
+        {
+            return gameDefinitions[name];
+        }
+        /// <summary>
+        /// Test method
+        /// </summary>
+        /// <returns></returns>
+        public List<IClientHandle> GetClientsList()
+        {
+            return clients;
+        }
+
+        /// <summary>
+        /// Test method
+        /// </summary>
+        /// <param name="client"></param>
+        public void InsertClient(IClientHandle client)
+        {
+            clients.Add(client);
         }
     }
 }

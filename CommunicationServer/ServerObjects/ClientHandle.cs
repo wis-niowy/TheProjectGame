@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CommunicationServer.ServerObjects
 {
-    public class ClientHandle
+    public class ClientHandle: IClientHandle
     {
         public DateTime LastKeepAlive {get;set;}
         public ulong ID { get; set; }
