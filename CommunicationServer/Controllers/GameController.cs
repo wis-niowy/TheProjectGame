@@ -15,14 +15,14 @@ namespace CommunicationServer.ServerObjects
         public ulong gameId { get; }
         public GM GameMaster { get; set; }
         public List<AGENT> Agents { get; set; }
-        public List<ClientHandle> JoiningAgents { get; set; }
+        public List<IClientHandle> JoiningAgents { get; set; }
         public GameInfo GameInfo { get; set; }
         public GameState State { get; set; }
         private MainController mainController;
         public GameController(GameInfo newGameInfo, ulong id, MainController controller)
         {
             Agents = new List<AGENT>();
-            JoiningAgents = new List<ClientHandle>();
+            JoiningAgents = new List<IClientHandle>();
             GameInfo = newGameInfo;
             gameId = id;
             State = GameState.New;
@@ -86,7 +86,7 @@ namespace CommunicationServer.ServerObjects
             }
         }
 
-        internal void AddClient(ClientHandle client, JoinGameMessage message)
+        internal void AddClient(IClientHandle client, JoinGameMessage message)
         {
             JoiningAgents.Add(client);
             message.PlayerId = (long)client.ID;
