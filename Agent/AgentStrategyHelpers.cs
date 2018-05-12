@@ -258,11 +258,20 @@ namespace Player
             MoveType closestDirection = MoveType.up;
             var minDistance = Up != null ? Up.DistanceToPiece : int.MaxValue;
             if (Down != null && minDistance > Down.DistanceToPiece)
+            {
+                minDistance = Down.DistanceToPiece;
                 closestDirection = MoveType.down;
+            }
             if (Left != null && minDistance > Left.DistanceToPiece)
+            {
+                minDistance = Left.DistanceToPiece;
                 closestDirection = MoveType.left;
+            }
             if (Right != null && minDistance > Right.DistanceToPiece)
+            {
+                minDistance = Right.DistanceToPiece;
                 closestDirection = MoveType.right;
+            }
             return closestDirection;
         }
 
@@ -316,7 +325,7 @@ namespace Player
         }
         private int GetDistance(GameArea.GameObjects.Location goalLocation)
         {
-            return (int)(Math.Abs(goalLocation.X - PlayerLocation.X) + Math.Abs(goalLocation.Y - PlayerLocation.Y));
+            return Math.Abs(goalLocation.X - PlayerLocation.X) + Math.Abs(goalLocation.Y - PlayerLocation.Y);
         }
 
         private MoveType GetDirectionToGoal(GameArea.GameObjects.GoalField goal)

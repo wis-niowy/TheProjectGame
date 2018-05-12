@@ -60,7 +60,7 @@ namespace Player
             {
                 var game = GamesList[0];
                 GamesList.RemoveAt(0);
-                Controller.BeginSend(new JoinGameMessage(game.GameName, TeamColour.red, PlayerRole.member).Serialize());
+                Controller.BeginSend(new JoinGameMessage(game.GameName,Team, Role).Serialize());
                 ActionToComplete = ActionType.Joining;
             }
         }
@@ -93,7 +93,6 @@ namespace Player
                     if (OnPiece)
                         return;
                     MoveType direction = FindNearestPieceDirection();
-                    MoveType secondDirection = direction;
                     var moved = TryMove(direction);
                     if (!moved)
                     {
@@ -104,11 +103,12 @@ namespace Player
                     MoveType possibleDirection = GetSecondClosestDirection(direction);
                     var possibleTask = GetTaskFromDirection(possibleDirection);
                     if (possibleTask != null && possibleTask.DistanceToPiece < GetCurrentTaksField.DistanceToPiece)
-                        secondDirection = possibleDirection;
-                    moved = TryMove(secondDirection);
-                    if (!moved)
                     {
-                        TryMove(secondDirection); //try again
+                        moved = TryMove(possibleDirection);
+                        if (!moved)
+                        {
+                            TryMove(possibleDirection); //try again
+                        }
                     }
                     //end of loop, try move to piece again, until not on piece
                 }

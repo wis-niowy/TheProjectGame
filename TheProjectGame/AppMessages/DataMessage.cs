@@ -32,12 +32,12 @@ namespace GameArea.AppMessages
             return new Data()
             {
                 gameFinished = GameFinished,
-                Pieces = Pieces?.Select(q => q?.ToBase()).ToArray(),
+                Pieces = Pieces?.Where(q => q != null).Select(q => q.ToBase()).ToArray(),
                 playerGuid = PlayerGUID,
                 playerId = PlayerId,
                 PlayerLocation = PlayerLocation?.ToBase(),
-                TaskFields = Tasks?.Select(q =>q.ToBase()).ToArray(),
-                GoalFields = Goals?.Select(q => q.ToBase()).ToArray()
+                TaskFields = Tasks?.Where(q=> q!= null).Select(q =>q.ToBase()).ToArray(),
+                GoalFields = Goals?.Where(q => q != null).Select(q => q.ToBase()).ToArray()
             };
         }
 

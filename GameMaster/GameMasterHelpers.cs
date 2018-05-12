@@ -222,7 +222,7 @@ namespace GameArea
         public void SetInfoAboutDiscoveredGoalField(GameObjects.Location location, int dx, int dy,
                                                     GameObjects.Field field, List<GameObjects.GoalField> GoalFieldList)
         {
-            GameObjects.GoalField responseField = new GameObjects.GoalField(location.X + dx, location.Y + dy, DateTime.Now, (field as GameObjects.GoalField).Team)
+            GameObjects.GoalField responseField = new GameObjects.GoalField(location.X + dx, location.Y + dy, DateTime.Now, (field as GameObjects.GoalField).Team,GoalFieldType.unknown)
             {
                 TimeStamp = DateTime.Now
             };

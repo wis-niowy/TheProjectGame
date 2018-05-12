@@ -8,7 +8,7 @@ namespace Player
 {
     public class Leader : Player
     {
-        public Leader(TeamColour team, string guid ) : base(team,_guid:guid)
+        public Leader(TeamColour team,PlayerRole role, string guid ) : base(team, role,_guid:guid)
         {
         }
     }

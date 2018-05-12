@@ -23,15 +23,17 @@ namespace Player
             PlayerSettingsConfiguration settings;
             var valid = ValidateArgs(args);
             Messages.TeamColour colour;
+            Messages.PlayerRole role;
 
             if (valid)
             {
                 serverIP = IPAddress.Parse(args[0]);
                 serverPort = Int32.Parse(args[1]);
                 colour = StringToTeamColour(args[2]);
-                settings = LoadSettingsFromFile(args[3]);
+                role = StringToRole(args[3]);
+                settings = LoadSettingsFromFile(args[4]);
 
-                ConsoleWriter.Show("Loading settings from file: " + args[3]);
+                ConsoleWriter.Show("Loading settings from file: " + args[4]);
                 var settingsErrors = settings == null ? null : Validator.ValidateSettings(settings);
                 if (settings == null || (settingsErrors != null && settingsErrors != ""))
                 {
@@ -45,6 +47,7 @@ namespace Player
                 serverIP = IPAddress.Parse("127.0.0.1");
                 serverPort = Int32.Parse("5678");
                 colour = Messages.TeamColour.blue;
+                role = Messages.PlayerRole.member;
                 settings = LoadSettingsFromFile("PlayerSettings.xml");
                 //settings = new PlayerSettingsConfiguration(new PlayerSettings()
                 //{
@@ -55,23 +58,23 @@ namespace Player
 
             ConsoleWriter.Show("Settings loaded. Establishing connection to server.");
 
-            if (StartPlayer(serverIP, serverPort, settings, colour))
+            if (StartPlayer(serverIP, serverPort, settings, colour, role))
             {
                 PController.StartPerformance();
             }
         }
 
-        public static bool StartPlayer(IPAddress ip, Int32 port, PlayerSettingsConfiguration settings, Messages.TeamColour colour)
+        public static bool StartPlayer(IPAddress ip, Int32 port, PlayerSettingsConfiguration settings, Messages.TeamColour colour, Messages.PlayerRole role)
         {
-            var player = new Player(colour,settings);
+            var player = new Player(colour,role,settings);
             PController = new PlayerController(player);
             player.Controller = PController;
             return PController.ConnectToServer(ip, port);
         }
 
-        public static bool TestStartPlayer(IPAddress ip, Int32 port, PlayerSettingsConfiguration settings, Messages.TeamColour colour, out PlayerController PController)
+        public static bool TestStartPlayer(IPAddress ip, Int32 port, PlayerSettingsConfiguration settings, Messages.TeamColour colour, out PlayerController PController, Messages.PlayerRole role = Messages.PlayerRole.member)
         {
-            var player = new Player(colour, settings);
+            var player = new Player(colour, role,settings);
             PController = new PlayerController(player);
             player.Controller = PController;
             return PController.ConnectToServer(ip, port);
@@ -81,7 +84,7 @@ namespace Player
         private static bool ValidateArgs(string[] args)
         {
             var valid = true;
-            if (args.Length < 4)
+            if (args.Length < 5)
             {
                 ConsoleWriter.Error("Args too short, must be provided: IP adress, socket number, path to file");
                 return false;
@@ -102,6 +105,12 @@ namespace Player
             if (colour != "red" && colour != "blue")
             {
                 ConsoleWriter.Error("Team colour not valid: " + args[2]);
+                valid = false;
+            }
+            var role = args[3];
+            if (role != "leader" && role != "member")
+            {
+                ConsoleWriter.Error("Team colour not valid: " + args[3]);
                 valid = false;
             }
 
@@ -148,6 +157,16 @@ namespace Player
                     return Messages.TeamColour.blue;
                 default:
                     return Messages.TeamColour.blue;
+            }
+        }
+        private static Messages.PlayerRole StringToRole(string role)
+        {
+            switch (role)
+            {
+                case "leader":
+                    return Messages.PlayerRole.leader;
+                default:
+                    return Messages.PlayerRole.member;
             }
         }
     }

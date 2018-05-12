@@ -13,7 +13,7 @@ namespace GameMaster.GMMessages
 
         public string[] Process(IGameMaster controller)
         {
-            return new string[] { controller.HandleTestPieceRequest(this).Serialize() };
+            return new string[] { controller.HandleTestPieceRequest(this)?.Serialize() };
         }
     }
 }

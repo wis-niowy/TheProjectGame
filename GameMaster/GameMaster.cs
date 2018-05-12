@@ -14,9 +14,11 @@ namespace GameArea
     public partial class GameMaster : IGameMaster
     {
         static readonly object lockObject = new object();
+        public static object LockObject { get { return lockObject; } }
         public ulong GameId { get; set; }
         public GameMasterState State { get; set; }
         public List<ExchengeRequestContainer> exchangeRequestList { get; set; }
+        public DateTime GameStartDate = DateTime.Now;
         private ulong nextPieceId = 0;
         private ulong goalsRedLeft;
         private ulong goalsBlueLeft;
@@ -165,6 +167,7 @@ namespace GameArea
             foreach (var player in oldPlayers)
                 RegisterPlayer(player, player.GUID, true);
             State = GameMasterState.GameInprogress;
+            GameStartDate = DateTime.Now;
             return PrepareGameReadyMessages();    
         }
 

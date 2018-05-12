@@ -15,7 +15,7 @@ namespace GameMaster.GMMessages
 
         public string[] Process(IGameMaster gameMaster)
         {
-            return new string[] { gameMaster.HandleDiscoverRequest(this).Serialize() };
+            return new string[] { gameMaster.HandleDiscoverRequest(this)?.Serialize() };
         }
     }
 }

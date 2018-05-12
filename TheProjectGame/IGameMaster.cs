@@ -10,6 +10,8 @@ namespace GameArea
     public enum GameMasterState {RegisteringGame, AwaitingPlayers, GameInprogress, GameOver, GameResolved };
     public interface IGameMaster
     {
+        void LockObject();
+        void UnlockOject();
         GameMasterState State { get; set; }
         bool IsGameFinished { get; }
         GameMasterSettingsConfiguration Settings { get; set; }

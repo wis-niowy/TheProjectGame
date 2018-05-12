@@ -149,7 +149,6 @@ namespace Player
                         {
                             this.SetPiece(piece);
                         }
-
                     }
                 }
 
@@ -164,17 +163,21 @@ namespace Player
                             SetPiece(null);
                         }
                     }
-                        
                 }
 
                 if (responseMessage.Goals != null && responseMessage.Goals.Length == 1)
                 {
                     var field = responseMessage.Goals[0];
-                    if (field.Type == GoalFieldType.goal && field.X == Location.X && field.Y == Location.Y)
+                    if (field.X == Location.X && field.Y == Location.Y)
                     {
-                        SetPiece(null);
-                        PlayerBoard.GetGoalField(Location.X, Location.Y).TimeStamp = DateTime.Now.AddYears(100);
+                        if(field.Type == GoalFieldType.goal) //tylko wtedy ustawia się null
+                            SetPiece(null);
+                        //zawsze aktualizacja timestamp, bo jak już raz był na danym polu typu goal, to ma już do niego nie wracać 
+                        var goalPlayer = PlayerBoard.GetGoalField(Location.X, Location.Y);
+                        goalPlayer.TimeStamp = DateTime.Now.AddYears(100);
+                        goalPlayer.Type = field.Type == GoalFieldType.goal ? GoalFieldType.goal : GoalFieldType.nongoal; 
                     }
+                    
                 }
 
                 if (responseMessage.PlayerLocation != null)

@@ -32,12 +32,13 @@ namespace Player
         public ulong GameId { get; set; }
         public TeamColour Team { get; set; }
 
-        public Player(TeamColour team, PlayerSettingsConfiguration settings = null, PlayerController gameController = null, string _guid = "TEST_GUID", IGameMaster gm = null)
+        public Player(TeamColour team, PlayerRole role = PlayerRole.member, PlayerSettingsConfiguration settings = null, PlayerController gameController = null, string _guid = "TEST_GUID", IGameMaster gm = null)
         {
             Settings = settings;
             gameMaster = gm;
             Team = team;
             GUID = _guid;
+            Role = role;
             Location = new GameArea.GameObjects.Location(0, 0);
             Controller = gameController;
             State = AgentState.SearchingForGame;
@@ -152,16 +153,22 @@ namespace Player
 
         public void GameStarted(GameArea.AppMessages.GameMessage messageObject)
         {
-            myTeam = null;
-            otherTeam = null;
-            SetBoard(null);
-            Location = null;
+            CleanLocalData();
             myTeam = messageObject.Players.ToList().Where(p => p.Team == Team).ToList();
             otherTeam = messageObject.Players.ToList().Where(p => p.Team != Team).ToList();
             SetBoard(messageObject.Board);
             Location = messageObject.PlayerLocation;
             State = AgentState.Playing;
             ActionToComplete = ActionType.none;
+        }
+
+        private void CleanLocalData()
+        {
+            myTeam = null;
+            otherTeam = null;
+            SetBoard(null);
+            Location = null;
+            piece = null;
         }
 
         public void GameMasterDisconnected(GameArea.AppMessages.GameMasterDisconnectedMessage messageObject)

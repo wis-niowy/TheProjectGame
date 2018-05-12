@@ -14,7 +14,7 @@ namespace GameMaster.GMMessages
 
         public string[] Process(IGameMaster gameMaster)
         {
-            return new string[] { gameMaster.HandleDestroyPieceRequest(this).Serialize() };
+            return new string[] { gameMaster.HandleDestroyPieceRequest(this)?.Serialize() };
         }
     }
 }

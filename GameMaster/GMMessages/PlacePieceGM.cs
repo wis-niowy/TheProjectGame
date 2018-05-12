@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace GameMaster.GMMessages
 {
@@ -16,11 +17,21 @@ namespace GameMaster.GMMessages
 
         public string[] Process(IGameMaster gameMaster)
         {
-            var messages = new  string[] { gameMaster.HandlePlacePieceRequest(this).Serialize() };
-            if(gameMaster.IsGameFinished && gameMaster.State == GameMasterState.GameResolved)
+            var messages = new  string[] { gameMaster.HandlePlacePieceRequest(this)?.Serialize() };
+            gameMaster.LockObject();
+            try
             {
-                var newGameMessages = gameMaster.RestartGame();
-                messages = messages.Union(newGameMessages).ToArray();
+                if (gameMaster.IsGameFinished && gameMaster.State == GameMasterState.GameResolved)
+                {
+                    var newGameMessages = gameMaster.RestartGame();
+                    messages = messages.Union(newGameMessages).ToArray();
+                }
+            }
+            catch (Exception e)
+            { }
+            finally
+            {
+                gameMaster.UnlockOject();
             }
             return messages;
         }

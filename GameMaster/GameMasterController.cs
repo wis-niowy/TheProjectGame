@@ -71,9 +71,10 @@ namespace GameMasterMain
 
                     if (messages != null)
                     {
-                        Task.Run(() =>
-                        {
+                        
                             foreach (var message in messages.Select(q => q.Trim('\0')))
+                            {
+                            Task.Run(() =>
                             {
                                 ConsoleWriter.Show("GameMaster read: \n" + message + "\n");
                                 var msgObject = GMReader.GetObjectFromXML(message);
@@ -86,8 +87,8 @@ namespace GameMasterMain
                                 }
                                 else
                                     ConsoleWriter.Warning("Could not obtain object from message: \n" + message);
-                            }
-                        });
+                            });
+                        }
                     }
                     BeginRead();
                 }

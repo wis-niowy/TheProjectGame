@@ -75,9 +75,9 @@ namespace GameArea
             };
         }
 
-        private Player.Player PreparePlayerObject(TeamColour colour, ulong id)
+        private Player.Player PreparePlayerObject(TeamColour colour, ulong id, PlayerRole role = PlayerRole.member)
         {
-            return new Player.Player(colour)
+            return new Player.Player(colour,role)
             {
                 ID = id,
                 GameId = 0,
@@ -87,6 +87,7 @@ namespace GameArea
 
         public string[] HandleJoinGameRequest(JoinGameMessage joinGame)
         {
+            Monitor.Enter(lockObject);
             var expectedPlayersNumberPerTeam = GetGameDefinition.NumberOfPlayersPerTeam;
             var redPlayersNumber = GetPlayersByTeam(TeamColour.red).Count;
             var bluePlayersNumber = GetPlayersByTeam(TeamColour.blue).Count;
@@ -138,11 +139,13 @@ namespace GameArea
             }
             if (GameReady)
             {
+                GameStartDate = DateTime.Now;
                 ConsoleWriter.Show("Required number of clients connected. Sending GameReady messages...");
                 State = GameMasterState.GameInprogress;
                 var additionalData = PrepareGameReadyMessages();
                 responseData = responseData.Union(additionalData).ToArray();
             }
+            Monitor.Exit(lockObject);
             return responseData;
 
 
@@ -180,6 +183,7 @@ namespace GameArea
         /// <returns></returns>
         public DataMessage HandleTestPieceRequest(TestPieceMessage msg)
         {
+            var receiveDate = DateTime.Now;
             ConsoleWriter.Show("Received TestingPiece...");
             string playerGuid = msg.PlayerGUID;
             ulong gameId = msg.GameId;
@@ -199,11 +203,18 @@ namespace GameArea
             }
             PrintBoardState();
             Thread.Sleep((int)GetCosts.TestDelay);
-            return new DataMessage(Player.ID)
+            if (receiveDate > GameStartDate)
             {
-                GameFinished = IsGameFinished,
-                Pieces = new GameObjects.Piece[] { pieceDataToSend }
-            };
+                return new DataMessage(Player.ID)
+                {
+                    GameFinished = IsGameFinished,
+                    Pieces = new GameObjects.Piece[] { pieceDataToSend }
+                };
+            }
+            else
+                return null; //obsluga wiadomosci ktore jeszcze nie zostaly wyslane ze wzgledu na delay
+
+
         }
 
         /// <summary>
@@ -214,6 +225,7 @@ namespace GameArea
         /// <returns></returns>
         public DataMessage HandleDestroyPieceRequest(DestroyPieceMessage msg)
         {
+            var receiveDate = DateTime.Now;
             ConsoleWriter.Show("Received DestroyPiece...");
             string playerGuid = msg.PlayerGUID;
             ulong gameId = msg.GameId;
@@ -234,11 +246,17 @@ namespace GameArea
             }
             PrintBoardState();
             Thread.Sleep((int)GetCosts.TestDelay);
-            return new DataMessage(Player.ID)
+            if (receiveDate > GameStartDate)
             {
-                GameFinished = IsGameFinished,
-                Pieces = new GameObjects.Piece[] { pieceDataToSend }
-            };
+                return new DataMessage(Player.ID)
+                {
+                    GameFinished = IsGameFinished,
+                    Pieces = new GameObjects.Piece[] { pieceDataToSend }
+                };
+            }
+            else
+                return null; //obsluga wiadomosci ktore jeszcze nie zostaly wyslane ze wzgledu na delay
+            
         }
 
         /// <summary>
@@ -250,6 +268,7 @@ namespace GameArea
         /// <returns></returns>
         public DataMessage HandlePlacePieceRequest(PlacePieceMessage msg)
         {
+            var receiveTime = DateTime.Now;
             ConsoleWriter.Show("Received PlacePiece...");
             string playerGuid = msg.PlayerGUID;
             ulong gameId = msg.GameId;
@@ -294,7 +313,10 @@ namespace GameArea
             PrintBoardState();
             if(!IsGameFinished)
                 Thread.Sleep(GetCosts.PlacingDelay);
-            return response;
+            if (receiveTime > GameStartDate)
+                return response;
+            else
+                return null;
 
         }
 
@@ -306,6 +328,7 @@ namespace GameArea
         /// <returns></returns>
         public DataMessage HandlePickUpPieceRequest(PickUpPieceMessage msg)
         {
+            var receiveTime = DateTime.Now;
             ConsoleWriter.Show("Received PickUpPiece...");
             string playerGuid = msg.PlayerGUID;
             ulong gameId = msg.GameId;
@@ -345,7 +368,10 @@ namespace GameArea
             }
             PrintBoardState();
             Thread.Sleep(GetCosts.PickUpDelay);
-            return response;
+            if (receiveTime > GameStartDate)
+                return response;
+            else
+                return null;
         }
 
         /// <summary>
@@ -357,6 +383,7 @@ namespace GameArea
         /// <returns></returns>
         public DataMessage HandleMoveRequest(MoveMessage msg)
         {
+            var receiveTime = DateTime.Now;
             ConsoleWriter.Show("Received Move ...");
             string playerGuid = msg.PlayerGUID;
             ulong gameId = msg.GameId;
@@ -426,7 +453,10 @@ namespace GameArea
             }
             PrintBoardState();
             Thread.Sleep((int)GetCosts.MoveDelay);
-            return response;
+            if (receiveTime > GameStartDate)
+                return response;
+            else
+                return null;
 
         }
 
@@ -438,6 +468,7 @@ namespace GameArea
         /// <returns></returns>
         public DataMessage HandleDiscoverRequest(DiscoverMessage msg)
         {
+            var receiveTime = DateTime.Now;
             ConsoleWriter.Show("Received Discover ...");
             string playerGuid = msg.PlayerGUID;
             ulong gameId = msg.GameId;
@@ -478,12 +509,17 @@ namespace GameArea
             }
             PrintBoardState();
             Thread.Sleep((int)GetCosts.DiscoverDelay);
-            return new DataMessage(Players.Where(q => q.GUID == playerGuid).First().ID)
+            if (receiveTime > GameStartDate)
             {
-                GameFinished = IsGameFinished,
-                Tasks = TaskFieldList.ToArray(),
-                Goals = GoalFieldList.ToArray()
-            };
+                return new DataMessage(Players.Where(q => q.GUID == playerGuid).First().ID)
+                {
+                    GameFinished = IsGameFinished,
+                    Tasks = TaskFieldList.ToArray(),
+                    Goals = GoalFieldList.ToArray()
+                };
+            }
+            else
+                return null;
         }
 
         // obsluga wymiany wiadomoci
@@ -588,7 +624,17 @@ namespace GameArea
         {
             ConsoleWriter.Warning("Received an error from server:\n Type:" + error.Type + "\nCause: " + error.CauseParameterName + "\nMessage: " + error.Message);
         }
-    
+
+        void IGameMaster.LockObject()
+        {
+            Monitor.Enter(lockObject);
+        }
+
+        public void UnlockOject()
+        {
+            Monitor.Exit(LockObject);
+        }
+
 
 
         #endregion
