@@ -13,7 +13,7 @@ namespace GameArea
     {
         // ------------ additional methods
         #region addition api methods
-        
+
         /// <summary>
         /// Handles Player's request - place a Piece on a TaskField
         /// </summary>
@@ -222,7 +222,7 @@ namespace GameArea
         public void SetInfoAboutDiscoveredGoalField(GameObjects.Location location, int dx, int dy,
                                                     GameObjects.Field field, List<GameObjects.GoalField> GoalFieldList)
         {
-            GameObjects.GoalField responseField = new GameObjects.GoalField(location.X + dx, location.Y + dy, DateTime.Now, (field as GameObjects.GoalField).Team,GoalFieldType.unknown)
+            GameObjects.GoalField responseField = new GameObjects.GoalField(location.X + dx, location.Y + dy, DateTime.Now, (field as GameObjects.GoalField).Team, GoalFieldType.unknown)
             {
                 TimeStamp = DateTime.Now
             };
@@ -247,6 +247,8 @@ namespace GameArea
             var opponent = GoalsBlueLeft == 0 ? TeamColour.red : TeamColour.blue;
             var opponentScore = winner == TeamColour.blue ? goalsRedLeft : goalsBlueLeft;
             ConsoleWriter.Show("\n\n\n************************\n THE WINNERS IS: " + winner + "\n THE NOOBS ARE: " + opponent + "\n WITH GOALS LEFT: " + opponentScore + "\n \n \n END OF GAME: " + GetGameDefinition.GameName + " \n \n*****************");
+            Logger.Logger logger = new Logger.Logger(this);
+            logger.Log(GameMasterState.GameResolved);
         }
 
         public void PrintBoardState()
@@ -259,7 +261,7 @@ namespace GameArea
                     boardPrint.Append(" ");
                 boardPrint.Append("] ");
                 for (int x = 0; x < GetBoard.Width; x++)
-                { 
+                {
                     var field = GetBoard.GetField(x, y);
                     boardPrint.Append(field.ToString());
                 }
@@ -402,7 +404,7 @@ namespace GameArea
         /// <returns></returns>
         public bool SetPieceInLocation(int x, int y, TeamColour team, PieceType type, ulong id)
         {
-            var piece = new GameObjects.Piece(id,DateTime.Now, type);
+            var piece = new GameObjects.Piece(id, DateTime.Now, type);
             if (ValidateFieldPosition(x, y, team) && actualBoard.GetField(x, y) is GameObjects.TaskField)
             {
                 (actualBoard.GetField(x, y) as GameObjects.TaskField).Piece = piece;

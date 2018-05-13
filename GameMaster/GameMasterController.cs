@@ -18,9 +18,12 @@ namespace GameMasterMain
         private TcpClient clientSocket;
         private System.Timers.Timer keppAliveTimer;
         public IGameMaster GameMaster { get; set; }
+        private Logger.Logger logger;
 
         public GameMasterController(IGameMaster gm)
         {
+            var GM = gm as GameArea.GameMaster;
+            logger = new Logger.Logger(GM);
             clientSocket = new TcpClient();
             GameMaster = gm;
         }
@@ -76,6 +79,7 @@ namespace GameMasterMain
                             {
                             Task.Run(() =>
                             {
+                                logger.Log(message);
                                 ConsoleWriter.Show("GameMaster read: \n" + message + "\n");
                                 var msgObject = GMReader.GetObjectFromXML(message);
                                 if (msgObject != null)

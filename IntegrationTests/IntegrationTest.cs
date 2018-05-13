@@ -59,7 +59,7 @@ namespace IntegrationTests
 
             var player = new Player.Player(TeamColour.blue);
 
-            bool isConnectedAgent = MainPlayer.StartPlayer(ip, port, new PlayerSettingsConfiguration(5000), TeamColour.blue);
+            bool isConnectedAgent = MainPlayer.StartPlayer(ip, port, new PlayerSettingsConfiguration(5000), TeamColour.blue, PlayerRole.member);
 
             Assert.AreEqual(true, isConnectedGM);
             Assert.AreEqual(true, isConnectedAgent);
@@ -81,7 +81,7 @@ namespace IntegrationTests
 
             var player = new Player.Player(TeamColour.blue);
 
-            bool isConnected = MainPlayer.StartPlayer(ip, port, new PlayerSettingsConfiguration(5000), TeamColour.blue);
+            bool isConnected = MainPlayer.StartPlayer(ip, port, new PlayerSettingsConfiguration(5000), TeamColour.blue, PlayerRole.member);
 
             Assert.AreEqual(true, isConnected);
         }

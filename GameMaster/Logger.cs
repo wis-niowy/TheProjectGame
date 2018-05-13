@@ -1,6 +1,5 @@
 ﻿using GameArea;
 using GameMaster.GMMessages;
-using Loggers;
 using Messages;
 using Player.PlayerMessages;
 using System;
@@ -11,24 +10,67 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace Loggers
+namespace Logger
 {
-    public class GameMasterLogger
+    public class Logger
     {
-        private new StreamWriter sw;
+        private StreamWriter sw;
         private string nameGameMasterLogger;
-        // private string nameFileGameMaster;
-
         GameArea.GameMaster gameMaster;
 
-
-        public GameMasterLogger(GameArea.GameMaster _gameMaster)
+        public Logger(GameArea.GameMaster gameMaster)
         {
-            gameMaster = _gameMaster;
+            this.gameMaster = gameMaster;
             nameGameMasterLogger = "GMlogs.csv";
-           
         }
-         
+
+        public void Log(GameMasterState state)
+        {
+            bool isBlueTheWinner = gameMaster.GoalsBlueLeft == 0 ? true : false;
+            StreamWriter sw = new StreamWriter(nameGameMasterLogger, true);
+            var dt = DateTime.Now;
+            String timestamp = String.Format("{0:yyyy-MM-dd}" + "T" + "{1:HH:mm:ss.fff}", dt, dt);
+            var gameId = gameMaster.GameId;
+
+            switch (state)
+            {
+                case GameMasterState.GameOver:
+                    break;
+                case GameMasterState.GameResolved:
+                    foreach (var player in gameMaster.GetPlayers)
+                    {
+                        bool isPlayerTeamBlue = player.Team == TeamColour.blue ? true : false;
+                        string nameMessage = "";
+                        if (isBlueTheWinner == isPlayerTeamBlue)
+                        {
+                            nameMessage = "Victory";
+                        }
+                        else
+                        {
+                            nameMessage = "Defeat";
+                        }
+
+                        string stringPlayerId = "";
+                        string stringPlayerGuid = "";
+                        string stringColourPlayer = "";
+                        string stringRole = "";
+
+                        if (player != null)
+                        {
+                            stringPlayerId = player.ID.ToString();
+                            stringPlayerGuid = player.GUID.ToString();
+                            stringColourPlayer = player.Team.ToString();
+                            stringRole = player.Role.ToString();
+                        }
+                        sw.WriteLine($"{nameMessage},{timestamp},{gameId},{stringPlayerId},{stringPlayerGuid},{stringColourPlayer},{stringRole}");
+                    }
+                    break;
+                default: break;
+            }
+
+            sw.Close();
+        }
+
         public void Log(string message)
         {
 
@@ -54,7 +96,7 @@ namespace Loggers
 
 
             var gameId = gameMaster.GameId;
-            
+
             string playerGuid;
             ulong playerId;
             Player.Player player = null;
@@ -162,7 +204,7 @@ namespace Loggers
                 stringColourPlayer = player.Team.ToString();
                 stringRole = player.Role.ToString();
             }
-            
+
             sw.WriteLine($"{nameMessage},{timestamp},{gameId},{stringPlayerId},{stringPlayerGuid},{stringColourPlayer},{stringRole}");
             sw.Close();
         }

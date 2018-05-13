@@ -7,10 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameArea", "TheProjectGame\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TheProjectGame.Tests", "TheProjectGame.Tests\TheProjectGame.Tests.csproj", "{2B104F96-28D4-4081-933A-F5685DB2F899}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Player", "Agent\Player.csproj", "{767EE073-5FA9-4358-88A3-F38B8B273B62}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Player.Tests", "Agent.Tests\Player.Tests.csproj", "{C593AA5B-756F-42E9-8AE6-B569226B90CB}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameMaster", "GameMaster\GameMaster.csproj", "{B30C4FB9-2BCE-468C-A259-DCC25107232E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameMaster.Tests", "GameMaster.Tests\GameMaster.Tests.csproj", "{AE50DEBB-558C-4931-8886-11050AB45E17}"
@@ -31,7 +27,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientTester", "ClientTeste
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests", "IntegrationTests\IntegrationTests.csproj", "{E4CE907A-7052-40E0-8B2D-253B424F8A50}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunicationServer.Tests", "CommunicationServer.Tests\CommunicationServer.Tests.csproj", "{924CEB19-31A8-4D0E-9BBD-E6E6D8986A77}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunicationServer.Tests", "CommunicationServer.Tests\CommunicationServer.Tests.csproj", "{924CEB19-31A8-4D0E-9BBD-E6E6D8986A77}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Player", "Agent\Player.csproj", "{548BCD10-05CE-448C-90A6-B096EE2C0939}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Player.Tests", "Agent.Tests\Player.Tests.csproj", "{5C1C7F7F-8A3F-424B-B6BC-076E073888B0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,14 +47,6 @@ Global
 		{2B104F96-28D4-4081-933A-F5685DB2F899}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2B104F96-28D4-4081-933A-F5685DB2F899}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2B104F96-28D4-4081-933A-F5685DB2F899}.Release|Any CPU.Build.0 = Release|Any CPU
-		{767EE073-5FA9-4358-88A3-F38B8B273B62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{767EE073-5FA9-4358-88A3-F38B8B273B62}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{767EE073-5FA9-4358-88A3-F38B8B273B62}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{767EE073-5FA9-4358-88A3-F38B8B273B62}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C593AA5B-756F-42E9-8AE6-B569226B90CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C593AA5B-756F-42E9-8AE6-B569226B90CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C593AA5B-756F-42E9-8AE6-B569226B90CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C593AA5B-756F-42E9-8AE6-B569226B90CB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B30C4FB9-2BCE-468C-A259-DCC25107232E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B30C4FB9-2BCE-468C-A259-DCC25107232E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B30C4FB9-2BCE-468C-A259-DCC25107232E}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -99,6 +91,14 @@ Global
 		{924CEB19-31A8-4D0E-9BBD-E6E6D8986A77}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{924CEB19-31A8-4D0E-9BBD-E6E6D8986A77}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{924CEB19-31A8-4D0E-9BBD-E6E6D8986A77}.Release|Any CPU.Build.0 = Release|Any CPU
+		{548BCD10-05CE-448C-90A6-B096EE2C0939}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{548BCD10-05CE-448C-90A6-B096EE2C0939}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{548BCD10-05CE-448C-90A6-B096EE2C0939}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{548BCD10-05CE-448C-90A6-B096EE2C0939}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C1C7F7F-8A3F-424B-B6BC-076E073888B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C1C7F7F-8A3F-424B-B6BC-076E073888B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C1C7F7F-8A3F-424B-B6BC-076E073888B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C1C7F7F-8A3F-424B-B6BC-076E073888B0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
