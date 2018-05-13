@@ -8,6 +8,7 @@ namespace GameArea.AppMessages
 {
     public abstract class GameAbstractMessage
     {
+        public DateTime ReceiveDate { get; }
         public string PlayerGUID { get; set; }
         public ulong GameId { get; set; }
 
@@ -15,6 +16,7 @@ namespace GameArea.AppMessages
         {
             PlayerGUID = guid;
             GameId = gameId;
+            ReceiveDate = DateTime.Now;
         }
         public GameAbstractMessage(Messages.GameMessage game)
         {

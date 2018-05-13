@@ -183,7 +183,6 @@ namespace GameArea
         /// <returns></returns>
         public DataMessage HandleTestPieceRequest(TestPieceMessage msg)
         {
-            var receiveDate = DateTime.Now;
             ConsoleWriter.Show("Received TestingPiece...");
             string playerGuid = msg.PlayerGUID;
             ulong gameId = msg.GameId;
@@ -203,7 +202,7 @@ namespace GameArea
             }
             PrintBoardState();
             Thread.Sleep((int)GetCosts.TestDelay);
-            if (receiveDate > GameStartDate)
+            if (msg.ReceiveDate > GameStartDate)
             {
                 return new DataMessage(Player.ID)
                 {
@@ -225,7 +224,6 @@ namespace GameArea
         /// <returns></returns>
         public DataMessage HandleDestroyPieceRequest(DestroyPieceMessage msg)
         {
-            var receiveDate = DateTime.Now;
             ConsoleWriter.Show("Received DestroyPiece...");
             string playerGuid = msg.PlayerGUID;
             ulong gameId = msg.GameId;
@@ -246,7 +244,7 @@ namespace GameArea
             }
             PrintBoardState();
             Thread.Sleep((int)GetCosts.TestDelay);
-            if (receiveDate > GameStartDate)
+            if (msg.ReceiveDate > GameStartDate)
             {
                 return new DataMessage(Player.ID)
                 {
@@ -268,7 +266,6 @@ namespace GameArea
         /// <returns></returns>
         public DataMessage HandlePlacePieceRequest(PlacePieceMessage msg)
         {
-            var receiveTime = DateTime.Now;
             ConsoleWriter.Show("Received PlacePiece...");
             string playerGuid = msg.PlayerGUID;
             ulong gameId = msg.GameId;
@@ -313,7 +310,7 @@ namespace GameArea
             PrintBoardState();
             if(!IsGameFinished)
                 Thread.Sleep(GetCosts.PlacingDelay);
-            if (receiveTime > GameStartDate)
+            if (msg.ReceiveDate > GameStartDate)
                 return response;
             else
                 return null;
@@ -328,7 +325,6 @@ namespace GameArea
         /// <returns></returns>
         public DataMessage HandlePickUpPieceRequest(PickUpPieceMessage msg)
         {
-            var receiveTime = DateTime.Now;
             ConsoleWriter.Show("Received PickUpPiece...");
             string playerGuid = msg.PlayerGUID;
             ulong gameId = msg.GameId;
@@ -368,7 +364,7 @@ namespace GameArea
             }
             PrintBoardState();
             Thread.Sleep(GetCosts.PickUpDelay);
-            if (receiveTime > GameStartDate)
+            if (msg.ReceiveDate > GameStartDate)
                 return response;
             else
                 return null;
@@ -383,7 +379,6 @@ namespace GameArea
         /// <returns></returns>
         public DataMessage HandleMoveRequest(MoveMessage msg)
         {
-            var receiveTime = DateTime.Now;
             ConsoleWriter.Show("Received Move ...");
             string playerGuid = msg.PlayerGUID;
             ulong gameId = msg.GameId;
@@ -453,7 +448,7 @@ namespace GameArea
             }
             PrintBoardState();
             Thread.Sleep((int)GetCosts.MoveDelay);
-            if (receiveTime > GameStartDate)
+            if (msg.ReceiveDate > GameStartDate)
                 return response;
             else
                 return null;
@@ -468,7 +463,6 @@ namespace GameArea
         /// <returns></returns>
         public DataMessage HandleDiscoverRequest(DiscoverMessage msg)
         {
-            var receiveTime = DateTime.Now;
             ConsoleWriter.Show("Received Discover ...");
             string playerGuid = msg.PlayerGUID;
             ulong gameId = msg.GameId;
@@ -509,7 +503,7 @@ namespace GameArea
             }
             PrintBoardState();
             Thread.Sleep((int)GetCosts.DiscoverDelay);
-            if (receiveTime > GameStartDate)
+            if (msg.ReceiveDate > GameStartDate)
             {
                 return new DataMessage(Players.Where(q => q.GUID == playerGuid).First().ID)
                 {
