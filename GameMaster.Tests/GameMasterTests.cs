@@ -630,6 +630,7 @@ namespace GameArea.Tests
             defaultGameMaster.RegisterPlayer(addressee, addressee.GUID, findFreeLocationAndPlacePlayer: false);
 
             defaultGameMaster.exchangeRequestList.Add(new ExchengeRequestContainer(1, 9));
+            defaultGameMaster.exchangeRequestList[0].SenderData = new DataMessage(9);
 
             var msg = new DataMessage(1);
 
@@ -643,7 +644,6 @@ namespace GameArea.Tests
             Assert.AreEqual(typeof(string[]), result.GetType());
             Assert.IsTrue(result.Length == 2);
             Assert.IsTrue(defaultGameMaster.exchangeRequestList.Count == 0);
-            Assert.IsNotNull(defaultGameMaster.exchangeRequestList[0].SenderData);
             Assert.AreEqual(1ul, message1.playerId);
             Assert.AreEqual(9ul, message2.playerId);
         }

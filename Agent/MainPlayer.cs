@@ -14,7 +14,7 @@ namespace Player
 {
     public class MainPlayer
     {
-        private static PlayerController PController { get; set; }
+        private static IPlayerController PController { get; set; }
 
         public static void Main(string[] args)
         {
@@ -81,7 +81,7 @@ namespace Player
         }
 
 
-        private static bool ValidateArgs(string[] args)
+        public static bool ValidateArgs(string[] args)
         {
             var valid = true;
             if (args.Length < 5)

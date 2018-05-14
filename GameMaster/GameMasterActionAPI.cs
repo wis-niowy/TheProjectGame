@@ -354,6 +354,15 @@ namespace GameArea
                     currentTaskField.Piece =null; // the piece is no longer on the field  
                     UpdateDistancesFromAllPieces();
                 }
+                // Player holds a piece and tries to pick up from empty Field - he gets a remainder that he holds a piece
+                else if (currentTaskField != null && currentTaskField.Piece == null && Player.GetPiece != null)
+                {
+                    GameObjects.Piece pieceDataToSend = new GameObjects.Piece(Player.GetPiece.ID,
+                                                                              Player.GetPiece.TimeStamp,
+                                                                              Player.GetPiece.Type,
+                                                                              Player.GetPiece.PlayerId);
+                    response.Pieces[0] = pieceDataToSend;
+                }
 
                 // player is either on an empty TaskField or on a GoalField
                 response.GameFinished = IsGameFinished;

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Player
 {
-    public class PlayerController
+    public class PlayerController: IPlayerController
     {
         private TcpClient clientSocket;
         private System.Timers.Timer keppAliveTimer;

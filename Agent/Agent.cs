@@ -14,7 +14,7 @@ namespace Player
     {
         public PlayerRole Role { get; set; }
         public PlayerSettingsConfiguration Settings { get; set; }
-        public PlayerController Controller { get; set; }
+        public IPlayerController Controller { get; set; }
         private List<GameArea.GameObjects.GameInfo> GamesList { get; set; }
         private bool gameFinished;
         private IGameMaster gameMaster;
@@ -32,7 +32,7 @@ namespace Player
         public ulong GameId { get; set; }
         public TeamColour Team { get; set; }
 
-        public Player(TeamColour team, PlayerRole role = PlayerRole.member, PlayerSettingsConfiguration settings = null, PlayerController gameController = null, string _guid = "TEST_GUID", IGameMaster gm = null)
+        public Player(TeamColour team, PlayerRole role = PlayerRole.member, PlayerSettingsConfiguration settings = null, IPlayerController gameController = null, string _guid = "TEST_GUID", IGameMaster gm = null)
         {
             Settings = settings;
             gameMaster = gm;

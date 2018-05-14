@@ -197,7 +197,7 @@ namespace Player
 
         // helpers ---------------------
 
-        private GameArea.GameObjects.Location CalculateFutureLocation(GameArea.GameObjects.Location oldLocation, MoveType direction)
+        public GameArea.GameObjects.Location CalculateFutureLocation(GameArea.GameObjects.Location oldLocation, MoveType direction)
         {
             GameArea.GameObjects.Location newLocation = null;
             switch (direction)

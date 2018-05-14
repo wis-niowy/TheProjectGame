@@ -23,9 +23,17 @@ namespace Player.Tests
                          "</RegisteredGames>";
 
             var obj = PlayerReader.GetObjectFromXML(xml);
+            var msg = obj as RegisteredGamesAgent;
 
             Assert.IsNotNull(obj);
             Assert.IsTrue(obj.GetType() == typeof(RegisteredGamesAgent));
+            Assert.AreEqual(2, msg.Games.Length);
+            Assert.AreEqual("Easy game", msg.Games[0].GameName);
+            Assert.AreEqual(2ul, msg.Games[0].BlueTeamPlayers);
+            Assert.AreEqual(2ul, msg.Games[0].RedTeamPlayers);
+            Assert.AreEqual("Hard for blue game", msg.Games[1].GameName);
+            Assert.AreEqual(5ul, msg.Games[1].BlueTeamPlayers);
+            Assert.AreEqual(10ul, msg.Games[1].RedTeamPlayers);
         }
 
         [TestMethod]
@@ -40,9 +48,16 @@ namespace Player.Tests
                          "</ConfirmJoiningGame>";
 
             var obj = PlayerReader.GetObjectFromXML(xml);
+            var msg = obj as ConfirmJoiningGameAgent;
 
             Assert.IsNotNull(obj);
             Assert.IsTrue(obj.GetType() == typeof(ConfirmJoiningGameAgent));
+            //Assert.AreEqual(1ul, msg.GameId);
+            //Assert.AreEqual(2ul, msg.PlayerId);
+            //Assert.AreEqual("c094cab7-da7b-457f-89e5-a5c51756035f", msg.GUID);
+            Assert.AreEqual(2ul, msg.PlayerDefinition.ID);
+            Assert.AreEqual(TeamColour.blue, msg.PlayerDefinition.Team);
+            Assert.AreEqual(PlayerRole.member, msg.PlayerDefinition.Role);
         }
 
         [TestMethod]
@@ -55,9 +70,12 @@ namespace Player.Tests
                          "</RejectJoiningGame>";
 
             var obj = PlayerReader.GetObjectFromXML(xml);
+            var msg = obj as RejectJoiningGameAgent;
 
             Assert.IsNotNull(obj);
             Assert.IsTrue(obj.GetType() == typeof(RejectJoiningGameAgent));
+            //Assert.AreEqual("Easy game", msg.GameName);
+            //Assert.AreEqual(2ul, msg.PlayerId);
         }
 
         [TestMethod]
@@ -70,20 +88,47 @@ namespace Player.Tests
                                 "<Player team = \"red\" role = \"leader\" id = \"5\" />\n" +
                                 "<Player team = \"red\" role = \"member\" id = \"6\" />\n" +
                                 "<Player team = \"red\" role = \"member\" id = \"7\" />\n" +
-                                "<Player team = \"red\" role = \"member\" id = \"8\" />\n" +
                                 "<Player team = \"blue\" role = \"leader\" id = \"1\" />\n" +
                                 "<Player team = \"blue\" role = \"member\" id = \"2\" />\n" +
                                 "<Player team = \"blue\" role = \"member\" id = \"3\" />\n" +
-                                "<Player team = \"blue\" role = \"member\" id = \"4\" />\n" +
                             "</Players>\n" +
                             "<Board width = \"5\" tasksHeight = \"5\" goalsHeight = \"3\" />\n" +
                             "<PlayerLocation x = \"0\" y = \"3\" />\n" +
                         "</Game>";
 
             var obj = PlayerReader.GetObjectFromXML(xml);
+            var msg = obj as GameAgent;
 
             Assert.IsNotNull(obj);
             Assert.IsTrue(obj.GetType() == typeof(GameAgent));
+            //Assert.AreEqual(2ul, msg.PlayerId);
+            Assert.AreEqual(6, msg.Players.Length);
+
+            Assert.AreEqual(TeamColour.red, msg.Players[0].Team);
+            Assert.AreEqual(PlayerRole.leader, msg.Players[0].Role);
+            Assert.AreEqual(5ul, msg.Players[0].ID);
+            Assert.AreEqual(TeamColour.red, msg.Players[1].Team);
+            Assert.AreEqual(PlayerRole.member, msg.Players[1].Role);
+            Assert.AreEqual(6ul, msg.Players[1].ID);
+            Assert.AreEqual(TeamColour.red, msg.Players[2].Team);
+            Assert.AreEqual(PlayerRole.member, msg.Players[2].Role);
+            Assert.AreEqual(7ul, msg.Players[2].ID);
+
+            Assert.AreEqual(TeamColour.blue, msg.Players[3].Team);
+            Assert.AreEqual(PlayerRole.leader, msg.Players[3].Role);
+            Assert.AreEqual(1ul, msg.Players[3].ID);
+            Assert.AreEqual(TeamColour.blue, msg.Players[4].Team);
+            Assert.AreEqual(PlayerRole.member, msg.Players[4].Role);
+            Assert.AreEqual(2ul, msg.Players[4].ID);
+            Assert.AreEqual(TeamColour.blue, msg.Players[5].Team);
+            Assert.AreEqual(PlayerRole.member, msg.Players[5].Role);
+            Assert.AreEqual(3ul, msg.Players[5].ID);
+
+            Assert.AreEqual(5, msg.Board.Width);
+            Assert.AreEqual(5, msg.Board.TaskAreaHeight);
+            Assert.AreEqual(3, msg.Board.GoalAreaHeight);
+            Assert.AreEqual(0, msg.PlayerLocation.X);
+            Assert.AreEqual(3, msg.PlayerLocation.Y);
         }
 
         [TestMethod]
@@ -102,9 +147,18 @@ namespace Player.Tests
                          "</Data>";
 
             var obj = PlayerReader.GetObjectFromXML(xml);
+            var msg = obj as DataAgent;
 
             Assert.IsNotNull(obj);
             Assert.IsTrue(obj.GetType() == typeof(DataAgent));
+            //Assert.AreEqual(1ul, msg.PlayerId);
+            //Assert.IsFalse(msg.GameFinished);
+            Assert.AreEqual(1, msg.PlayerLocation.X);
+            Assert.AreEqual(5, msg.PlayerLocation.Y);
+            Assert.AreEqual(1, msg.Tasks.Length);
+            Assert.AreEqual(1, msg.Tasks[0].X);
+            Assert.AreEqual(5, msg.Tasks[0].Y);
+            Assert.AreEqual(5, msg.Tasks[0].DistanceToPiece);
         }
 
         [TestMethod]
@@ -123,6 +177,7 @@ namespace Player.Tests
                          "</Data";
 
             var obj = PlayerReader.GetObjectFromXML(xml);
+            var msg = obj as ErrorMessageAgent;
 
             Assert.IsNotNull(obj);
             Assert.IsTrue(obj.GetType() == typeof(ErrorMessageAgent));
