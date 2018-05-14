@@ -12,6 +12,7 @@ using Player;
 using Messages;
 using System.Threading.Tasks;
 using GameArea;
+using System.Threading;
 
 namespace IntegrationTests
 {
@@ -20,145 +21,150 @@ namespace IntegrationTests
     {
 
         GameMasterSettingsConfiguration defaultSettings;
-        GameArea.GameMaster defaultGameMaster;
+        volatile GameArea.GameMaster gameMaster;
 
         public void InitGameMaster()
         {
             defaultSettings = new GameMasterSettingsConfiguration(GameMasterSettings.GetDefaultGameMasterSettings());
-            defaultGameMaster = new GameArea.GameMaster(defaultSettings);
+            gameMaster = new GameArea.GameMaster(defaultSettings);
         }
 
         [TestMethod]
         public void ConnectingGMtoCS()
         {
-
             InitGameMaster();
-
             var ip = IPAddress.Parse("127.0.0.1");
             Int32 port = 2000;
 
             CS.TcpHelper.StartServer(ip, port);
+            Thread t = new Thread(new ThreadStart(CS.TcpHelper.Listen));
+            t.Start();
 
-            //Thread.Sleep(500);
+            bool isConnected = MainGameMaster.StartGameMaster(gameMaster, ip, port);
+            Thread t2 = new Thread(new ThreadStart(MainGameMaster.GMController.StartPerformance));
+            t2.Start();
 
-            bool isConnected = MainGameMaster.StartGameMaster(ip, port, defaultSettings);
+            //CS.TcpHelper.StopListening(t);
+            Thread.Sleep(200);
 
-
-            Assert.AreEqual(true, isConnected);
+            int count = CS.TcpHelper.manager.defaultController.clients.Count;
+            Assert.IsTrue(isConnected);
+            Assert.AreEqual(GameMasterState.AwaitingPlayers, gameMaster.State);
         }
+
         [TestMethod]
-        public void ConnectingAgentstoCS()
+        public void ConnectingAgentToCS()
         {
             var ip = IPAddress.Parse("127.0.0.2");
             Int32 port = 2000;
 
             CS.TcpHelper.StartServer(ip, port);
+            Thread t = new Thread(new ThreadStart(CS.TcpHelper.Listen));
+            t.Start();
 
+            bool isConnectedAgent = MainPlayer.StartPlayer(ip, port, new PlayerSettingsConfiguration(5000), TeamColour.blue, PlayerRole.member);
 
-            bool isConnectedGM = MainGameMaster.StartGameMaster(ip, port, defaultSettings);
+            Thread.Sleep(500);
 
-            var player = new Player.Player(TeamColour.blue);
-
-            bool isConnectedAgent = MainPlayer.StartPlayer(ip, port, new PlayerSettingsConfiguration(5000), TeamColour.blue, PlayerRole.leader);
-
-            Assert.AreEqual(true, isConnectedGM);
+            int count = CS.TcpHelper.manager.defaultController.clients.Count;
+            Assert.AreEqual(1, count);
             Assert.AreEqual(true, isConnectedAgent);
         }
 
 
         [TestMethod]
-        public void ConnectingAgentsAndGMtoCS()
+        public void TerminatingAgent()
         {
-
-            InitGameMaster();
-
             var ip = IPAddress.Parse("127.0.0.3");
             Int32 port = 2000;
 
-            CS.TcpHelper.StartServer(ip, port);
-
-            //Thread.Sleep(500);
-
-            var player = new Player.Player(TeamColour.blue);
-
-            bool isConnected = MainPlayer.StartPlayer(ip, port, new PlayerSettingsConfiguration(5000), TeamColour.blue, PlayerRole.leader);
-
-            Assert.AreEqual(true, isConnected);
-        }
-
-
-        [TestMethod]
-        public void ConfirmMessageFromGMToCM()
-        {
             InitGameMaster();
 
-            var ip = IPAddress.Parse("127.0.0.3");
-            Int32 port = 2002;
-
-
             CS.TcpHelper.StartServer(ip, port);
-            Task.Run(() => CS.TcpHelper.Listen());
+            Thread t = new Thread(new ThreadStart(CS.TcpHelper.Listen));
+            t.Start();
+            Thread.Sleep(250);
 
+            bool isConnected = MainGameMaster.StartGameMaster(gameMaster, ip, port);
+            Thread t2 = new Thread(new ThreadStart(MainGameMaster.GMController.StartPerformance));
+            t2.Start();
+            Thread.Sleep(250);
 
-
-            //Thread.Sleep(500);
-
-            bool isConnectedGM = MainGameMaster.StartGameMaster(ip, port, defaultSettings);
-
-            Task taskGameMaster = Task.Run(() => MainGameMaster.GMController.StartPerformance());
-
-
+            bool isConnectedAgent = MainPlayer.TestStartPlayer(ip, port, new PlayerSettingsConfiguration(5000), TeamColour.blue, out PlayerController PC);
+            Thread t3 = new Thread(new ThreadStart(PC.StartPerformance));
+            t3.Start();
             Thread.Sleep(500);
 
+            Assert.IsTrue(isConnected);
+            Assert.IsTrue(isConnectedAgent);
+            t3.Interrupt();
 
-            Assert.AreEqual(GameMasterState.AwaitingPlayers, MainGameMaster.GMController.GameMaster.State);
-
+            Thread.Sleep(500);
+            Assert.AreEqual(0, CS.TcpHelper.manager.defaultController.clients.Count);
         }
 
 
         [TestMethod]
-        public void SendingMoveMessageFromPlayer()
+        public void ConnectingAgentAndGMtoCS()
         {
+            var ip = IPAddress.Parse("127.0.0.4");
+            Int32 port = 2000;
 
             InitGameMaster();
 
-            var ip = IPAddress.Parse("127.0.0.3");
-            Int32 port = 2001;
-
-
             CS.TcpHelper.StartServer(ip, port);
-            Task.Run(() => CS.TcpHelper.Listen());
-            
-            
+            Thread t = new Thread(new ThreadStart(CS.TcpHelper.Listen));
+            t.Start();
+            Thread.Sleep(250);
 
-            //Thread.Sleep(500);
+            bool isConnected = MainGameMaster.StartGameMaster(gameMaster, ip, port);
+            Thread t2 = new Thread(new ThreadStart(MainGameMaster.GMController.StartPerformance));
+            t2.Start();
+            Thread.Sleep(250);
 
-            bool isConnectedGM = MainGameMaster.StartGameMaster(ip, port, defaultSettings);
+            var player = new Player.Player(TeamColour.blue);
+            bool isConnectedAgent = MainPlayer.TestStartPlayer(ip, port, new PlayerSettingsConfiguration(5000), TeamColour.blue, out PlayerController PC);
+            Thread t3 = new Thread(new ThreadStart(PC.StartPerformance));
+            t3.Start();
+            Thread.Sleep(500);
 
-            Task.Run(() => MainGameMaster.GMController.StartPerformance());
-
-            PlayerController playerController;
-
-
-            bool isConnectedAgent = MainPlayer.TestStartPlayer(ip, port, new PlayerSettingsConfiguration(5000), TeamColour.blue,out playerController);
-
-            var player = playerController.Player as Player.Player;
-
-           
-            bool isActionCompleted = player.Move(MoveType.up);
-
-            Thread.Sleep(30 * 1000);
-
-
-            Assert.AreEqual(true, isActionCompleted);
+            Assert.IsTrue(isConnected);
+            Assert.IsTrue(isConnectedAgent);
+            Assert.AreEqual(AgentState.AwaitingForStart, PC.Player.State);
         }
 
+        [TestMethod]
+        public void GMterminates()
+        {
+            var ip = IPAddress.Parse("127.0.0.5");
+            Int32 port = 2000;
 
+            InitGameMaster();
 
+            CS.TcpHelper.StartServer(ip, port);
+            Thread t = new Thread(new ThreadStart(CS.TcpHelper.Listen));
+            t.Start();
+            Thread.Sleep(250);
 
+            bool isConnected = MainGameMaster.StartGameMaster(gameMaster, ip, port);
+            Thread t2 = new Thread(new ThreadStart(MainGameMaster.GMController.StartPerformance));
+            t2.Start();
+            Thread.Sleep(250);
 
+            var player = new Player.Player(TeamColour.blue);
+            bool isConnectedAgent = MainPlayer.TestStartPlayer(ip, port, new PlayerSettingsConfiguration(500), TeamColour.blue, out PlayerController PC);
+            Thread t3 = new Thread(new ThreadStart(PC.StartPerformance));
+            t3.Start();
+            Thread.Sleep(250);
 
+            Assert.IsTrue(isConnected);
+            Assert.IsTrue(isConnectedAgent);
 
+            // zabijamy GM
+            gameMaster.State = GameMasterState.GameOver;
+            Thread.Sleep(1000);
+            Assert.AreEqual(0, CS.TcpHelper.manager.defaultController.clients.Count);
+        }
 
     }
 }
