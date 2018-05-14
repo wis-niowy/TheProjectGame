@@ -193,7 +193,7 @@ namespace GameArea
             {
                 if (Player.GetPiece != null)
                 {
-                    pieceDataToSend = new GameObjects.Piece(Player.GetPiece.ID, DateTime.Now, Player.GetPiece.Type, (long)Player.ID);
+                    pieceDataToSend = new GameObjects.Piece(Player.GetPiece.ID, DateTime.Now, pieces.Where(p => p.ID == Player.GetPiece.ID).First().Type, (long)Player.ID);
                 }
             }
             finally
@@ -234,6 +234,7 @@ namespace GameArea
             { 
                 if (Player.GetPiece != null)
                 {
+                    pieces.RemoveAll(p => p.ID == Player.GetPiece.ID);
                     pieceDataToSend = null;
                     Player.SetPiece(null);
                 }

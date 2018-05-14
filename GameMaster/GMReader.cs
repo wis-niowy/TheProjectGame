@@ -11,7 +11,7 @@ using System.Xml.Serialization;
 
 namespace GameMaster
 {
-    class GMReader
+    public class GMReader
     {
         public static IGMMessage GetObjectFromXML(string message)
         {
@@ -28,7 +28,7 @@ namespace GameMaster
             catch (Exception e)
             {
                 ConsoleWriter.Error("Could not load message to XML. \nMessage content: \n" + message);
-                return null;
+                return new ErrorMessageGM("ReadingMessage", "Warning during reading message to server object, type not recognised\n Message read: " + message, "GetObjectFromXML", xmlDoc); 
             }
             switch (xmlDoc.DocumentElement.Name)
             {
@@ -77,12 +77,25 @@ namespace GameMaster
                     var acceptMsg = MessageParser.Deserialize<AcceptExchangeRequest>(message);
                     return new AcceptExchangeRequestGM(acceptMsg.playerId, acceptMsg.senderPlayerId);
                 // zalatwic roznice typow TaskField i GoalField nizej - najlepiej konstruktory biorace obiekt z namespace Messages
-                //case nameof(SuggestAction):
-                //    var suggestMsg = MessageParser.Deserialize<SuggestAction>(message);
-                //    return new SuggestActionGM(suggestMsg.playerId, suggestMsg.senderPlayerId, suggestMsg.playerGuid, suggestMsg.gameId, suggestMsg.TaskFields, suggestMsg.GoalFields);
+                case nameof(SuggestAction):
+                    var suggestMsg = MessageParser.Deserialize<SuggestAction>(message);
+                    List<GameArea.GameObjects.TaskField> tasks = new List<GameArea.GameObjects.TaskField>();
+                    List<GameArea.GameObjects.GoalField> goals = new List<GameArea.GameObjects.GoalField>();
+                    foreach (var t in suggestMsg.TaskFields)
+                        tasks.Add(new GameArea.GameObjects.TaskField(t));
+                    foreach (var g in suggestMsg.GoalFields)
+                        goals.Add(new GameArea.GameObjects.GoalField(g));
+
+                    return new SuggestActionGM(suggestMsg.playerId, suggestMsg.senderPlayerId, suggestMsg.playerGuid, suggestMsg.gameId, tasks.ToArray(), goals.ToArray());
                 //case nameof(SuggestActionResponse):
                 //    var answer = MessageParser.Deserialize<SuggestActionResponse>(message);
-                //    return new SuggestActionResponseGM(answer.playerId, answer.senderPlayerId, answer.playerGuid, answer.TaskFields, answer.GoalFields);
+                //    List<GameArea.GameObjects.TaskField> task = new List<GameArea.GameObjects.TaskField>();
+                //    List<GameArea.GameObjects.GoalField> goal = new List<GameArea.GameObjects.GoalField>();
+                //    foreach (var t in answer.TaskFields)
+                //        task.Add(new GameArea.GameObjects.TaskField(t));
+                //    foreach (var g in answer.GoalFields)
+                //        goal.Add(new GameArea.GameObjects.GoalField(g));
+                //    return new SuggestActionResponseGM(answer.playerId, answer.senderPlayerId, answer.playerGuid, answer.gameId, task.ToArray(), goal.ToArray());
                 case nameof(Data):
                     var data = MessageParser.Deserialize<Data>(message);
                     return new DataGM(data);

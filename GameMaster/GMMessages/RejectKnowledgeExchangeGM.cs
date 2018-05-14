@@ -6,7 +6,7 @@ using GameArea.AppMessages;
 
 namespace GameMaster.GMMessages
 {
-    class RejectKnowledgeExchangeGM : RejectKnowledgeExchangeMessage, IGMMessage
+    public class RejectKnowledgeExchangeGM : RejectKnowledgeExchangeMessage, IGMMessage
     {
         public RejectKnowledgeExchangeGM(ulong id, ulong senderId, bool permanent, string playerGuid = null) : base(id, senderId, permanent, playerGuid)
         {

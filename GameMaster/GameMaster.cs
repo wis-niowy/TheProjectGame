@@ -24,7 +24,7 @@ namespace GameArea
         private ulong goalsBlueLeft;
         private Random random;
         private List<Player.Player> Players;
-        //private List<Piece> pieces;
+        private List<GameArea.GameObjects.Piece> pieces;
         public GameMasterSettingsConfiguration Settings { get; set; }
         private GameObjects.GameBoard actualBoard;
         private System.Timers.Timer pieceAdder;
@@ -147,6 +147,7 @@ namespace GameArea
             State = GameMasterState.RegisteringGame;
             random = new Random();
             Players = new List<Player.Player>();
+            pieces = new List<GameObjects.Piece>();
             exchangeRequestList = new List<ExchengeRequestContainer>();
             goalsRedLeft = (ulong)settings.GameDefinition.Goals.Where(q => q.Team == TeamColour.red).Count();
             goalsBlueLeft = (ulong)settings.GameDefinition.Goals.Where(q => q.Team == TeamColour.blue).Count();
@@ -224,16 +225,31 @@ namespace GameArea
                 return false;
             }
             
-
         }
 
         private GameObjects.Piece CreatePiece()
         {
             var possibleSham = random.NextDouble();
+            GameArea.GameObjects.Piece piece;
             if (possibleSham <= GetGameDefinition.ShamProbability)
-                return new GameObjects.Piece(nextPieceId++,DateTime.Now, PieceType.sham );
+                piece = new GameObjects.Piece(nextPieceId++, DateTime.Now, PieceType.sham);
             else
-                return new GameObjects.Piece(nextPieceId++, DateTime.Now, PieceType.normal );
+                piece = new GameObjects.Piece(nextPieceId++, DateTime.Now, PieceType.normal);
+            pieces.Add(piece);
+            return piece;
+        }
+
+        public GameArea.GameObjects.Piece GetPieceById(ulong id)
+        {
+            List<GameArea.GameObjects.Piece> P = pieces.Where(p => p.ID == id).ToList();
+            if (P.Count > 0)
+                return P[0];
+            else return null;
+        }
+
+        public void RemovePieceById(ulong id)
+        {
+            pieces.RemoveAll(p => p.ID == id);
         }
 
         private GameObjects.TaskField GetEmptyFieldForPiece()
