@@ -28,9 +28,9 @@ namespace Player
             catch (Exception e)
             {
                 ConsoleWriter.Error("Could not load message to XML. \nMessage content: \n" + message);
-                return null;
+                return new ErrorMessageAgent("ReadingMessage", "Error during proccessing XML, incorrect syntax\n Message read: " + message, "GetObjectFromXML", xmlDoc); //xmlDoc as default for other actions
             }
-            if(xmlDoc == null)
+            if (xmlDoc == null)
             {
                 return new ErrorMessageAgent("ReadingMessage", "Error during proccessing XML, incorrect syntax\n Message read: " + message, "GetObjectFromXML", xmlDoc); //xmlDoc as default for other actions
             }
