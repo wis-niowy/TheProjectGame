@@ -39,22 +39,25 @@ namespace Player.Tests
         [TestMethod]
         public void ConfirmJoiningGameTest()
         {
-            string xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-                         "<ConfirmJoiningGame xmlns = \"https://se2.mini.pw.edu.pl/17-results/\">\n" +
-                                "gameId = \"1\"\n" +
-                                "playerId = \"2\"\n" +
-                                "privateGuid = \"c094cab7-da7b-457f-89e5-a5c51756035f\" >\n" +
-                            "<PlayerDefinition id = \"2\" team = \"blue\" role = \"member\" />\n" +
-                         "</ConfirmJoiningGame>";
+
+            string xml = "<?xml version = \"1.0\" encoding = \"utf-8\"?>" +
+                           "<ConfirmJoiningGame xmlns:xsi = \"http://www.w3.org/2001/XMLSchema-instance\" " + 
+                           "xmlns:xsd = \"http://www.w3.org/2001/XMLSchema\" " + 
+                           "playerId = \"2\" " + 
+                           "gameId = \"1\" " +
+                           "privateGuid = \"c094cab7-da7b-457f-89e5-a5c51756035f\" " + 
+                           "xmlns = \"https://se2.mini.pw.edu.pl/17-results/\" >" + 
+                           "<PlayerDefinition team = \"blue\" role = \"member\" id = \"2\" /></ConfirmJoiningGame >";
+
 
             var obj = PlayerReader.GetObjectFromXML(xml);
             var msg = obj as ConfirmJoiningGameAgent;
 
             Assert.IsNotNull(obj);
             Assert.IsTrue(obj.GetType() == typeof(ConfirmJoiningGameAgent));
-            //Assert.AreEqual(1ul, msg.GameId);
-            //Assert.AreEqual(2ul, msg.PlayerId);
-            //Assert.AreEqual("c094cab7-da7b-457f-89e5-a5c51756035f", msg.GUID);
+            Assert.AreEqual(1ul, msg.GameId);
+            Assert.AreEqual(2ul, msg.PlayerId);
+            Assert.AreEqual("c094cab7-da7b-457f-89e5-a5c51756035f", msg.GUID);
             Assert.AreEqual(2ul, msg.PlayerDefinition.ID);
             Assert.AreEqual(TeamColour.blue, msg.PlayerDefinition.Team);
             Assert.AreEqual(PlayerRole.member, msg.PlayerDefinition.Role);
@@ -63,10 +66,12 @@ namespace Player.Tests
         [TestMethod]
         public void RejectJoiningGameTest()
         {
-            string xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-                         "<RejectJoiningGame xmlns = \"https://se2.mini.pw.edu.pl/17-results/\">\n" +
-                                "gameName = \"Easy game\"\n" +
-                                "playerId = \"2\"\n" +
+            string xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
+                         "<RejectJoiningGame xmlns = \"https://se2.mini.pw.edu.pl/17-results/\" " +
+                            "xmlns:xsi = \"http://www.w3.org/2001/XMLSchema-instance\" " +
+                            "xmlns:xsd = \"http://www.w3.org/2001/XMLSchema\" " +
+                                "gameName = \"Easy game\" " +
+                                "playerId = \"2\" >" +
                          "</RejectJoiningGame>";
 
             var obj = PlayerReader.GetObjectFromXML(xml);
@@ -74,16 +79,18 @@ namespace Player.Tests
 
             Assert.IsNotNull(obj);
             Assert.IsTrue(obj.GetType() == typeof(RejectJoiningGameAgent));
-            //Assert.AreEqual("Easy game", msg.GameName);
-            //Assert.AreEqual(2ul, msg.PlayerId);
+            Assert.AreEqual("Easy game", msg.GameName);
+            Assert.AreEqual(2ul, msg.PlayerId);
         }
 
         [TestMethod]
         public void GameMessageTest()
         {
             string xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-                         "<Game xmlns = \"https://se2.mini.pw.edu.pl/17-results/\">\n" +
-                                "playerId = \"2\"\n" +
+                         "<Game xmlns = \"https://se2.mini.pw.edu.pl/17-results/\"\n" +
+                                "xmlns:xsi = \"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+                                "xmlns:xsd = \"http://www.w3.org/2001/XMLSchema\"\n" +
+                                "playerId = \"2\">\n" +
                             "<Players>\n" +
                                 "<Player team = \"red\" role = \"leader\" id = \"5\" />\n" +
                                 "<Player team = \"red\" role = \"member\" id = \"6\" />\n" +
@@ -101,7 +108,7 @@ namespace Player.Tests
 
             Assert.IsNotNull(obj);
             Assert.IsTrue(obj.GetType() == typeof(GameAgent));
-            //Assert.AreEqual(2ul, msg.PlayerId);
+            Assert.AreEqual(2ul, msg.PlayerId);
             Assert.AreEqual(6, msg.Players.Length);
 
             Assert.AreEqual(TeamColour.red, msg.Players[0].Team);
@@ -137,6 +144,8 @@ namespace Player.Tests
 
             string xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                          "<Data xmlns = \"https://se2.mini.pw.edu.pl/17-results/\"\n" +
+                                "xmlns:xsi = \"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+                                "xmlns:xsd = \"http://www.w3.org/2001/XMLSchema\"\n" +
                                 "playerId = \"1\"\n" +
                                 "gameFinished=\"false\">\n" +
                             "<TaskFields>\n" +
@@ -151,8 +160,8 @@ namespace Player.Tests
 
             Assert.IsNotNull(obj);
             Assert.IsTrue(obj.GetType() == typeof(DataAgent));
-            //Assert.AreEqual(1ul, msg.PlayerId);
-            //Assert.IsFalse(msg.GameFinished);
+            Assert.AreEqual(1ul, msg.PlayerId);
+            Assert.IsFalse(msg.GameFinished);
             Assert.AreEqual(1, msg.PlayerLocation.X);
             Assert.AreEqual(5, msg.PlayerLocation.Y);
             Assert.AreEqual(1, msg.Tasks.Length);
@@ -167,6 +176,8 @@ namespace Player.Tests
 
             string xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                          "<Data xmlns = \"https://se2.mini.pw.edu.pl/17-results/\"\n" +
+                                "xmlns:xsi = \"http://www.w3.org/2001/XMLSchema-instance\" " +
+                                "xmlns:xsd = \"http://www.w3.org/2001/XMLSchema\" " +
                                 "playerId = \"1\"\n" +
                                 "gameFinished=\"false\">\n" +
                             "<TaskFields>\n" +
