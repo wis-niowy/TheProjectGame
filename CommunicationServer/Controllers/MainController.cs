@@ -15,7 +15,7 @@ namespace CommunicationServer
     public class MainController:IMainController
     {
         Dictionary<string, GameController> gameDefinitions;
-        List<IClientHandle> clients;
+        public List<IClientHandle> clients;
 
         public MainController()
         {

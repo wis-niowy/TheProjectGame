@@ -13,7 +13,7 @@ namespace CommunicationServer.ServerObjects
     public class ClientManager
     {
         NewClientInterpreter defaultInterpreter;
-        MainController defaultController;
+        public MainController defaultController;
 
 
         public ClientManager()

@@ -60,6 +60,12 @@ namespace GameMaster
             return GMController.ConnectToServer(ip, port);
         }
 
+        public static bool StartGameMaster(GameArea.GameMaster gm, IPAddress ip, Int32 port)
+        {
+            GMController = new GameMasterController(gm);
+            return GMController.ConnectToServer(ip, port);
+        }
+
         private static bool ValidateArgs(string[] args)
         {
             var valid = true;

@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace CommunicationServer
 {
@@ -17,6 +18,8 @@ namespace CommunicationServer
             private static TcpListener listener { get; set; }
             private static bool accept { get; set; } = false;
 
+            public static ClientManager manager; // only for test purposes
+
             public static void StartServer(IPAddress address, int port)
             {
                 listener = new TcpListener(address, port);
@@ -24,29 +27,43 @@ namespace CommunicationServer
                 listener.Start();
                 accept = true;
 
-                Console.WriteLine($"Server started. Listening to TCP clients at "+ address + ":"+port);
+                Console.WriteLine($"Server started. Listening to TCP clients at " + address + ":" + port);
             }
 
+            private static volatile bool work = true;
             public static void Listen()
             {
-                ClientManager manager = new ClientManager();
+                manager = new ClientManager();
                 if (listener != null && accept)
                 {
                     // Continue listening.  
-                    while (true)
+                    while (work)
                     {
                         Console.WriteLine("Waiting for client...");
-                        var clientTask = listener.AcceptTcpClientAsync(); // Get the client  
-
-                        if (clientTask.Result != null)
+                        try
                         {
-                            Console.WriteLine("Client connected. Waiting for data.");
-                            var client = clientTask.Result;
+                            var clientTask = listener.AcceptTcpClientAsync(); // Get the client  
 
-                            manager.AddClient(client);
+                            if (clientTask.Result != null)
+                            {
+                                Console.WriteLine("Client connected. Waiting for data.");
+                                var client = clientTask.Result;
+
+                                manager.AddClient(client);
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            continue;
                         }
                     }
                 }
+            }
+
+            public static void StopListening(Thread t)
+            {
+                work = false;
+                t.Interrupt();
             }
         }
         public static void Main(string[] args)
