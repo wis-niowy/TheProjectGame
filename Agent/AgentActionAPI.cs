@@ -109,8 +109,6 @@ namespace Player
             return !HasPiece;
         }
 
-        // additional methods
-
         public bool UpdateLocalBoard(DataMessage responseMessage, ActionType action)
         {
             bool updated = false;
@@ -193,7 +191,16 @@ namespace Player
             return updated;
         }
 
+        public virtual DataMessage HandleKnowledgeExchangeRequest(KnowledgeExchangeRequestMessage messageObject)
+        {
+            // poki co - Player olewa
+            return null;
+        }
 
+        public virtual void HandleRejectKnowledgeExchange(RejectKnowledgeExchangeMessage messageObject)
+        {
+            // poki co - Player olewa
+        }
 
         // helpers ---------------------
 

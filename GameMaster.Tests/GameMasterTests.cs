@@ -564,32 +564,32 @@ namespace GameArea.Tests
             Assert.IsTrue(defaultGameMaster.exchangeRequestList.Count == 0);
         }
 
-        [TestMethod]
-        public void AcceptKnowledgeExchangeReceived()
-        {
-            InitGameMaster();
-            var sender = GetPlayer("testGUID-1111", 1, TeamColour.blue, ActionType.none);
-            var addressee = GetPlayer("testGUID-9999", 9, TeamColour.red, ActionType.none);
-            sender.SetLocation(1, 3);
-            addressee.SetLocation(2, 6);
+        //[TestMethod]
+        //public void AcceptKnowledgeExchangeReceived()
+        //{
+        //    InitGameMaster();
+        //    var sender = GetPlayer("testGUID-1111", 1, TeamColour.blue, ActionType.none);
+        //    var addressee = GetPlayer("testGUID-9999", 9, TeamColour.red, ActionType.none);
+        //    sender.SetLocation(1, 3);
+        //    addressee.SetLocation(2, 6);
 
-            defaultGameMaster.RegisterPlayer(sender, sender.GUID, findFreeLocationAndPlacePlayer: false);
-            defaultGameMaster.RegisterPlayer(addressee, addressee.GUID, findFreeLocationAndPlacePlayer: false);
+        //    defaultGameMaster.RegisterPlayer(sender, sender.GUID, findFreeLocationAndPlacePlayer: false);
+        //    defaultGameMaster.RegisterPlayer(addressee, addressee.GUID, findFreeLocationAndPlacePlayer: false);
 
-            defaultGameMaster.exchangeRequestList.Add(new ExchengeRequestContainer(1, 9));
-            defaultGameMaster.exchangeRequestList[0].SenderData = new DataMessage(9);
+        //    defaultGameMaster.exchangeRequestList.Add(new ExchengeRequestContainer(1, 9));
+        //    defaultGameMaster.exchangeRequestList[0].SenderData = new DataMessage(9);
 
-            var msg = new AcceptExchangeRequestMessage(1, 9);
+        //    var msg = new AcceptExchangeRequestMessage(1, 9);
 
-            // action
-            var result = defaultGameMaster.HandleAcceptKnowledgeExchange(msg);
+        //    // action
+        //    var result = defaultGameMaster.HandleAcceptKnowledgeExchange(msg);
 
-            // assert
-            Assert.AreEqual(typeof(AcceptExchangeRequestMessage), result.GetType());
-            Assert.AreEqual(sender.ID, result.PlayerId); // sender otrzymuje odmowe
-            Assert.AreEqual(addressee.ID, result.SenderPlayerId); // addressee wysyla odmowe
-            Assert.IsTrue(defaultGameMaster.exchangeRequestList.Count == 1);
-        }
+        //    // assert
+        //    Assert.AreEqual(typeof(AcceptExchangeRequestMessage), result.GetType());
+        //    Assert.AreEqual(sender.ID, result.PlayerId); // sender otrzymuje odmowe
+        //    Assert.AreEqual(addressee.ID, result.SenderPlayerId); // addressee wysyla odmowe
+        //    Assert.IsTrue(defaultGameMaster.exchangeRequestList.Count == 1);
+        //}
 
         [TestMethod]
         public void DataMessageFromExchangeRequestSenderReceived()

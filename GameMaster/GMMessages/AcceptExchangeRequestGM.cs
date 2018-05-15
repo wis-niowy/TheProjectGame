@@ -18,7 +18,8 @@ namespace GameMaster.GMMessages
 
         public string[] Process(IGameMaster gameMaster)
         {
-            return new string[] { gameMaster.HandleAcceptKnowledgeExchange(this)?.Serialize() };
+            return null;
+            //return new string[] { gameMaster.HandleAcceptKnowledgeExchange(this)?.Serialize() };
         }
     }
 }

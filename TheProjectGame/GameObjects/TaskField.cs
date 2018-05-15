@@ -20,6 +20,15 @@ namespace GameArea.GameObjects
             Player = task.playerIdSpecified ? new Player(task.playerId) : null;
         }
 
+        public TaskField(TaskField task) : base(task.ToBase())
+        {
+            DistanceToPiece = task.DistanceToPiece;
+            if (task.Piece != null)
+                Piece = new Piece(task.Piece);
+            if (task.Player != null)
+                Player = new Player(task.Player);
+        }
+
         public TaskField(int x, int y, DateTime timestamp, int distanceToPiece = int.MaxValue, Piece piece = null, Player player = null) : base(x, y)
         {
             DistanceToPiece = distanceToPiece;

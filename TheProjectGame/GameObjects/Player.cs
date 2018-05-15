@@ -40,5 +40,13 @@ namespace GameArea.GameObjects
             Role = player.role;
             Team = player.team;
         }
+
+        public Player(Player player)
+        {
+            ID = player.ID;
+            Role = player.Role;
+            Team = player.Team;
+            GUID = player.GUID;
+        }
     }
 }

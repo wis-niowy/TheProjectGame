@@ -72,7 +72,12 @@ namespace Player
                             ConsoleWriter.Show("Agent read: \n" + message + "\n");
                             var msgObject = PlayerReader.GetObjectFromXML(message);
                             if (msgObject != null)
-                                msgObject.Process(Player);
+                            {
+                                var responseMsgs = msgObject.Process(Player);
+                                if (responseMsgs != null)
+                                    foreach (var msg in responseMsgs)
+                                        BeginSend(msg);
+                            } 
                             else
                                 ConsoleWriter.Warning("Not recognised message object\n Message object is null \n Received message: \n" + message);
                         }

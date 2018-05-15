@@ -14,7 +14,7 @@ namespace Player.PlayerConfiguration
         {
         }
 
-        public void Process(IPlayer player)
+        public string[] Process(IPlayer player)
         {
             throw new NotImplementedException();
         }

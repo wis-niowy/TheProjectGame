@@ -535,21 +535,30 @@ namespace GameArea
             var addressee = Players.Where(p => p.ID == msg.WithPlayerId).FirstOrDefault();
             var fromId = sender.ID;
 
-            ConsoleWriter.Show("Received Authorize Knowledge Exchange from " + fromId + " to " + msg.WithPlayerId + " ...");
-
-            if (addressee == null) // nie ma takiego gracza w rozgrywce
+            Monitor.Enter(lockObject);
+            try
             {
-                ConsoleWriter.Show("Player with ID: " + msg.WithPlayerId + " does not exist!");
+                ConsoleWriter.Show("Received Authorize Knowledge Exchange from " + fromId + " to " + msg.WithPlayerId + " ...");
 
-                returnMsg = new RejectKnowledgeExchangeMessage(0, sender.ID, true);
+                if (addressee == null) // nie ma takiego gracza w rozgrywce
+                {
+                    ConsoleWriter.Show("Player with ID: " + msg.WithPlayerId + " does not exist!");
+
+                    returnMsg = new RejectKnowledgeExchangeMessage(0, sender.ID, true);
+                }
+                else
+                {
+                    ConsoleWriter.Show("Message sent to PlayerID: " + addressee.ID);
+                    exchangeRequestList.Add(new ExchengeRequestContainer(sender.ID, addressee.ID)); // przechowujemy probe komunikacji - po otrzymaniu DataMessege dopiszemy do struktury
+
+                    returnMsg = new KnowledgeExchangeRequestMessage(msg.WithPlayerId, fromId);
+                }
             }
-            else
+            finally
             {
-                ConsoleWriter.Show("Message sent to PlayerID: " + addressee.ID);
-                exchangeRequestList.Add(new ExchengeRequestContainer(sender.ID, addressee.ID)); // przechowujemy probe komunikacji - po otrzymaniu DataMessege dopiszemy do struktury
-
-                returnMsg = new KnowledgeExchangeRequestMessage(msg.WithPlayerId, fromId);
+                Monitor.Exit(lockObject);
             }
+            Thread.Sleep((int)GetCosts.KnowledgeExchangeDelay);
 
             return returnMsg;
         }
@@ -559,35 +568,35 @@ namespace GameArea
             // gracz odbierajacy taki reject message musi sobie zapisac, jezeli to bylo permanentne ?
 
             var request = exchangeRequestList.Where(r => r.SenderID == msg.PlayerId).Where(r => r.AddresseeID == msg.SenderPlayerId).FirstOrDefault();
-            
-            if (request != null)
-            {
-                exchangeRequestList.Remove(request);
-            }
 
-            ConsoleWriter.Show("Player with ID: " + msg.SenderPlayerId + " rejected knowledge exchange with Player ID: " + msg.PlayerId);
+            Monitor.Enter(lockObject);
+            try
+            {
+                if (request != null)
+                {
+                    exchangeRequestList.Remove(request);
+                }
+
+                ConsoleWriter.Show("Player with ID: " + msg.SenderPlayerId + " rejected knowledge exchange with Player ID: " + msg.PlayerId);
+            }
+            finally
+            {
+                Monitor.Exit(lockObject);
+            }
+            // bez opoznien
 
             return new RejectKnowledgeExchangeMessage(msg.PlayerId, msg.SenderPlayerId, msg.Permanent, msg.PlayerGUID);
         }
 
-        public AcceptExchangeRequestMessage HandleAcceptKnowledgeExchange(AcceptExchangeRequestMessage msg)
-        {
-            // request zostanie usuniety z listy dopiero po otrzymaniu Data od addressee - wtedy wysylamy w obie strony odpowiednie DataMessage i usuwamy zl sity
-
-            ConsoleWriter.Show("Player with ID: " + msg.SenderPlayerId + " accepted knowledge exchange with Player ID: " + msg.PlayerId);
-
-            return new AcceptExchangeRequestMessage(msg.PlayerId, msg.SenderPlayerId);
-        }
-
-
-
         public SuggestActionMessage HandleSuggestAction(SuggestActionMessage msg)
         {
+            Thread.Sleep((int)GetCosts.SuggestActionDelay);
             return msg;
         }
 
         public SuggestActionResponseMessage HandleSuggestActionResponse(SuggestActionResponseMessage msg)
         {
+            Thread.Sleep((int)GetCosts.SuggestActionDelay);
             return msg;
         }
 
@@ -595,26 +604,36 @@ namespace GameArea
         {
             // jezeli otrzymalismy DataMessage od sender - zapisujemy do struktury
             // jezeli otrzmyalismy DataMessage od addressee - przesylamy do sender, jednoczesnie wyciagamy DataMessage z listy i wysylamy do addressee, na koniec usuwamy request z listy
+            string[] returnArray = null;
 
-            var request = exchangeRequestList.Where(r => r.AddresseeID == data.PlayerId).FirstOrDefault(); // szukamy requestu wyslania wiadomosci do adresata
-            if (request != null && request.SenderData == null) // otrzymano DataMessage od sender - jego widok gry dla addressee
+            Monitor.Enter(lockObject);
+            try
             {
-                ConsoleWriter.Show("Data from Player ID: " + request.SenderID + " for Player ID: " + request.AddresseeID + " received!");
-                request.SenderData = data;
-                return new string[] { };
-            }
+                var request = exchangeRequestList.Where(r => r.AddresseeID == data.PlayerId).FirstOrDefault(); // szukamy requestu wyslania wiadomosci do adresata
+                if (request != null && request.SenderData == null) // otrzymano DataMessage od sender - jego widok gry dla addressee
+                {
+                    ConsoleWriter.Show("Data from Player ID: " + request.SenderID + " for Player ID: " + request.AddresseeID + " received!");
+                    request.SenderData = data;
+                    returnArray = new string[] { };
+                }
 
-            request = exchangeRequestList.Where(r => r.SenderID == data.PlayerId).FirstOrDefault(); // szukamy requestu wyslania odpowiedzi do sendera
-            if (request != null)
+                request = exchangeRequestList.Where(r => r.SenderID == data.PlayerId).FirstOrDefault(); // szukamy requestu wyslania odpowiedzi do sendera
+                if (request != null)
+                {
+                    ConsoleWriter.Show("Data messages sent to both sides");
+                    var dataForSender = data;
+                    var dataForAddressee = request.SenderData;
+                    exchangeRequestList.Remove(request);
+                    returnArray = new string[] { dataForSender.Serialize(), dataForAddressee.Serialize() };
+                }
+            }
+            finally
             {
-                ConsoleWriter.Show("Data messages sent to both sides");
-                var dataForSender = data;
-                var dataForAddressee = request.SenderData;
-                exchangeRequestList.Remove(request);
-                return new string[] { dataForSender.Serialize(), dataForAddressee.Serialize() };
+                Monitor.Exit(lockObject);
             }
+            Thread.Sleep((int)GetCosts.KnowledgeExchangeDelay);
 
-            return null;
+            return returnArray;
         }
 
 

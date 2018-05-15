@@ -15,9 +15,10 @@ namespace Player.PlayerMessages
             Document = doc;
         }
 
-        public void Process(IPlayer player)
+        public string[] Process(IPlayer player)
         {
             player.ErrorMessage(this);
+            return null;
         }
     }
 }

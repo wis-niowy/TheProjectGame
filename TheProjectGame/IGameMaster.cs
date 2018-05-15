@@ -28,7 +28,7 @@ namespace GameArea
         string[] RestartGame();
         BetweenPlayersAbstractMessage HandleAuthorizeKnowledgeExchange(AuthorizeKnowledgeExchangeMessage msg);
         RejectKnowledgeExchangeMessage HandleRejectKnowledgeExchange(RejectKnowledgeExchangeMessage msg);
-        AcceptExchangeRequestMessage HandleAcceptKnowledgeExchange(AcceptExchangeRequestMessage msg);
+        //AcceptExchangeRequestMessage HandleAcceptKnowledgeExchange(AcceptExchangeRequestMessage msg);
         SuggestActionMessage HandleSuggestAction(SuggestActionMessage msg);
         SuggestActionResponseMessage HandleSuggestActionResponse(SuggestActionResponseMessage msg);
         string[] HandleData(DataMessage data);

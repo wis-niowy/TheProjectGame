@@ -20,6 +20,13 @@ namespace GameArea.GameObjects
             Type = piece.type;
             TimeStamp = piece.timestamp;
         }
+        public Piece(Piece piece)
+        {
+            ID = piece.ID;
+            PlayerId = piece.PlayerId;
+            Type = piece.Type;
+            TimeStamp = piece.TimeStamp;
+        }
         public Piece(ulong id,DateTime timeStamp, PieceType type = PieceType.unknown, long playerId = -1)
         {
             ID = id;

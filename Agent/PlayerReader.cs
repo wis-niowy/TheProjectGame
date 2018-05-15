@@ -76,7 +76,12 @@ namespace Player
 
                     GameArea.GameObjects.GoalField[] goals;
                     if (data.GoalFields != null)
-                        goals = data.GoalFields.Select(q => new GameArea.GameObjects.GoalField((int)q.x, (int)q.y, DateTime.Now, q.team, q.type)).ToArray();
+                        goals = data.GoalFields.Select(q => new GameArea.GameObjects.GoalField((int)q.x, (int)q.y,
+                                                                                                DateTime.Now, q.team, q.type,
+                                                                                                q.playerIdSpecified ? new GameArea.GameObjects.Player(q.playerId) : null)
+                                                                                                {
+                                                                                                    PlayerId = q.playerIdSpecified ? (long)q.playerId : -1
+                                                                                                }).ToArray();
                     else
                         goals = null;
 
@@ -94,7 +99,7 @@ namespace Player
                                                                                                 DateTime.Now,
                                                                                                 q.distanceToPiece,
                                                                                                 (q.pieceIdSpecified ? new GameArea.GameObjects.Piece(q.pieceId, DateTime.Now) : null),
-                                                                                                (q.playerIdSpecified ? new GameArea.GameObjects.Player(q.playerId) : null))).ToArray();
+                                                                                                (q.playerIdSpecified ? new GameArea.GameObjects.Player(q.playerId) : null)) { PlayerId = q.playerIdSpecified ? (long)q.playerId : -1 }).ToArray();
                     }
                     else
                         tasks = null;
@@ -112,6 +117,13 @@ namespace Player
                 case nameof(Configuration.PlayerSettings):
                     var settings = MessageParser.Deserialize<Configuration.PlayerSettings>(message);
                     return new PlayerSettingsAgent(settings);
+
+                case nameof(Messages.KnowledgeExchangeRequest):
+                    var exchangeRequest = MessageParser.Deserialize<Messages.KnowledgeExchangeRequest>(message);
+                    return new KnowledgeExchangeRequestAgent(exchangeRequest.playerId, exchangeRequest.senderPlayerId);
+                case nameof(Messages.RejectKnowledgeExchange):
+                    var requestRejection = MessageParser.Deserialize<Messages.RejectKnowledgeExchange>(message);
+                    return new RejectKnowledgeExchangeAgent(requestRejection.playerId, requestRejection.senderPlayerId, requestRejection.permanent, requestRejection.playerGuid);
 
                 default:
                     return new ErrorMessageAgent("ReadingMessage", "Warning during reading message to server object, type not recognised\n Message read: " + message, "GetObjectFromXML", xmlDoc); //xmlDoc as default for other actions
