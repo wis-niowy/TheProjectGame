@@ -11,9 +11,10 @@ namespace Player.PlayerMessages
         {
         }
 
-        public void Process(IPlayer player)
+        public string[] Process(IPlayer player)
         {
             player.GameStarted(this);
+            return null;
         }
     }
 }

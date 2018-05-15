@@ -45,5 +45,8 @@ namespace GameArea
         void GameMasterDisconnected(AppMessages.GameMasterDisconnectedMessage messageObject);
 
         void ErrorMessage(AppMessages.ErrorMessage error);
+
+        DataMessage HandleKnowledgeExchangeRequest(KnowledgeExchangeRequestMessage messageObject);
+        void HandleRejectKnowledgeExchange(RejectKnowledgeExchangeMessage messageObject);
     }
 }

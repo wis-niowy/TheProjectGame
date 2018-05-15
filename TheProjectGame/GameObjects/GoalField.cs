@@ -17,11 +17,20 @@ namespace GameArea.GameObjects
             Player = field.playerIdSpecified ? new Player(field.playerId) : null;
         }
 
-        public GoalField(int x, int y,DateTime timeStamp, TeamColour team, GoalFieldType type):base(x,y)
+        public GoalField(GoalField field) : base(field.ToBase())
+        {
+            Type = field.Type;
+            Team = field.Team;
+            if (field.Player != null)
+                Player = new Player(field.Player);
+        }
+
+        public GoalField(int x, int y,DateTime timeStamp, TeamColour team, GoalFieldType type, Player player = null):base(x,y)
         {
             Type = type;
             Team = team;
             TimeStamp = timeStamp;
+            Player = player;
         }
 
         public override FieldType GetFieldType => FieldType.Goal;

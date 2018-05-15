@@ -15,9 +15,10 @@ namespace Player.PlayerMessages
         {
         }
 
-        public void Process(IPlayer player)
+        public string[] Process(IPlayer player)
         {
             player.UpdateLocalBoard(this, (ActionType)player.LastActionTaken);//, (MoveType)player.LastMoveTaken);
+            return null;
         }
     }
 }
