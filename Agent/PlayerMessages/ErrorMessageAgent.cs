@@ -15,9 +15,9 @@ namespace Player.PlayerMessages
             Document = doc;
         }
 
-        public string[] Process(IPlayer player)
+        public string[] Process(IPlayerController controller)
         {
-            player.ErrorMessage(this);
+            controller.Player.ErrorMessage(this);
             return null;
         }
     }

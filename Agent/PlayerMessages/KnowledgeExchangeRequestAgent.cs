@@ -12,9 +12,9 @@ namespace Player.PlayerMessages
         {
         }
 
-        public string[] Process(IPlayer player)
+        public string[] Process(IPlayerController controller)
         {
-            return new string[] { player.HandleKnowledgeExchangeRequest(this)?.Serialize() };
+            return new string[] { controller.Player.HandleKnowledgeExchangeRequest(this)?.Serialize() };
         }
     }
 }

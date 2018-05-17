@@ -39,8 +39,6 @@ namespace GameArea
 
         void DoStrategy();
         bool UpdateLocalBoard(DataMessage receivedData, ActionType action);
-        void RegisteredGames(RegisteredGamesMessage messageObject);
-        void ConfirmJoiningGame(ConfirmJoiningGameMessage messageObject);
         void GameStarted(AppMessages.GameMessage messageObject);
         void GameMasterDisconnected(AppMessages.GameMasterDisconnectedMessage messageObject);
 

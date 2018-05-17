@@ -13,9 +13,9 @@ namespace Player.PlayerMessages
         {
         }
 
-        public string[] Process(IPlayer player)
+        public string[] Process(IPlayerController controller)
         {
-            player.ConfirmJoiningGame(this);
+            controller.ConfirmJoiningGame(this);
             return null;
         }
     }

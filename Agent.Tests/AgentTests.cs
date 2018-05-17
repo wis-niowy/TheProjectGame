@@ -20,10 +20,12 @@ namespace Player.Tests
         }
         public Player GetPlayer(string guid, ulong id, TeamColour tc, ActionType action, IPlayerController controller = null)
         {
+            controller = new PlayerControllerMock();
             var player = new Player(tc, _guid: guid);
             player.ID = id;
             player.LastActionTaken = action;
             player.Controller = controller;
+            controller.Player = player;
 
             return player;
         }

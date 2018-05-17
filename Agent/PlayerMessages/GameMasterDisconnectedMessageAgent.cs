@@ -12,9 +12,9 @@ namespace Player.PlayerMessages
         {
         }
 
-        public string[] Process(IPlayer player)
+        public string[] Process(IPlayerController controller)
         {
-            player.GameMasterDisconnected(this);
+            controller.Player.GameMasterDisconnected(this);
             return null;
         }
     }

@@ -1,4 +1,6 @@
 ﻿using GameArea;
+using GameArea.AppConfiguration;
+using GameArea.AppMessages;
 using GameArea.Parsers;
 using Messages;
 using System;
@@ -7,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Player
@@ -16,11 +19,26 @@ namespace Player
         private TcpClient clientSocket;
         private System.Timers.Timer keppAliveTimer;
         public IPlayer Player { get; set; }
+        public AgentState State { get; set; }
+        public ActionType ActionToComplete { get; set; }
+        public PlayerSettingsConfiguration Settings { get; set; }
+        private List<GameArea.GameObjects.GameInfo> GamesList { get; set; }
+        TeamColour PrefferedColor { get; set; }
+        PlayerRole PrefferedRole { get; set; }
 
         public PlayerController(IPlayer player)
         {
             clientSocket = new TcpClient();
             Player = player;
+        }
+
+        public PlayerController(TeamColour team, PlayerRole role, PlayerSettingsConfiguration settings)
+        {
+            clientSocket = new TcpClient();
+            PrefferedColor = team;
+            PrefferedRole = role;
+            Settings = settings;
+            
         }
 
         public bool ConnectToServer(IPAddress ip, Int32 port)
@@ -44,8 +62,83 @@ namespace Player
         {
             ConsoleWriter.Show("Player is ready ...");
             BeginRead();
-            Player.DoStrategy();
+            //Player.DoStrategy();
+            DoInitialStrategy();
         }
+
+        public void DoInitialStrategy()
+        {
+            while (State != AgentState.Dead)
+            {
+                switch (State)
+                {
+                    case AgentState.SearchingForGame:
+                        ActionToComplete = ActionType.SearchingForGame;
+                        BeginSend(new GetGamesMessage().Serialize());
+                        break;
+                    case AgentState.Joining:
+                        TryJoinGame();
+                        break;
+                    case AgentState.AwaitingForStart:
+                        Player.DoStrategy();
+                        break;
+                }
+                WaitForActionComplete();
+            }
+        }
+
+        private void TryJoinGame()
+        {
+            if (GamesList == null || GamesList.Count == 0)
+            {
+                State = AgentState.SearchingForGame;
+                Thread.Sleep(Settings.RetryJoinGameInterval);
+                //nie ustawiamy akcji, strategia sama dojdzie do tego co ma zrobić
+            }
+            else
+            {
+                var game = GamesList[0];
+                GamesList.RemoveAt(0);
+                BeginSend(new JoinGameMessage(game.GameName, PrefferedColor, PrefferedRole).Serialize());
+                ActionToComplete = ActionType.Joining;
+            }
+        }
+
+        public void RegisteredGames(RegisteredGamesMessage messageObject)
+        {
+            GamesList = messageObject.Games?.ToList();
+            State = AgentState.Joining;
+            ActionToComplete = ActionType.none;
+        }
+
+        public void ConfirmJoiningGame(ConfirmJoiningGameMessage info)
+        {
+
+            var gameId = info.GameId;
+            var id = info.PlayerId; //u nas serwerowe ID i playerId na planszy to jedno i to samo
+            var guid = info.GUID;
+            var team = info.PlayerDefinition.Team;
+            Player = info.PlayerDefinition.Role == PlayerRole.leader ? new Leader(team, PlayerRole.leader, Settings, this, guid) : new Player(team, PlayerRole.leader, Settings, this, guid);
+            State = AgentState.AwaitingForStart;
+            ActionToComplete = ActionType.none;
+        }
+
+        /// <summary>
+        /// Awaits for property change.
+        /// Returns true if value has changed.
+        /// Returns false after timeout.
+        /// </summary>
+        /// <param name="miliSec">Miliseconds of timeout</param>
+        public bool WaitForActionComplete(int miliSec = 5000)
+        {
+            var result = SpinWait.SpinUntil(() => ActionToComplete == ActionType.none, miliSec);
+            if (!result)
+            {
+                ConsoleWriter.Warning("Waiting for operation complete timeout: " + ActionToComplete);
+            }
+            return result;
+        }
+
 
         public void BeginRead()
         {
@@ -73,7 +166,7 @@ namespace Player
                             var msgObject = PlayerReader.GetObjectFromXML(message);
                             if (msgObject != null)
                             {
-                                var responseMsgs = msgObject.Process(Player);
+                                var responseMsgs = msgObject.Process(this);
                                 if (responseMsgs != null)
                                     foreach (var msg in responseMsgs)
                                         BeginSend(msg);
@@ -129,7 +222,7 @@ namespace Player
 
         private void InitKeepAliveTimer()
         {
-            keppAliveTimer = new System.Timers.Timer((Player.Settings.KeepAliveInterval * 2) / 3); //timer częściej aby serwer przedwcześnie go nie ubił
+            keppAliveTimer = new System.Timers.Timer((Settings.KeepAliveInterval * 2) / 3); //timer częściej aby serwer przedwcześnie go nie ubił
             keppAliveTimer.Elapsed += KeppAliveTimer_Elapsed; ;
             keppAliveTimer.AutoReset = true;
             keppAliveTimer.Start();

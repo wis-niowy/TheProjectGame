@@ -27,7 +27,7 @@ namespace Player.Tests
             };
 
             // action
-            data.Process(Player);
+            data.Process(Player.Controller);
 
             // assert
             Assert.IsNull(Player.GetPiece);
@@ -55,7 +55,7 @@ namespace Player.Tests
             };
 
             // action
-            data.Process(Player);
+            data.Process(Player.Controller);
 
             // assert
             Assert.AreEqual(PieceType.sham, Player.GetPiece.Type);
@@ -83,7 +83,7 @@ namespace Player.Tests
             };
 
             // action
-            data.Process(Player);
+            data.Process(Player.Controller);
 
             // assert
             Assert.AreEqual(PieceType.normal, Player.GetPiece.Type);
@@ -123,7 +123,7 @@ namespace Player.Tests
             };
 
             // action: Player places a piece
-            data.Process(Player);
+            data.Process(Player.Controller);
 
             // assert
             Assert.IsNull(Player.GetPiece);
@@ -158,7 +158,7 @@ namespace Player.Tests
             Player.GetBoard.GetTaskField(Player.Location).Piece = new GameArea.GameObjects.Piece(new Piece(PieceType.unknown, 90));
 
             // action: Player places a piece
-            data.Process(Player);
+            data.Process(Player.Controller);
 
             // assert
             Assert.IsNotNull(Player.GetPiece);
@@ -200,7 +200,7 @@ namespace Player.Tests
             };
 
             // action: Player places a piece
-            data.Process(Player);
+            data.Process(Player.Controller);
 
             // assert
             Assert.IsNull(Player.GetPiece);
@@ -241,7 +241,7 @@ namespace Player.Tests
             };
 
             // action: Player places a piece
-            data.Process(Player);
+            data.Process(Player.Controller);
 
             // assert
             Assert.IsNotNull(Player.GetPiece);
@@ -280,7 +280,7 @@ namespace Player.Tests
             };
 
             // action: Player places a piece
-            data.Process(Player);
+            data.Process(Player.Controller);
 
             // assert
             Assert.IsNull(Player.GetPiece);
@@ -319,7 +319,7 @@ namespace Player.Tests
             };
 
             // action: Player places a piece
-            data.Process(Player);
+            data.Process(Player.Controller);
 
             // assert
             Assert.IsNotNull(Player.GetPiece);
@@ -353,7 +353,7 @@ namespace Player.Tests
             Player.GetBoard.GetTaskField(Player.Location).Piece = new GameArea.GameObjects.Piece(piece);
 
             // action: Player places a piece
-            data.Process(Player);
+            data.Process(Player.Controller);
 
             Assert.IsNotNull(Player.GetPiece);
             Assert.IsNull(Player.GetBoard.GetTaskField(Player.Location).Piece);
@@ -380,7 +380,7 @@ namespace Player.Tests
             Player.GetBoard.GetTaskField(Player.Location).Piece = null;
 
             // action: Player places a piece
-            data.Process(Player);
+            data.Process(Player.Controller);
 
             Assert.IsNull(Player.GetPiece);
             Assert.IsNull(Player.GetBoard.GetTaskField(Player.Location).Piece);
@@ -415,7 +415,7 @@ namespace Player.Tests
             };
 
             // action: Player moves up to (2,5)
-            data.Process(Player);
+            data.Process(Player.Controller);
 
             // assert
             Assert.AreEqual(new GameArea.GameObjects.Location(2, 5), Player.Location);
@@ -452,7 +452,7 @@ namespace Player.Tests
             };
 
             // action: Player moves up to (2,5)
-            data.Process(Player);
+            data.Process(Player.Controller);
 
             // assert
             Assert.AreEqual(new GameArea.GameObjects.Location(2, 4), Player.Location);
@@ -487,7 +487,7 @@ namespace Player.Tests
             };
 
             // action: Player moves down to (2,2)
-            data.Process(Player);
+            data.Process(Player.Controller);
 
             Assert.AreEqual(new GameArea.GameObjects.Location(2, 2), Player.Location);
             Assert.IsNull(Player.GetBoard.GetField(2, 3).Player);
@@ -520,7 +520,7 @@ namespace Player.Tests
             };
 
             // action: Player moves down to (2,2)
-            data.Process(Player);
+            data.Process(Player.Controller);
 
             Assert.AreEqual(new GameArea.GameObjects.Location(2, 3), Player.Location);
             Assert.IsNull(Player.GetBoard.GetField(2, 3).Player);
@@ -547,7 +547,7 @@ namespace Player.Tests
             };
 
             // action: Player moves down to (1, 10)
-            data.Process(Player);
+            data.Process(Player.Controller);
 
             Assert.AreEqual(new GameArea.GameObjects.Location(1, 9), Player.Location);
             Assert.IsNull(gameMaster.GetBoard.GetField(1, 9).Player);
@@ -573,7 +573,7 @@ namespace Player.Tests
             };
 
             // action: Player moves down to (5, 7)
-            data.Process(Player);
+            data.Process(Player.Controller);
 
             Assert.AreEqual(new GameArea.GameObjects.Location(4, 7), Player.Location);
             Assert.IsNull(gameMaster.GetBoard.GetField(4, 7).Player);
@@ -611,7 +611,7 @@ namespace Player.Tests
             };
 
             // action: Player discovers area
-            data.Process(Player);
+            data.Process(Player.Controller);
 
             Assert.AreEqual(new GameArea.GameObjects.Location(1, 5), Player.Location);
             for (int i = 0; i < 9; ++i)
@@ -664,7 +664,7 @@ namespace Player.Tests
             };
 
             // action: Player discovers area
-            data.Process(Player);
+            data.Process(Player.Controller);
 
             Assert.AreEqual(new GameArea.GameObjects.Location(1, 5), Player.Location);
             Assert.IsNull(Player.GetBoard.GetTaskField(0, 5).Player);
@@ -713,7 +713,7 @@ namespace Player.Tests
             };
 
             // action: Player discovers area
-            data.Process(Player);
+            data.Process(Player.Controller);
 
             Assert.AreEqual(new GameArea.GameObjects.Location(1, 5), Player.Location);
             Assert.IsNotNull(Player.GetBoard.GetTaskField(0, 6).Player);
@@ -772,7 +772,7 @@ namespace Player.Tests
             };
 
             // action: Player discovers area
-            data.Process(Player);
+            data.Process(Player.Controller);
 
             Assert.AreEqual(new GameArea.GameObjects.Location(1, 3), Player.Location);
             Assert.IsNotNull(Player.GetBoard.GetGoalField(1, 2).Player);

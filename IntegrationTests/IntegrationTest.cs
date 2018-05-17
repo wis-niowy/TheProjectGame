@@ -62,7 +62,7 @@ namespace IntegrationTests
             Thread t = new Thread(new ThreadStart(CS.TcpHelper.Listen));
             t.Start();
 
-            bool isConnectedAgent = MainPlayer.StartPlayer(ip, port, new PlayerSettingsConfiguration(5000), TeamColour.blue, PlayerRole.member);
+            bool isConnectedAgent = MainPlayer.StartPlayerController(ip, port, new PlayerSettingsConfiguration(5000), TeamColour.blue, PlayerRole.member);
 
             Thread.Sleep(500);
 

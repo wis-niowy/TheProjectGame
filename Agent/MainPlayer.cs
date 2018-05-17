@@ -58,20 +58,28 @@ namespace Player
 
             ConsoleWriter.Show("Settings loaded. Establishing connection to server.");
 
-            if (StartPlayer(serverIP, serverPort, settings, colour, role))
+            if (StartPlayerController(serverIP, serverPort, settings, colour, role))
             {
                 PController.StartPerformance();
             }
         }
 
-        public static bool StartPlayer(IPAddress ip, Int32 port, PlayerSettingsConfiguration settings, Messages.TeamColour colour, Messages.PlayerRole role)
+        public static bool StartPlayerController(IPAddress ip, Int32 port, PlayerSettingsConfiguration settings, Messages.TeamColour colour, Messages.PlayerRole role)
         {
-            var player = new Player(colour,role,settings);
-            PController = new PlayerController(player);
-            player.Controller = PController;
+            PController = new PlayerController(colour, role, settings);
             return PController.ConnectToServer(ip, port);
         }
 
+        /// <summary>
+        /// Method for integration tests
+        /// </summary>
+        /// <param name="ip"></param>
+        /// <param name="port"></param>
+        /// <param name="settings"></param>
+        /// <param name="colour"></param>
+        /// <param name="PController"></param>
+        /// <param name="role"></param>
+        /// <returns></returns>
         public static bool TestStartPlayer(IPAddress ip, Int32 port, PlayerSettingsConfiguration settings, Messages.TeamColour colour, out PlayerController PController, Messages.PlayerRole role = Messages.PlayerRole.member)
         {
             var player = new Player(colour, role,settings);

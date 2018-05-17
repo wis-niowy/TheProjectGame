@@ -7,6 +7,6 @@ namespace Player
 {
     public interface IAgentMessage
     {
-        string[] Process(IPlayer player);
+        string[] Process(IPlayerController player);
     }
 }

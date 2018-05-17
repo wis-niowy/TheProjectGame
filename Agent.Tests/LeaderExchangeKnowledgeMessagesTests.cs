@@ -13,13 +13,14 @@ namespace Player.Tests
     {
         public Leader GetLeader(string guid, ulong id, TeamColour tc, ActionType action, IPlayerController controller = null)
         {
-            var leader = new Leader(tc, PlayerRole.leader, guid)
+            var leader = new Leader(tc, PlayerRole.leader, guid: guid)
             {
                 ID = id,
                 LastActionTaken = action,
                 Controller = controller,
                 State = AgentState.Playing
             };
+            controller.Player = leader;
 
             return leader;
         }
@@ -39,7 +40,7 @@ namespace Player.Tests
 
             KnowledgeExchangeRequestAgent request = new KnowledgeExchangeRequestAgent(10, 5);
 
-            var responseArray = request.Process(Player);
+            var responseArray = request.Process(Player.Controller);
             var responseData = PlayerReader.GetObjectFromXML(responseArray[0]) as DataAgent;
 
             Assert.AreEqual(5ul, responseData.PlayerId);
@@ -74,7 +75,7 @@ namespace Player.Tests
 
             KnowledgeExchangeRequestAgent request = new KnowledgeExchangeRequestAgent(10, 5);
 
-            var responseArray = request.Process(Player);
+            var responseArray = request.Process(Player.Controller);
             var responseData = PlayerReader.GetObjectFromXML(responseArray[0]) as DataAgent;
 
             Assert.AreEqual(5ul, responseData.PlayerId);

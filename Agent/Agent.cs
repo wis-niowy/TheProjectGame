@@ -13,16 +13,55 @@ namespace Player
     public partial class Player:IPlayer
     {
         public PlayerRole Role { get; set; }
-        public PlayerSettingsConfiguration Settings { get; set; }
+        public PlayerSettingsConfiguration settings; // na potrzeby testow (normalnie ustawienia sa trzymane na poziomie kontorlera)
+        public PlayerSettingsConfiguration Settings
+        {
+            get
+            {
+                if (Controller != null) return Controller.Settings;
+                else return settings;
+            }
+            set
+            {
+                if (Controller != null) Controller.Settings = value;
+                else settings = value;
+            }
+        }
         public IPlayerController Controller { get; set; }
-        private List<GameArea.GameObjects.GameInfo> GamesList { get; set; }
+        //private List<GameArea.GameObjects.GameInfo> GamesList { get; set; }
         private bool gameFinished;
         private IGameMaster gameMaster;
         // pole uzywane przy czytaniu xml Data od servera - obiekt wie, jakiej akcji przed chwila zadal
         public ActionType? LastActionTaken { get; set; } //ustawiana przy wykonywaniu dowolnej akcji związanej z grą
         public MoveType? LastMoveTaken{ get; set; } //ustawiany przy każdym wykonaniu ruchu
-        public ActionType ActionToComplete { get; set; }
-        public AgentState State { get; set; }
+        private ActionType actionToComplete; // na potrzeby testow (normalnie akcja do wykonania jest trzymana na poziomie kontorlera)
+        public ActionType ActionToComplete
+        {
+            get
+            {
+                if (Controller != null) return Controller.ActionToComplete;
+                else return actionToComplete;
+            }
+            set
+            {
+                if (Controller != null) Controller.ActionToComplete = value;
+                else actionToComplete = value;
+            }
+        }
+        private AgentState state; // na potrzeby testow (normalnie stan przechowywany jest na poziomie kontrolera)
+        public AgentState State
+        {
+            get
+            {
+                if (Controller != null) return Controller.State;
+                else return state;
+            }
+            set
+            {
+                if (Controller != null) Controller.State = value;
+                else state = value;
+            }
+        }
         public ulong ID { get; set; }
         public string GUID { get; set; }
 
@@ -131,24 +170,6 @@ namespace Player
         public GameArea.GameObjects.Player ConvertToMessagePlayer()
         {
             return new GameArea.GameObjects.Player(ID, Team, PlayerRole.member);
-        }
-
-        public void RegisteredGames(RegisteredGamesMessage messageObject)
-        {
-            GamesList = messageObject.Games?.ToList();
-            State = AgentState.Joining;
-            ActionToComplete = ActionType.none;
-        }
-
-        public void ConfirmJoiningGame(ConfirmJoiningGameMessage info)
-        {
-            
-            GameId = info.GameId;
-            ID = info.PlayerId; //u nas serwerowe ID i playerId na planszy to jedno i to samo
-            GUID = info.GUID;
-            Team = info.PlayerDefinition.Team;
-            State = AgentState.AwaitingForStart;
-            ActionToComplete = ActionType.none;
         }
 
         public void GameStarted(GameArea.AppMessages.GameMessage messageObject)

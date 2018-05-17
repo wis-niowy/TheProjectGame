@@ -11,9 +11,9 @@ namespace Player.PlayerMessages
         {
         }
 
-        public string[] Process(IPlayer player)
+        public string[] Process(IPlayerController controller)
         {
-            player.GameStarted(this);
+            controller.Player.GameStarted(this);
             return null;
         }
     }
