@@ -13,17 +13,10 @@ namespace Player
     {
         public void DoStrategy()
         {
-            while (State != AgentState.Dead)
+            while (State != AgentState.SearchingForGame && State != AgentState.Dead) // po przejsciu do stanu 'szukaj gry' wracamy do PlayerController
             {
                 switch (State)
                 {
-                    case AgentState.SearchingForGame:
-                        ActionToComplete = ActionType.SearchingForGame;
-                        Controller.BeginSend(new GetGamesMessage().Serialize());
-                        break;
-                    case AgentState.Joining:
-                        TryJoinGame();
-                        break;
                     case AgentState.AwaitingForStart:
                         //nic nie rób, czekaj na wiadomość Game
                         break;
@@ -45,23 +38,6 @@ namespace Player
                         break;
                 }
                 WaitForActionComplete();
-            }
-        }
-
-        private void TryJoinGame()
-        {
-            if (GamesList == null || GamesList.Count == 0)
-            {
-                State = AgentState.SearchingForGame;
-                Thread.Sleep(Settings.RetryJoinGameInterval);
-                //nie ustawiamy akcji, strategia sama dojdzie do tego co ma zrobić
-            }
-            else
-            {
-                var game = GamesList[0];
-                GamesList.RemoveAt(0);
-                Controller.BeginSend(new JoinGameMessage(game.GameName,Team, Role).Serialize());
-                ActionToComplete = ActionType.Joining;
             }
         }
 

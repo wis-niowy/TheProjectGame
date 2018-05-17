@@ -12,9 +12,9 @@ namespace Player.PlayerMessages
         {
         }
 
-        public string[] Process(IPlayer player)
+        public string[] Process(IPlayerController controller)
         {
-            player.ActionToComplete = ActionType.none;
+            controller.Player.ActionToComplete = ActionType.none;
             //nic nie robi, sprobuje połączyć się z inną grą
             return null;
         }
