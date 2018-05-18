@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <GameMasterSettings xmlns="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/"
-                    KeepAliveInterval="500"
-                    RetryRegisterGameInterval="60000">
+                    KeepAliveInterval="300000"
+                    RetryRegisterGameInterval="600000">
   <GameDefinition>
     <Goals team="blue" x="1" y ="1" type="goal" />
 	<Goals team="blue" x="2" y ="2" type="goal" />
@@ -15,7 +15,7 @@
     <BoardWidth>5</BoardWidth>
     <TaskAreaLength>7</TaskAreaLength>
     <GoalAreaLength>3</GoalAreaLength>
-    <NumberOfPlayersPerTeam>2</NumberOfPlayersPerTeam>
+    <NumberOfPlayersPerTeam>1</NumberOfPlayersPerTeam>
     <GameName>Endgame</GameName>
   </GameDefinition>
   <ActionCosts>

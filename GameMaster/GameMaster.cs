@@ -107,7 +107,7 @@ namespace GameArea
         /// <param name="findFreeLocationAndPlacePlayer">Ustaw na false aby Game Master nie przydzielal znalezionego przez siebie miejsca i nie ustawial gracza na pozycji</param>
         public void RegisterPlayer(Player.Player Player, string guid = null, bool findFreeLocationAndPlacePlayer = true)
         {
-            Player.GUID = (guid != null ? guid : "Player" + Player.ID);
+            Player.GUID = GeneratePlayerGUID(Player.ID);
             Player.SetBoard(new GameObjects.GameBoard((int)GetGameDefinition.BoardWidth, (int)GetGameDefinition.TaskAreaLength, (int)GetGameDefinition.GoalAreaLength));
             if (findFreeLocationAndPlacePlayer)
             {
@@ -124,6 +124,25 @@ namespace GameArea
                 PrintBoardState();
             }
         }
+
+        private string GeneratePlayerGUID(ulong ID)
+        {
+            var random = new Random((int)ID);
+            int length = 32;
+            const string chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+            var GUID = new char[length];
+
+            for (int i = 0; i < GUID.Length; i++)
+            {
+                if (i == 8 || i == 13 || i == 18 || i == 23)
+                    GUID[i] = '-';
+                else
+                    GUID[i] = chars[random.Next(chars.Length)];
+            }
+
+            return new String(GUID);
+        }
+
         public void UnregisterPlayer(ulong id)
         {
             var player = Players.Where(p => p.ID == id).FirstOrDefault();
