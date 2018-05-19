@@ -8,7 +8,8 @@ namespace GameMaster.GMMessages
 {
     public class AuthorizeKnowledgeExchangeGM : AuthorizeKnowledgeExchangeMessage, IGMMessage
     {
-
+        public bool Prioritised => false;
+        public string GUID => PlayerGUID;
 
         public AuthorizeKnowledgeExchangeGM(string guid, ulong gameId, ulong withPlayerId) : base(guid, gameId, withPlayerId)
         {

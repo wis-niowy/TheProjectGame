@@ -8,6 +8,8 @@ namespace GameMaster.GMMessages
 {
     public class RejectGameRegistrationGM : RejectGameRegistrationMessage, IGMMessage
     {
+        public bool Prioritised => true;
+        public string GUID => null;
         public RejectGameRegistrationGM(string name) : base(name)
         {
         }

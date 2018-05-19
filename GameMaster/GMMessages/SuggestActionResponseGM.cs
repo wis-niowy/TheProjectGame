@@ -9,6 +9,8 @@ namespace GameMaster.GMMessages
 {
     public class SuggestActionResponseGM : SuggestActionResponseMessage, IGMMessage
     {
+        public bool Prioritised => false;
+        public string GUID => PlayerGUID;
         public SuggestActionResponseGM(ulong id, ulong senderId, string guid, ulong gameId, TaskField[] tasks = null, GoalField[] goals = null) : base(id, senderId, guid, gameId, tasks, goals)
         {
         }

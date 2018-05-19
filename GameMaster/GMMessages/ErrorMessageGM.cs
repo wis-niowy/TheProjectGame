@@ -9,6 +9,8 @@ namespace GameMaster.GMMessages
 {
     public class ErrorMessageGM : ErrorMessage, IGMMessage
     {
+        public bool Prioritised => true;
+        public string GUID => null;
         public XmlDocument Document { get; }
         public ErrorMessageGM(string type, string message, string causeName, XmlDocument doc) : base(type, message, causeName)
         {

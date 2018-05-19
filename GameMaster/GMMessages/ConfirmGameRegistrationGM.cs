@@ -8,6 +8,8 @@ namespace GameMaster.GMMessages
 {
     public class ConfirmGameRegistrationGM : ConfirmGameRegistrationMessage, IGMMessage
     {
+        public bool Prioritised => true;
+        public string GUID => null;
         public ConfirmGameRegistrationGM(ulong gameId) : base(gameId)
         {
         }

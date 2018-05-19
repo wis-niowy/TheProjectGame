@@ -9,6 +9,8 @@ namespace GameMaster.GMMessages
 {
     public class MoveGM : MoveMessage, IGMMessage
     {
+        public bool Prioritised => false;
+        public string GUID => PlayerGUID;
         public MoveGM(string guid, ulong gameId, MoveType? move = null) : base(guid, gameId, move)
         {
         }

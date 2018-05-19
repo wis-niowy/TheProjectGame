@@ -9,6 +9,8 @@ namespace GameMaster.GMMessages
 {
     public class TestPieceGM : TestPieceMessage, IGMMessage
     {
+        public bool Prioritised => false;
+        public string GUID => PlayerGUID;
         public TestPieceGM(string guid, ulong gameID) : base(guid, gameID) { }
 
         public string[] Process(IGameMaster controller)

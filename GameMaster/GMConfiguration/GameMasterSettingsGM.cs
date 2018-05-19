@@ -16,6 +16,10 @@ namespace GameMaster.GMConfiguration
 
         }
 
+        public bool Prioritised => true;
+
+        public string GUID => null;
+
         public string[] Process(IGameMaster gameMaster)
         {
             throw new NotImplementedException();

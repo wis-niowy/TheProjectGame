@@ -19,6 +19,7 @@ namespace GameMasterMain
         private System.Timers.Timer keppAliveTimer;
         public IGameMaster GameMaster { get; set; }
         private Logger.Logger logger;
+        private MessageManager messageManager;
 
         public GameMasterController(IGameMaster gm)
         {
@@ -26,6 +27,7 @@ namespace GameMasterMain
             logger = new Logger.Logger(GM);
             clientSocket = new TcpClient();
             GameMaster = gm;
+            messageManager = new MessageManager(this);
         }
 
         public bool ConnectToServer(IPAddress ip, Int32 port)
@@ -74,24 +76,16 @@ namespace GameMasterMain
 
                     if (messages != null)
                     {
-                        
-                            foreach (var message in messages.Select(q => q.Trim('\0')))
-                            {
-                            Task.Run(() =>
-                            {
-                                logger.Log(message);
-                                ConsoleWriter.Show("GameMaster read: \n" + message + "\n");
-                                var msgObject = GMReader.GetObjectFromXML(message);
-                                if (msgObject != null)
-                                {
-                                    var responseMsgs = msgObject.Process(GameMaster);
-                                    if (responseMsgs != null)
-                                        foreach (var msg in responseMsgs)
-                                            BeginSend(msg);
-                                }
-                                else
-                                    ConsoleWriter.Warning("Could not obtain object from message: \n" + message);
-                            });
+
+                        foreach (var message in messages.Select(q => q.Trim('\0')))
+                        {
+                            logger.Log(message);
+                            ConsoleWriter.Show("GameMaster read: \n" + message + "\n");
+                            var msgObject = GMReader.GetObjectFromXML(message);
+                            if (msgObject != null)
+                                messageManager.ProcessMessage(msgObject);
+                            else
+                                ConsoleWriter.Warning("Could not obtain object from message: \n" + message);
                         }
                     }
                     BeginRead();
@@ -101,7 +95,6 @@ namespace GameMasterMain
                     ConsoleWriter.Error("Error while handling message from communication server." + "\n Error message: \n" + e.ToString() + "\n");
                     GameMaster.State = GameMasterState.GameOver;
                 }
-
             }
             else
             {

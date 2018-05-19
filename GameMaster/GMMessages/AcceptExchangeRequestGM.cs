@@ -8,9 +8,13 @@ namespace GameMaster.GMMessages
 {
     public class AcceptExchangeRequestGM : AcceptExchangeRequestMessage, IGMMessage
     {
+        public bool Prioritised => false;
+        public string GUID => null;
         public AcceptExchangeRequestGM(ulong id, ulong senderId) : base(id, senderId)
         {
         }
+
+        
 
         public string[] Process(IGameMaster gameMaster)
         {

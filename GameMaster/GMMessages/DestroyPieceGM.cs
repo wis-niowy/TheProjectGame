@@ -8,6 +8,8 @@ namespace GameMaster.GMMessages
 {
     public class DestroyPieceGM : DestroyPieceMessage, IGMMessage
     {
+        public bool Prioritised => false;
+        public string GUID => PlayerGUID;
         public DestroyPieceGM(string guid, ulong gameId) : base(guid, gameId)
         {
         }

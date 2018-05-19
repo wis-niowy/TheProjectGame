@@ -11,6 +11,8 @@ namespace GameMaster.GMMessages
 {
     public class PlacePieceGM : PlacePieceMessage, IGMMessage
     {
+        public bool Prioritised => false;
+        public string GUID => PlayerGUID;
         public PlacePieceGM(string guid, ulong gameId) : base(guid, gameId)
         {
         }

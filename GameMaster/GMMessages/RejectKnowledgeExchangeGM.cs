@@ -8,6 +8,8 @@ namespace GameMaster.GMMessages
 {
     public class RejectKnowledgeExchangeGM : RejectKnowledgeExchangeMessage, IGMMessage
     {
+        public bool Prioritised => false;
+        public string GUID => PlayerGUID;
         public RejectKnowledgeExchangeGM(ulong id, ulong senderId, bool permanent, string playerGuid = null) : base(id, senderId, permanent, playerGuid)
         {
         }

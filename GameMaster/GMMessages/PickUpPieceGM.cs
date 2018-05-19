@@ -9,6 +9,8 @@ namespace GameMaster.GMMessages
 {
     public class PickUpPieceGM : PickUpPieceMessage, IGMMessage
     {
+        public bool Prioritised => false;
+        public string GUID => PlayerGUID;
         public PickUpPieceGM(string guid, ulong gameId) : base(guid, gameId)
         {
         }

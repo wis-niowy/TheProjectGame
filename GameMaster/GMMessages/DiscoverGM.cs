@@ -9,6 +9,8 @@ namespace GameMaster.GMMessages
 {
     public class DiscoverGM : DiscoverMessage, IGMMessage
     {
+        public bool Prioritised => false;
+        public string GUID => PlayerGUID;
         public DiscoverGM(string guid, ulong gameId) : base(guid, gameId)
         {
         }

@@ -8,5 +8,7 @@ namespace GameMaster
     public interface IGMMessage
     {
         string[] Process(IGameMaster gameMaster);
+        bool Prioritised { get; }
+        string GUID { get; }
     }
 }

@@ -9,6 +9,8 @@ namespace GameMaster.GMMessages
 {
     public class JoinGameGM : JoinGameMessage, IGMMessage
     {
+        public bool Prioritised => true;
+        public string GUID => null;
         public JoinGameGM(string name, TeamColour team, PlayerRole role, long playerId = -1) : base(name, team, role, playerId)
         {
         }

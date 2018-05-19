@@ -8,6 +8,8 @@ namespace GameMaster.GMMessages
 {
     public class PlayerDisconnectedGM : PlayerDisconnectedMessage, IGMMessage
     {
+        public bool Prioritised => true;
+        public string GUID => null;
         public PlayerDisconnectedGM(ulong id) : base(id)
         {
         }

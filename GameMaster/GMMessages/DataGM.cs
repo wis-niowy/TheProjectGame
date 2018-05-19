@@ -9,6 +9,8 @@ namespace GameMaster.GMMessages
 {
     public class DataGM : DataMessage, IGMMessage
     {
+        public bool Prioritised => false;
+        public string GUID => PlayerGUID;
         public DataGM(ulong playerId) : base(playerId)
         {
         }
