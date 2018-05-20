@@ -11,7 +11,7 @@ namespace Player
     public class Leader : Player
     {
         public Leader(TeamColour team,PlayerRole role, GameArea.AppConfiguration.PlayerSettingsConfiguration settings = null,
-                                                                IPlayerController controller = null, string guid = "TEST_GUID") : base(team, role, settings, controller, guid)
+                                                                IPlayerController controller = null, string guid = "TEST_GUID", ulong id = 0) : base(team, role, settings, controller, guid, null, id)
         {
         }
 

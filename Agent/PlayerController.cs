@@ -118,7 +118,7 @@ namespace Player
             var id = info.PlayerId; //u nas serwerowe ID i playerId na planszy to jedno i to samo
             var guid = info.GUID;
             var team = info.PlayerDefinition.Team;
-            Player = info.PlayerDefinition.Role == PlayerRole.leader ? new Leader(team, PlayerRole.leader, Settings, this, guid) : new Player(team, PlayerRole.leader, Settings, this, guid);
+            Player = info.PlayerDefinition.Role == PlayerRole.leader ? new Leader(team, PlayerRole.leader, Settings, this, guid, id) : new Player(team, PlayerRole.leader, Settings, this, guid, id: id);
             State = AgentState.AwaitingForStart;
             ActionToComplete = ActionType.none;
         }

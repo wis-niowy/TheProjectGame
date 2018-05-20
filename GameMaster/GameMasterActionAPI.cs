@@ -234,8 +234,9 @@ namespace GameArea
             { 
                 if (Player.GetPiece != null)
                 {
+                    pieceDataToSend = pieces.Where(p => p.ID == Player.GetPiece.ID).FirstOrDefault();
+                    pieceDataToSend.Type = PieceType.destroyed;
                     pieces.RemoveAll(p => p.ID == Player.GetPiece.ID);
-                    pieceDataToSend = null;
                     Player.SetPiece(null);
                 }
             }

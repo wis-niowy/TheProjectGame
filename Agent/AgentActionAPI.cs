@@ -121,8 +121,6 @@ namespace Player
                 GetBoard.UpdateTaskFields(responseMessage.Tasks);
                 GetBoard.UpdatePieces(responseMessage.Pieces);
 
-                if (ActionToComplete == ActionType.Destroy)
-                    SetPiece(null); //haksior, bo serialziacja dla listy nulli zwraca pusta liste bez nulli
                 if (responseMessage.Pieces != null && responseMessage.Pieces.Length == 1)
                 {
                     var piece = responseMessage.Pieces[0];
@@ -134,18 +132,15 @@ namespace Player
                             this.SetPiece(piece);
                             GetBoard.GetTaskField(Location).Piece = null;
                         }
-                        else if (GetPiece.ID == piece.ID)
+                        else if (GetPiece.ID == piece.ID && piece.Type != PieceType.destroyed)
                         // Player tests piece
                         {
                             this.SetPiece(piece);
                         }
-                    }
-                    else
-                    {
-                        if (GetPiece != null)
-                        // Player destroys piece
+                        else if (GetPiece.ID == piece.ID && piece.Type == PieceType.destroyed)
+                        // Player tests piece
                         {
-                            this.SetPiece(piece);
+                            this.SetPiece(null);
                         }
                     }
                 }

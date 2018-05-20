@@ -71,7 +71,7 @@ namespace Player
         public ulong GameId { get; set; }
         public TeamColour Team { get; set; }
 
-        public Player(TeamColour team, PlayerRole role = PlayerRole.member, PlayerSettingsConfiguration settings = null, IPlayerController gameController = null, string _guid = "TEST_GUID", IGameMaster gm = null)
+        public Player(TeamColour team, PlayerRole role = PlayerRole.member, PlayerSettingsConfiguration settings = null, IPlayerController gameController = null, string _guid = "TEST_GUID", IGameMaster gm = null, ulong id = 0)
         {
             Settings = settings;
             gameMaster = gm;
@@ -82,6 +82,7 @@ namespace Player
             Controller = gameController;
             State = AgentState.SearchingForGame;
             LastMoveTaken = MoveType.up;
+            ID = id;
         }
 
         public Player(Player original)
