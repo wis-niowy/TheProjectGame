@@ -499,11 +499,11 @@ namespace GameArea
                                 SetInfoAboutDiscoveredTaskField(location, dx, dy, field, TaskFieldList);
                             }
 
-                            // discovered field is a GoalField - can contain players
-                            else if (field is GameObjects.GoalField)
-                            {
-                                SetInfoAboutDiscoveredGoalField(location, dx, dy, field, GoalFieldList);
-                            }
+                            //// discovered field is a GoalField - can contain players
+                            //else if (field is GameObjects.GoalField)
+                            //{
+                            //    SetInfoAboutDiscoveredGoalField(location, dx, dy, field, GoalFieldList);
+                            //}
                         }
                     }
                 }
