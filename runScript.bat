@@ -1,4 +1,4 @@
-set workingDirectory=%cd%
+set workingDirectory="%cd%"
 
 if "%~1"=="" (
     echo No parameters have been provided default number of player in team is 2.
