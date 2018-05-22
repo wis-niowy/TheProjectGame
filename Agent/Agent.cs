@@ -1,101 +1,117 @@
 ﻿using Messages;
 using System;
 using GameArea;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using GameArea.AppMessages;
+using GameArea.AppConfiguration;
 
 namespace Player
 {
-    public class Agent
+
+    public partial class Player:IPlayer
     {
-        private ulong id;
-        public ulong ID
+        public PlayerRole Role { get; set; }
+        public PlayerSettingsConfiguration settings; // na potrzeby testow (normalnie ustawienia sa trzymane na poziomie kontorlera)
+        public PlayerSettingsConfiguration Settings
         {
             get
             {
-                return id;
+                if (Controller != null) return Controller.Settings;
+                else return settings;
             }
             set
             {
-                this.id = value;
+                if (Controller != null) Controller.Settings = value;
+                else settings = value;
             }
         }
-
-        private string guid;
-        public string GUID
+        public IPlayerController Controller { get; set; }
+        //private List<GameArea.GameObjects.GameInfo> GamesList { get; set; }
+        private bool gameFinished;
+        private IGameMaster gameMaster;
+        // pole uzywane przy czytaniu xml Data od servera - obiekt wie, jakiej akcji przed chwila zadal
+        public ActionType? LastActionTaken { get; set; } //ustawiana przy wykonywaniu dowolnej akcji związanej z grą
+        public MoveType? LastMoveTaken{ get; set; } //ustawiany przy każdym wykonaniu ruchu
+        private ActionType actionToComplete; // na potrzeby testow (normalnie akcja do wykonania jest trzymana na poziomie kontorlera)
+        public ActionType ActionToComplete
         {
             get
             {
-                return guid;
-            }
-        }
-
-        public void SetGuid(string newGuid) // setter?
-        {
-            guid = newGuid;
-        }
-
-        private ulong gameId;
-        public ulong GameId
-        {
-            get
-            {
-                return gameId;
+                if (Controller != null) return Controller.ActionToComplete;
+                else return actionToComplete;
             }
             set
             {
-                gameId = value;
+                if (Controller != null) Controller.ActionToComplete = value;
+                else actionToComplete = value;
             }
         }
-
-        private TeamColour team;
-        public TeamColour GetTeam
+        private AgentState state; // na potrzeby testow (normalnie stan przechowywany jest na poziomie kontrolera)
+        public AgentState State
         {
             get
             {
-                return team;
+                if (Controller != null) return Controller.State;
+                else return state;
+            }
+            set
+            {
+                if (Controller != null) Controller.State = value;
+                else state = value;
             }
         }
+        public ulong ID { get; set; }
+        public string GUID { get; set; }
 
-        public void SetTeam(TeamColour newTeam) // setter?
+        public List<GameArea.GameObjects.Player> myTeam;
+        public List<GameArea.GameObjects.Player> otherTeam;
+
+        public ulong GameId { get; set; }
+        public TeamColour Team { get; set; }
+
+        public Player(TeamColour team, PlayerRole role = PlayerRole.member, PlayerSettingsConfiguration settings = null, IPlayerController gameController = null, string _guid = "TEST_GUID", IGameMaster gm = null, ulong id = 0)
         {
-            team = newTeam;
+            Settings = settings;
+            gameMaster = gm;
+            Team = team;
+            GUID = _guid;
+            Role = role;
+            Location = new GameArea.GameObjects.Location(0, 0);
+            Controller = gameController;
+            State = AgentState.SearchingForGame;
+            LastMoveTaken = MoveType.up;
+            ID = id;
         }
 
-        public Agent(TeamColour team, string _guid = "TEST_GUID")
+        public Player(Player original)
         {
-            this.team = team;
-            this.SetGuid(_guid);
-            this.location = new Location(0, 0);
-        }
-
-        public Agent(Agent original)
-        {
-            this.team = original.GetTeam;
-            this.guid = original.GUID;
-            this.id = original.id;
-            this.location = new Location(original.location.x, original.location.y);
+           Team = original.Team;
+           GUID = original.GUID;
+           ID = original.ID;
+           Location = new GameArea.GameObjects.Location(original.Location.X, original.Location.Y);
             if (original.piece != null)
-                this.piece = new Piece(original.piece); // agent can't see original piece (sham or goal info must be hidden)
-            //this.agentBoard = original.agentBoard; // it seems it doesn't need to be copied, because GameMaster does not make changes to boards of agents on his list
-
+                this.piece = new GameArea.GameObjects.Piece(original.piece.ID, original.piece.TimeStamp, original.piece.Type, original.piece.PlayerId); // player can't see original piece (sham or goal info must be hidden)
         }
 
-        private Board agentBoard;
+        private GameArea.GameObjects.GameBoard PlayerBoard;
 
-        public Board GetBoard
+        public GameArea.GameObjects.GameBoard GetBoard
         {
             get
             {
-                return agentBoard;
+                return PlayerBoard;
             }
         }
 
-        public void SetBoard(Board board) // setter?
+        public void SetBoard(GameArea.GameObjects.GameBoard board) // setter?
         {
-            agentBoard = board;
+            PlayerBoard = board;
         }
 
-        private Piece piece;
-        public Piece GetPiece
+        private GameArea.GameObjects.Piece piece;
+        public GameArea.GameObjects.Piece GetPiece
         {
             get
             {
@@ -103,7 +119,7 @@ namespace Player
             }
         }
 
-        public void SetPiece(Piece piece)
+        public void SetPiece(GameArea.GameObjects.Piece piece)
         {
             this.piece = piece;
         }
@@ -116,246 +132,85 @@ namespace Player
             }
         }
 
-        private Location location;
-        public Location GetLocation
+        public bool HasValidPiece
         {
             get
             {
-                return location;
+                return piece != null && piece.Type == PieceType.normal;
             }
         }
 
-        public void SetLocation(Location point)
+        public bool HasUnknownPiece
         {
-            location = point;
-        }
-
-        public void SetLocation(uint x, uint y)
-        {
-            location = new Location(x, y);
-        }
-
-        public Messages.Agent ConvertToMessageAgent()
-        {
-            return new Messages.Agent()
+            get
             {
-                id = this.ID,
-                team = this.team,
-                type = PlayerType.member
-            };
-        }
-
-        // API
-        /// <summary>
-        /// Method to send request to test the piece
-        /// </summary>
-        /// <param name="gameMaster">Addressee of the request</param>
-        /// <returns>True - request was valid; False - request was not valid</returns>
-        public bool TestPiece(IGameMaster gameMaster)
-        {
-            Data responseMessage = gameMaster.HandleTestPieceRequest(this.GUID, this.GameId);
-
-            // if this message was sent to this
-            if (responseMessage.playerId == this.ID && !responseMessage.gameFinished &&
-                responseMessage.Pieces != null && responseMessage.Pieces.Length > 0 && responseMessage.Pieces[0] != null &&
-                responseMessage.Pieces[0].id == this.GetPiece.id)
-            {
-                var receivedPieceData = responseMessage.Pieces[0];
-                if (receivedPieceData != null && this.GetPiece != null && receivedPieceData.id == this.GetPiece.id)
-                {
-                    this.piece.type = receivedPieceData.type;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Method to send a request to place the piece
-        /// </summary>
-        /// <param name="gameMaster"></param>
-        /// <returns></returns>
-        public bool PlacePiece(IGameMaster gameMaster)
-        {
-            // should we check if received location is the same as the actual one?
-            Data responseMessage = gameMaster.HandlePlacePieceRequest(this.GUID, this.GameId);
-            var receivedLocation = responseMessage.PlayerLocation;
-
-            if (responseMessage.playerId == this.ID && !responseMessage.gameFinished)
-            {
-                // placing the piece on an empty task field
-                if (responseMessage.TaskFields != null && responseMessage.TaskFields.Length > 0 && responseMessage.TaskFields[0].pieceId == this.piece.id)
-                {
-                    ((GameArea.TaskField)agentBoard.GetField(location.x, location.y)).SetPiece(this.GetPiece); // place the piece on the field
-                    this.SetPiece(null); // drop the piece
-                    return true;
-                }
-                // placing the sham piece on GoalField of any type - no data about GoalField received and placing a piece failed
-                else if (responseMessage.GoalFields != null && responseMessage.GoalFields.Length > 0 &&
-                         responseMessage.GoalFields[0].type == GoalFieldType.unknown)
-                {
-                    return false;
-                }
-                // placing the normal piece on a GoalField of type 'goal'
-                else if (responseMessage.GoalFields != null && responseMessage.GoalFields.Length > 0 &&
-                         responseMessage.GoalFields[0].type == GoalFieldType.goal)
-                {
-                    this.SetPiece(null); // drop the piece and score a point
-                    return true;
-                }
-                // placing any piece either on occupied TaskField or a noraml piece on a non-goal GoalField
-                else
-                {
-                    return false;
-                }
-            }
-            else return false;
-        }
-
-        public bool PickUpPiece(IGameMaster gameMaster)
-        {
-            Data responseMessage = gameMaster.HandlePickUpPieceRequest(this.GUID, this.GameId);
-
-            if (responseMessage.playerId == this.ID && !responseMessage.gameFinished)
-            {
-                // player is on a TaskField that contains a piece
-                if (responseMessage.Pieces != null && responseMessage.Pieces.Length > 0 &&
-                    responseMessage.Pieces[0] != null)
-                {
-                    var receivedPieceData = responseMessage.Pieces[0];
-                    this.piece = receivedPieceData;
-                    return true;
-                }
-            }
-            // player is either on empty TaskField or on GoalField
-            return false;
-        }
-
-        public bool Move(IGameMaster gameMaster, MoveType direction)
-        {
-            Data responseMessage = gameMaster.HandleMoveRequest(direction, this.GUID, this.GameId);
-            var futureLocation = CalcualteFutureLoaction(this.location, direction);
-
-            if (responseMessage.playerId == this.ID && !responseMessage.gameFinished)
-            {
-                // an attempt to exceed board's boundaries or to enter an opponent's GoalArea
-                if (responseMessage.TaskFields != null && responseMessage.TaskFields.Length == 0)
-                {
-                    this.location = responseMessage.PlayerLocation;
-                    return false;
-                }
-                // future position is a TaskField
-                else if (responseMessage.TaskFields != null && responseMessage.TaskFields.Length > 0)
-                {
-                    // an agent attempted to enter an occupied TaskField
-                    if (this.location.Equals(responseMessage.PlayerLocation))
-                    {
-                        // add encountered stranger agent to this agent's view
-                        var stranger = new Messages.Agent()
-                        {
-                            id = responseMessage.TaskFields[0].playerId,
-                        };
-                        agentBoard.GetField(futureLocation.x, futureLocation.y).Player = stranger;
-
-                        return false;
-                    }
-                    // an action was valid
-                    else
-                    {
-                        this.location = responseMessage.PlayerLocation;
-                        return true;
-                    }
-                }
-                // future position is a GoalField
-                else if (responseMessage.GoalFields != null && responseMessage.GoalFields.Length > 0)
-                {
-                    // an agent attempted to enter an occupied GoalField
-                    if (this.location.Equals(responseMessage.PlayerLocation))
-                    {
-                        // add encountered stranger agent to this agent's view
-                        var stranger = new Messages.Agent()
-                        {
-                            id = responseMessage.GoalFields[0].playerId,
-                        };
-                        agentBoard.GetField(futureLocation.x, futureLocation.y).Player = stranger;
-
-                        return false;
-                    }
-                    // an action was valid
-                    else
-                    {
-                        this.location = responseMessage.PlayerLocation;
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-
-        public void Discover(IGameMaster gameMaster)
-        {
-            Data responseMessage = gameMaster.HandleDiscoverRequest(this.GUID, this.GameId);
-            if (responseMessage.playerId == this.ID && !responseMessage.gameFinished)
-            {
-                foreach (var respField in responseMessage.TaskFields)
-                {
-                    GameArea.TaskField updatedField = agentBoard.GetField(respField.x, respField.y) as GameArea.TaskField;
-                    updatedField.UpdateTimeStamp(respField.timestamp);
-                    updatedField.Distance = respField.distanceToPiece;
-
-                    Type t = respField.GetType();
-                    System.Reflection.PropertyInfo p = t.GetProperty("pieceId");
-                    if (p != null)
-                        updatedField.SetPiece(new Piece(PieceType.unknown, respField.pieceId));
-                    p = t.GetProperty("playerId");
-                    if (p != null)
-                    {
-                        updatedField.Player = new Messages.Agent();
-                        updatedField.Player.id = respField.playerId;
-                    }
-                }
-
-                foreach (var respField in responseMessage.GoalFields)
-                {
-                    GameArea.GoalField updatedField = agentBoard.GetField(respField.x, respField.y) as GameArea.GoalField;
-                    updatedField.UpdateTimeStamp(respField.timestamp);
-                    Type t = respField.GetType();
-                    System.Reflection.PropertyInfo p = t.GetProperty("playerId");
-                    if (p != null)
-                    {
-                        updatedField.Player = new Messages.Agent();
-                        updatedField.Player.id = respField.playerId;
-                    }
-                }
+                return piece != null && piece.Type == PieceType.unknown;
             }
         }
 
-        public void doStrategy()
+        public bool HasShamPiece
         {
-
+            get
+            {
+                return piece != null && piece.Type == PieceType.sham;
+            }
         }
 
-        // additional methods
-        private Location CalcualteFutureLoaction(Location oldLocation, MoveType direction)
+        public GameArea.GameObjects.Location Location { get;set; }
+
+        public void SetLocation(GameArea.GameObjects.Location point)
         {
-            Location newLocation = null;
-            switch (direction)
-            {
-                case MoveType.up:
-                    newLocation = new Location(oldLocation.x, oldLocation.y + 1);
-                    break;
-                case MoveType.down:
-                    newLocation = new Location(oldLocation.x, oldLocation.y - 1);
-                    break;
-                case MoveType.left:
-                    newLocation = new Location(oldLocation.x - 1, oldLocation.y);
-                    break;
-                case MoveType.right:
-                    newLocation = new Location(oldLocation.x + 1, oldLocation.y);
-                    break;
-            }
-            return newLocation;
+            Location = new GameArea.GameObjects.Location(point.X, point.Y);
+        }
+
+        public void SetLocation(int x, int y)
+        {
+            Location = new GameArea.GameObjects.Location(x, y);
+        }
+
+        public GameArea.GameObjects.Player ConvertToMessagePlayer()
+        {
+            return new GameArea.GameObjects.Player(ID, Team, PlayerRole.member);
+        }
+
+        public void GameStarted(GameArea.AppMessages.GameMessage messageObject)
+        {
+            CleanLocalData();
+            myTeam = messageObject.Players.ToList().Where(p => p.Team == Team).ToList();
+            otherTeam = messageObject.Players.ToList().Where(p => p.Team != Team).ToList();
+            SetBoard(messageObject.Board);
+            Location = messageObject.PlayerLocation;
+            gameFinished = false;
+            State = AgentState.Playing;
+            ActionToComplete = ActionType.none;
+        }
+
+        private void CleanLocalData()
+        {
+            myTeam = null;
+            otherTeam = null;
+            SetBoard(null);
+            Location = null;
+            piece = null;
+        }
+
+        public void GameMasterDisconnected(GameArea.AppMessages.GameMasterDisconnectedMessage messageObject)
+        {
+            State = AgentState.SearchingForGame;
+            ConsoleWriter.Show("Player id: " + ID + " has state: " + State);
+            ActionToComplete = ActionType.none;
+        }
+
+        public override string ToString()
+        {
+            return "Player id: " + ID + ", team: " + Team + 
+                " role: " + Role +
+                " in location (" + Location.X + ";" + Location.Y + ")";
+        }
+
+        public void ErrorMessage(GameArea.AppMessages.ErrorMessage error)
+        {
+            ConsoleWriter.Warning("Received an error from server:\n Type:" + error.Type + "\nCause: " + error.CauseParameterName + "\nMessage: " + error.Message);
         }
     }
 }

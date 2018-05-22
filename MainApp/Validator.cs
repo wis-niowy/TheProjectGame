@@ -4,53 +4,54 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using Messages;
+using GameArea.AppConfiguration;
 
 namespace MainApp
 {
     public static class Validator
     {
 
-        public static string ValidateSettings(GameMasterSettings settings)
+        public static string ValidateSettings(GameMasterSettingsConfiguration settings)
         {
             var gameDefinitions = settings.GameDefinition;
             var errors = new StringBuilder();
             var message = ValidateShamProbability(gameDefinitions.ShamProbability);
-
+            
             if (!string.IsNullOrEmpty(message))
                 errors.AppendLine(message);
-
+            
             message = ValidatePiecesFrequency(gameDefinitions.PlacingNewPiecesFrequency);
             if (!string.IsNullOrEmpty(message))
                 errors.AppendLine(message);
-
+            
             message = ValidateInitialNumberOfPieces(gameDefinitions.InitialNumberOfPieces, gameDefinitions.TaskAreaLength, gameDefinitions.BoardWidth);
             if (!string.IsNullOrEmpty(message))
                 errors.AppendLine(message);
-
+            
             message = ValidateBoardWidth(gameDefinitions.BoardWidth,gameDefinitions.TaskAreaLength, gameDefinitions.NumberOfPlayersPerTeam);
             if (!string.IsNullOrEmpty(message))
                 errors.AppendLine(message);
-
+            
             message = ValidateTaskAreaLength(gameDefinitions.TaskAreaLength);
             if (!string.IsNullOrEmpty(message))
                 errors.AppendLine(message);
-
+            
             message = ValidateGoalAreaLength(gameDefinitions.GoalAreaLength);
             if (!string.IsNullOrEmpty(message))
                 errors.AppendLine(message);
-
+            
             message = ValidatePlayers(gameDefinitions.NumberOfPlayersPerTeam, gameDefinitions.TaskAreaLength, gameDefinitions.BoardWidth);
             if (!string.IsNullOrEmpty(message))
                 errors.AppendLine(message);
-
+            
             message = ValidateGameName(gameDefinitions.GameName);
             if (!string.IsNullOrEmpty(message))
                 errors.AppendLine(message);
-
+            
             message = ValidateGoals(gameDefinitions.Goals,gameDefinitions.GoalAreaLength,gameDefinitions.TaskAreaLength,gameDefinitions.BoardWidth);
             if (!string.IsNullOrEmpty(message))
                 errors.AppendLine(message);
-
+            
             message = ValidateGameName(gameDefinitions.GameName);
             if (!string.IsNullOrEmpty(message))
                 errors.AppendLine(message);
@@ -64,35 +65,35 @@ namespace MainApp
                 return "";
             return ValidatorMessages.INVALID_SHAM_PROBABILITY;
         }
-        public static string ValidatePiecesFrequency(uint piecesFrequency)
+        public static string ValidatePiecesFrequency(int piecesFrequency)
         {
             if (piecesFrequency > 0)
                 return "";
             return ValidatorMessages.INVALID_PIECES_FREQUENCY;
         }
 
-        public static string ValidateInitialNumberOfPieces(uint initialNumberOfPieces, uint length, uint width)
+        public static string ValidateInitialNumberOfPieces(int initialNumberOfPieces, int length, int width)
         {
             if (initialNumberOfPieces <= (length * width))
                 return "";
             return ValidatorMessages.INVALID_INITIAL_NUMBER;
         }
 
-        public static string ValidateBoardWidth(uint width, uint TaskArealength, uint playersPerTeam)
+        public static string ValidateBoardWidth(int width, int TaskArealength, int playersPerTeam)
         {
             if (width > 1 && width * TaskArealength >= playersPerTeam * 2)
                 return "";
             return ValidatorMessages.INVALID_BOARD_WIDTH;
         }
 
-        public static string ValidateTaskAreaLength(uint TaskArealength)
+        public static string ValidateTaskAreaLength(int TaskArealength)
         {
             if (TaskArealength >= 1)
                 return "";
             return ValidatorMessages.INVALID_TASK_AREA_LENGTH;
         }
 
-        public static string ValidateGoalAreaLength(uint GoalArealength)
+        public static string ValidateGoalAreaLength(int GoalArealength)
         {
             if (GoalArealength >= 1)
                 return "";
@@ -100,7 +101,7 @@ namespace MainApp
         }
 
         // players per team
-        public static string ValidatePlayers(uint PlayersNumber, uint taskAreaLength, uint boardWidth)
+        public static string ValidatePlayers(int PlayersNumber, int taskAreaLength, int boardWidth)
         {
             if (PlayersNumber == 0)
                 return ValidatorMessages.NUMBER_OF_PLAYERS_EQUALS_ZERO;
@@ -118,7 +119,7 @@ namespace MainApp
         }
 
         // goals
-        public static string ValidateGoals(GoalField[] goals, uint goalAreaLength, uint taskAreaLength, uint boardWidth)
+        public static string ValidateGoals(GameArea.GameObjects.GoalField[] goals, int goalAreaLength, int taskAreaLength, int boardWidth)
         {
             if (goals == null)
                 return ValidatorMessages.NULL_GOALFIELD_ARRAY;
@@ -127,30 +128,37 @@ namespace MainApp
                 if (g == null)
                     return ValidatorMessages.NULL_GOALFIELD;
             }
-            if (goals.Select(q=> new { x = q.x, y = q.y }).Distinct().Count() != goals.Count()) // override equals()
+            if (goals.Select(q=> new { x = q.X, y = q.Y }).Distinct().Count() != goals.Count()) // override equals()
                 return ValidatorMessages.GOALS_ARE_NOT_UNIQUE;
-            if (!goals.Where(q => q.team == TeamColour.blue).Any())
+            if (!goals.Where(q => q.Team == TeamColour.blue).Any())
                 return ValidatorMessages.BLUE_TEAM_HAS_NO_GOAL;
-            if (!goals.Where(q => q.team == TeamColour.red).Any())
+            if (!goals.Where(q => q.Team == TeamColour.red).Any())
                 return ValidatorMessages.RED_TEAM_HAS_NO_GOAL;
 
             foreach (var g in goals)
             {
-                if ((g.x >= goalAreaLength && g.x < taskAreaLength + goalAreaLength) || (g.y >= boardWidth))
+                if ((g.Y >= goalAreaLength && g.Y < taskAreaLength + goalAreaLength) || (g.X >= boardWidth) || g.Y >= taskAreaLength + 2 * goalAreaLength)
                     return ValidatorMessages.GOALS_OUTSIDE_GOAL_AREA;
-                if (g.team == TeamColour.blue && g.x >= goalAreaLength)
+                if (g.Team == TeamColour.blue && g.Y >= goalAreaLength)
                     return ValidatorMessages.BLUE_GOAL_IN_RED_GOAL_AREA;
-                if (g.team == TeamColour.red && g.x < goalAreaLength)
+                if (g.Team == TeamColour.red && g.Y < goalAreaLength)
                     return ValidatorMessages.RED_GOAL_IN_BLUE_GOAL_AREA;
             }
 
             return "";
         }
 
-        public static string ValidateActionCosts(GameMasterSettingsActionCosts settings)
+        public static string ValidateActionCosts(GameMasterSettingsActionCostsConfiguration settings)
         {
             if (settings == null)
                 return ValidatorMessages.ACTION_COSTS_NULL;
+            return "";
+        }
+
+        public static string ValidateNumberNumberOfGoals(int numberOfGoals)
+        {
+            if (numberOfGoals <= 0)
+                return ValidatorMessages.NUMBER_OF_GOALS_ZERO_OR_LESS;
             return "";
         }
     }

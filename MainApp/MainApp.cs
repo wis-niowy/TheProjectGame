@@ -1,10 +1,13 @@
 ﻿using Configuration;
+using GameArea;
 using GameArea.Texts;
-using GameMaster;
+using Player;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
+using GameArea.AppConfiguration;
 
 namespace MainApp
 {
@@ -12,30 +15,37 @@ namespace MainApp
     {
         public static void Main(string[] args)
         {
-            Show(Constants.MAIN_APP_START);
+            GameMasterSettingsConfiguration settings;
+            ConsoleWriter.Show(Constants.MAIN_APP_START);
             if (args.Length == 0)
             {
-                Warning(Constants.NO_FILE_SPECIFIED);
+                ConsoleWriter.Warning(Constants.NO_FILE_SPECIFIED);
+                ConsoleWriter.Show("Loading default settings.");
+                settings = LoadSettingsFromFile("Championship.xml");
             }
-            var settings = LoadSettingsFromFile("Championship.xml");
+            else
+            {
+                ConsoleWriter.Show("Loading specified settings in file: " + args[0]);
+                settings = LoadSettingsFromFile(args[0]);
+            }
             if (settings != null)
             {
-                Show(Constants.SETTINGS_LOADED_SUCCES);
+                ConsoleWriter.Show(Constants.SETTINGS_LOADED_SUCCES);
                 DoGame(settings);
             }
             else
             {
-                Show(Constants.SETTINGS_LOADED_FAIL);
+                ConsoleWriter.Show(Constants.SETTINGS_LOADED_FAIL);
             }
 
-            Show(Constants.MAIN_APP_CLOSE);
+            ConsoleWriter.Show(Constants.MAIN_APP_CLOSE);
         }
 
 
-        public static GameMasterSettings LoadSettingsFromFile(string path)
+        public static GameMasterSettingsConfiguration LoadSettingsFromFile(string path)
         {
             GameMasterSettings settings = null;
-            try
+            //try
             {
                 using (StreamReader reader = new StreamReader(path))
                 {
@@ -44,41 +54,31 @@ namespace MainApp
                     if (serializer.CanDeserialize(xmlReader))
                     {
                         settings = (GameMasterSettings)serializer.Deserialize(xmlReader);
-                        var errors = Validator.ValidateSettings(settings);
+                        var errors = Validator.ValidateSettings(new GameMasterSettingsConfiguration(settings));
                         if (!string.IsNullOrEmpty(errors))
                         {
-                            Error(Constants.ERRORS_WHILE_PARSING_XML);
-                            Show(errors);
+                            ConsoleWriter.Error(Constants.ERRORS_WHILE_PARSING_XML);
+                            ConsoleWriter.Show(errors);
                             return null;
                         }
                     }
                 }
             }
-            catch(Exception e)
-            {
-                Error(Constants.UNEXPECTED_ERROR + e.Message);
-                Show(e.StackTrace);
-            }
-            return settings;
+            //catch(Exception e)
+            //{
+            //    ConsoleWriter.Error(Constants.UNEXPECTED_ERROR + e.Message);
+            //    ConsoleWriter.Show(e.StackTrace);
+            //}
+            return new GameMasterSettingsConfiguration(settings);
         }
 
-        public static void DoGame(GameMasterSettings settings)
+        public static void DoGame(GameMasterSettingsConfiguration settings,bool  testing = false)
         {
-
+            var GameController = new GameController(settings, testing);
+            GameController.RegisterPlayers();
+            GameController.HandleGame();
         }
 
-        public static void Warning(string message)
-        {
-            Console.WriteLine(DateTime.Now.ToString() + " " + Constants.WARNING + message);
-        }
-        public static void Error(string error)
-        {
-            Console.WriteLine(DateTime.Now.ToString() + " " + Constants.ERROR + error);
-        }
 
-        public static void Show(string message)
-        {
-            Console.WriteLine(DateTime.Now.ToString() + " " + message);
-        }
     }
 }

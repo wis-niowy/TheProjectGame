@@ -2,16 +2,18 @@
 using System.Collections.Generic;
 using System.Text;
 using Configuration;
-using GameMaster;
+using GameArea;
+using GameArea.AppConfiguration;
+
 namespace MainApp
 {
     public class GameObjectContainer
     {
-        public GameMaster.GameMaster GameMaster { get; set; }
+        public GameArea.GameMaster GameMaster { get; set; }
 
-        public GameObjectContainer(GameMasterSettings settings)
+        public GameObjectContainer(GameMasterSettingsConfiguration settings)
         {
-            GameMaster = new GameMaster.GameMaster(settings);
+            GameMaster = new GameArea.GameMaster(settings);
         }
     }
 }

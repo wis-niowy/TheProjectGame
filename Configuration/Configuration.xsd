@@ -5,7 +5,19 @@
     xmlns="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/">
 
   <xs:complexType name="Configuration">
-    <xs:attribute name="KeepAliveInterval" type="xs:unsignedInt" default="30000"/>
+    <xs:attribute name="KeepAliveInterval" type="xs:unsignedInt" default="30000">
+      <xs:annotation>
+        <xs:documentation>
+          It is the systems operator responsibility to provide the information
+          on keep alive attribute value set on GM and Communication Server.
+          If no message is received during this interval, including empty
+          ETB bytes, the connection is assumed to be broken.
+          Please note, that Player and GameMaster should send KeepAlive
+          more frequently than this max deadline, in order to avoid being
+          rejected due to unforseen delays in processing
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <xs:complexType name="Location">
@@ -77,10 +89,10 @@
                   </xs:element>
                   <xs:element name="PlacingNewPiecesFrequency" type="xs:unsignedInt" default="1000" />
                   <xs:element name="InitialNumberOfPieces" type="xs:unsignedInt" default="4" />
-                  <xs:element name="BoardWidth" type="xs:nonNegativeInteger" default="5" />
-                  <xs:element name="TaskAreaLength" type="xs:nonNegativeInteger" default="7" />
-                  <xs:element name="GoalAreaLength" type="xs:nonNegativeInteger" default="3" />
-                  <xs:element name="NumberOfPlayersPerTeam" type="xs:nonNegativeInteger" default="4" />
+                  <xs:element name="BoardWidth" type="xs:unsignedInt" default="5" />
+                  <xs:element name="TaskAreaLength" type="xs:unsignedInt" default="7" />
+                  <xs:element name="GoalAreaLength" type="xs:unsignedInt" default="3" />
+                  <xs:element name="NumberOfPlayersPerTeam" type="xs:unsignedInt" default="4" />
                   <xs:element name="GameName" type="xs:string" />
                 </xs:sequence>
               </xs:complexType>
@@ -91,9 +103,11 @@
                   <xs:element name="MoveDelay" type="xs:unsignedInt" default="100" />
                   <xs:element name="DiscoverDelay" type="xs:unsignedInt" default="450" />
                   <xs:element name="TestDelay" type="xs:unsignedInt" default="500" />
+                  <xs:element name="DestroyDelay" type="xs:unsignedInt" default="100" />
                   <xs:element name="PickUpDelay" type="xs:unsignedInt" default="100" />
                   <xs:element name="PlacingDelay" type="xs:unsignedInt" default="100" />
                   <xs:element name="KnowledgeExchangeDelay" type="xs:unsignedInt" default="1200" />
+                  <xs:element name="SuggestActionDelay" type="xs:unsignedInt" default="200" />
                 </xs:sequence>
               </xs:complexType>
             </xs:element>

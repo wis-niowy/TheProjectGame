@@ -4,125 +4,173 @@ using System.Collections.Generic;
 
 namespace Messages
 {
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=false)]
-    public partial class Data : PlayerMessage {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public partial class Data : PlayerMessage
+    {
+
         private TaskField[] taskFieldsField;
-        
+
         private GoalField[] goalFieldsField;
-        
+
         private Piece[] piecesField;
-        
+
         private Location playerLocationField;
-        
+
         private bool gameFinishedField;
-        
+
+        private string playerGuidField;
+        public bool ShouldSerializePieces()
+        {
+            return true;
+        }
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
-        public TaskField[] TaskFields {
-            get {
+        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable = false)]
+        public TaskField[] TaskFields
+        {
+            get
+            {
                 return this.taskFieldsField;
             }
-            set {
+            set
+            {
                 this.taskFieldsField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
-        public GoalField[] GoalFields {
-            get {
+        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable = false)]
+        public GoalField[] GoalFields
+        {
+            get
+            {
                 return this.goalFieldsField;
             }
-            set {
+            set
+            {
                 this.goalFieldsField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
-        public Piece[] Pieces {
-            get {
+        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable = false)]
+        public Piece[] Pieces
+        {
+            get
+            {
                 return this.piecesField;
             }
-            set {
+            set
+            {
                 this.piecesField = value;
             }
         }
-        
+
         /// <remarks/>
-        public Location PlayerLocation {
-            get {
+        public Location PlayerLocation
+        {
+            get
+            {
                 return this.playerLocationField;
             }
-            set {
+            set
+            {
                 this.playerLocationField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public bool gameFinished {
-            get {
+        public bool gameFinished
+        {
+            get
+            {
                 return this.gameFinishedField;
             }
-            set {
+            set
+            {
                 this.gameFinishedField = value;
             }
         }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string playerGuid
+        {
+            get
+            {
+                return this.playerGuidField;
+            }
+            set
+            {
+                this.playerGuidField = value;
+            }
+        }
+
+        
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=true)]
-    public partial class TaskField : Field {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = true)]
+    public partial class TaskField : Field
+    {
+
         private int distanceToPieceField;
-        
+
         private ulong pieceIdField;
-        
+
         private bool pieceIdFieldSpecified;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public int distanceToPiece {
-            get {
+        public int distanceToPiece
+        {
+            get
+            {
                 return this.distanceToPieceField;
             }
-            set {
+            set
+            {
                 this.distanceToPieceField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public ulong pieceId {
-            get {
+        public ulong pieceId
+        {
+            get
+            {
                 return this.pieceIdField;
             }
-            set {
+            set
+            {
                 this.pieceIdField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlIgnoreAttribute()]
-        public bool pieceIdSpecified {
-            get {
+        public bool pieceIdSpecified
+        {
+            get
+            {
                 return this.pieceIdFieldSpecified;
             }
-            set {
+            set
+            {
                 this.pieceIdFieldSpecified = value;
             }
         }
@@ -130,7 +178,61 @@ namespace Messages
         public TaskField(uint x, uint y) : base(x, y) { }
         public TaskField() : base() { }
     }
-    
+
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(Field))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(GoalField))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(TaskField))]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = true)]
+    public partial class Location
+    {
+
+        private uint xField;
+
+        private uint yField;
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public uint x
+        {
+            get
+            {
+                return this.xField;
+            }
+            set
+            {
+                this.xField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public uint y
+        {
+            get
+            {
+                return this.yField;
+            }
+            set
+            {
+                this.yField = value;
+            }
+        }
+
+        public Location(uint x, uint y)
+        {
+            xField = x;
+            yField = y;
+        }
+
+        public Location() { }
+    }
+
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(GoalField))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(TaskField))]
@@ -138,45 +240,55 @@ namespace Messages
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=true)]
-    public abstract partial class Field : Location {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = true)]
+    public abstract partial class Field : Location
+    {
+
         private System.DateTime timestampField;
-        
+
         private ulong playerIdField;
-        
+
         private bool playerIdFieldSpecified;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public System.DateTime timestamp {
-            get {
+        public System.DateTime timestamp
+        {
+            get
+            {
                 return this.timestampField;
             }
-            set {
+            set
+            {
                 this.timestampField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public ulong playerId {
-            get {
+        public ulong playerId
+        {
+            get
+            {
                 return this.playerIdField;
             }
-            set {
+            set
+            {
                 this.playerIdField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlIgnoreAttribute()]
-        public bool playerIdSpecified {
-            get {
+        public bool playerIdSpecified
+        {
+            get
+            {
                 return this.playerIdFieldSpecified;
             }
-            set {
+            set
+            {
                 this.playerIdFieldSpecified = value;
             }
         }
@@ -196,96 +308,49 @@ namespace Messages
                    playerIdSpecified == field.playerIdSpecified;
         }
 
-        public Field():base() { }
+        public Field() : base() { }
     }
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(Field))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(GoalField))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(TaskField))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=true)]
-    public partial class Location {
-        
-        private uint xField;
-        
-        private uint yField;
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public uint x {
-            get {
-                return this.xField;
-            }
-            set {
-                this.xField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public uint y {
-            get {
-                return this.yField;
-            }
-            set {
-                this.yField = value;
-            }
-        }
 
-        public Location(uint x, uint y)
-        {
-            xField = x;
-            yField = y;
-        }
 
-        public Location() { }
 
-        public override bool Equals(object obj)
-        {
-            if (obj == null)
-                return false;
-            var location = (Location)obj;
-            return location.xField == xField && location.yField == yField;
-        }
-    }
-    
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=true)]
-    public partial class GoalField : Field, IEqualityComparer<GoalField>
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = true)]
+    public partial class GoalField : Field
     {
-        
+
         private GoalFieldType typeField;
-        
+
         private TeamColour teamField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public GoalFieldType type {
-            get {
+        public GoalFieldType type
+        {
+            get
+            {
                 return this.typeField;
             }
-            set {
+            set
+            {
                 this.typeField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public TeamColour team {
-            get {
+        public TeamColour team
+        {
+            get
+            {
                 return this.teamField;
             }
-            set {
+            set
+            {
                 this.teamField = value;
             }
         }
@@ -296,7 +361,7 @@ namespace Messages
             typeField = type;
         }
 
-        public GoalField():base(0,0)
+        public GoalField() : base(0, 0)
         {
         }
         public override bool Equals(object obj)
@@ -308,7 +373,7 @@ namespace Messages
                 return false;
             return goalToCompare.typeField == this.typeField
                 && goalToCompare.teamField == this.teamField
-                && goalToCompare.x == this.x 
+                && goalToCompare.x == this.x
                 && goalToCompare.y == this.y
                 && base.Equals(goalToCompare);
         }
@@ -328,59 +393,62 @@ namespace Messages
             return 0;
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=false)]
-    public enum GoalFieldType {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public enum GoalFieldType
+    {
+
         /// <remarks/>
         unknown,
-        
+
         /// <remarks/>
         goal,
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlEnumAttribute("non-goal")]
         nongoal,
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=false)]
-    public enum TeamColour {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public enum TeamColour
+    {
+
         /// <remarks/>
         red,
-        
+
         /// <remarks/>
         blue,
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=true)]
-    public partial class Piece {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public partial class Piece
+    {
+
         private ulong idField;
-        
+
         private PieceType typeField;
-        
+
         private System.DateTime timestampField;
-        
+
         private ulong playerIdField;
-        
+
         private bool playerIdFieldSpecified;
 
-        public Piece(PieceType type,ulong id)
+        public Piece(PieceType type, ulong id)
         {
             typeField = type;
             idField = id;
@@ -401,841 +469,1237 @@ namespace Messages
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public ulong id {
-            get {
+        public ulong id
+        {
+            get
+            {
                 return this.idField;
             }
-            set {
+            set
+            {
                 this.idField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public PieceType type {
-            get {
+        public PieceType type
+        {
+            get
+            {
                 return this.typeField;
             }
-            set {
+            set
+            {
                 this.typeField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public System.DateTime timestamp {
-            get {
+        public System.DateTime timestamp
+        {
+            get
+            {
                 return this.timestampField;
             }
-            set {
+            set
+            {
                 this.timestampField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public ulong playerId {
-            get {
+        public ulong playerId
+        {
+            get
+            {
                 return this.playerIdField;
             }
-            set {
+            set
+            {
                 this.playerIdField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlIgnoreAttribute()]
-        public bool playerIdSpecified {
-            get {
+        public bool playerIdSpecified
+        {
+            get
+            {
                 return this.playerIdFieldSpecified;
             }
-            set {
+            set
+            {
                 this.playerIdFieldSpecified = value;
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=false)]
-    public enum PieceType {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public enum PieceType
+    {
+
         /// <remarks/>
         unknown,
-        
+
         /// <remarks/>
         sham,
-        
+
         /// <remarks/>
         normal,
+
+        /// <remarks/>
+        destroyed,
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=true)]
-    public partial class Agent {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = true)]
+    public partial class Player
+    {
+
         private TeamColour teamField;
-        
-        private PlayerType typeField;
-        
+
+        private PlayerRole roleField;
+
         private ulong idField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public TeamColour team {
-            get {
+        public TeamColour team
+        {
+            get
+            {
                 return this.teamField;
             }
-            set {
+            set
+            {
                 this.teamField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public PlayerType type {
-            get {
-                return this.typeField;
+        public PlayerRole role
+        {
+            get
+            {
+                return this.roleField;
             }
-            set {
-                this.typeField = value;
+            set
+            {
+                this.roleField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public ulong id {
-            get {
+        public ulong id
+        {
+            get
+            {
                 return this.idField;
             }
-            set {
+            set
+            {
                 this.idField = value;
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=false)]
-    public enum PlayerType {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public enum PlayerRole
+    {
+
         /// <remarks/>
         leader,
-        
+
         /// <remarks/>
         member,
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(BetweenPlayersMessage))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=true)]
-    public partial class PlayerMessage {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = true)]
+    public partial class PlayerMessage
+    {
+
         private ulong playerIdField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public ulong playerId {
-            get {
+        public ulong playerId
+        {
+            get
+            {
                 return this.playerIdField;
             }
-            set {
+            set
+            {
                 this.playerIdField = value;
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=false)]
-    public partial class TestPiece : GameMessage {
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public partial class TestPiece : GameMessage
+    {
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=true)]
-    public abstract partial class GameMessage {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = true)]
+    public abstract partial class GameMessage
+    {
+
         private string playerGuidField;
-        
+
         private ulong gameIdField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string playerGuid {
-            get {
+        public string playerGuid
+        {
+            get
+            {
                 return this.playerGuidField;
             }
-            set {
+            set
+            {
                 this.playerGuidField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public ulong gameId {
-            get {
+        public ulong gameId
+        {
+            get
+            {
                 return this.gameIdField;
             }
-            set {
+            set
+            {
                 this.gameIdField = value;
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=false)]
-    public partial class PlacePiece : GameMessage {
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public partial class DestroyPiece : GameMessage
+    {
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=false)]
-    public partial class PickUpPiece : GameMessage {
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public partial class PlacePiece : GameMessage
+    {
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=false)]
-    public partial class Move : GameMessage {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public partial class PickUpPiece : GameMessage
+    {
+    }
+
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public partial class Move : GameMessage
+    {
+
         private MoveType directionField;
-        
+
         private bool directionFieldSpecified;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public MoveType direction {
-            get {
+        public MoveType direction
+        {
+            get
+            {
                 return this.directionField;
             }
-            set {
+            set
+            {
                 this.directionField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlIgnoreAttribute()]
-        public bool directionSpecified {
-            get {
+        public bool directionSpecified
+        {
+            get
+            {
                 return this.directionFieldSpecified;
             }
-            set {
+            set
+            {
                 this.directionFieldSpecified = value;
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=false)]
-    public enum MoveType {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public enum MoveType
+    {
+
         /// <remarks/>
         up,
-        
+
         /// <remarks/>
         down,
-        
+
         /// <remarks/>
         left,
-        
+
         /// <remarks/>
         right,
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=false)]
-    public partial class Discover : GameMessage {
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public partial class Discover : GameMessage
+    {
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=false)]
-    public partial class AuthorizeKnowledgeExchange : GameMessage {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public partial class AuthorizeKnowledgeExchange : GameMessage
+    {
+
         private ulong withPlayerIdField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public ulong withPlayerId {
-            get {
+        public ulong withPlayerId
+        {
+            get
+            {
                 return this.withPlayerIdField;
             }
-            set {
+            set
+            {
                 this.withPlayerIdField = value;
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=false)]
-    public partial class KnowledgeExchangeRequest : BetweenPlayersMessage {
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public partial class KnowledgeExchangeRequest : BetweenPlayersMessage
+    {
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=true)]
-    public abstract partial class BetweenPlayersMessage : PlayerMessage {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = true)]
+    public abstract partial class BetweenPlayersMessage : PlayerMessage
+    {
+
         private ulong senderPlayerIdField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public ulong senderPlayerId {
-            get {
+        public ulong senderPlayerId
+        {
+            get
+            {
                 return this.senderPlayerIdField;
             }
-            set {
+            set
+            {
                 this.senderPlayerIdField = value;
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=false)]
-    public partial class AcceptExchangeRequest : BetweenPlayersMessage {
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public partial class AcceptExchangeRequest : BetweenPlayersMessage
+    {
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=false)]
-    public partial class RejectKnowledgeExchange : BetweenPlayersMessage {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public partial class RejectKnowledgeExchange : BetweenPlayersMessage
+    {
+
         private bool permanentField;
-        
+
+        private string playerGuidField;
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public bool permanent {
-            get {
+        public bool permanent
+        {
+            get
+            {
                 return this.permanentField;
             }
-            set {
+            set
+            {
                 this.permanentField = value;
             }
         }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string playerGuid
+        {
+            get
+            {
+                return this.playerGuidField;
+            }
+            set
+            {
+                this.playerGuidField = value;
+            }
+        }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=false)]
-    public partial class Game : PlayerMessage {
-        
-        private Agent[] playersField;
-        
-        private GameBoard boardField;
-        
-        private Location playerLocationField;
-        
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public partial class SuggestAction : BetweenPlayersMessage
+    {
+
+        private TaskField[] taskFieldsField;
+
+        private GoalField[] goalFieldsField;
+
+        private string playerGuidField;
+
+        private ulong gameIdField;
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
-        public Agent[] Players {
-            get {
+        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable = false)]
+        public TaskField[] TaskFields
+        {
+            get
+            {
+                return this.taskFieldsField;
+            }
+            set
+            {
+                this.taskFieldsField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable = false)]
+        public GoalField[] GoalFields
+        {
+            get
+            {
+                return this.goalFieldsField;
+            }
+            set
+            {
+                this.goalFieldsField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string playerGuid
+        {
+            get
+            {
+                return this.playerGuidField;
+            }
+            set
+            {
+                this.playerGuidField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public ulong gameId
+        {
+            get
+            {
+                return this.gameIdField;
+            }
+            set
+            {
+                this.gameIdField = value;
+            }
+        }
+    }
+
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public partial class SuggestActionResponse : BetweenPlayersMessage
+    {
+
+        private TaskField[] taskFieldsField;
+
+        private GoalField[] goalFieldsField;
+
+        private string playerGuidField;
+
+        private ulong gameIdField;
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable = false)]
+        public TaskField[] TaskFields
+        {
+            get
+            {
+                return this.taskFieldsField;
+            }
+            set
+            {
+                this.taskFieldsField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable = false)]
+        public GoalField[] GoalFields
+        {
+            get
+            {
+                return this.goalFieldsField;
+            }
+            set
+            {
+                this.goalFieldsField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string playerGuid
+        {
+            get
+            {
+                return this.playerGuidField;
+            }
+            set
+            {
+                this.playerGuidField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public ulong gameId
+        {
+            get
+            {
+                return this.gameIdField;
+            }
+            set
+            {
+                this.gameIdField = value;
+            }
+        }
+    }
+
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public partial class Game : PlayerMessage
+    {
+
+        private Player[] playersField;
+
+        private GameBoard boardField;
+
+        private Location playerLocationField;
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable = false)]
+        public Player[] Players
+        {
+            get
+            {
                 return this.playersField;
             }
-            set {
+            set
+            {
                 this.playersField = value;
             }
         }
-        
+
         /// <remarks/>
-        public GameBoard Board {
-            get {
+        public GameBoard Board
+        {
+            get
+            {
                 return this.boardField;
             }
-            set {
+            set
+            {
                 this.boardField = value;
             }
         }
-        
+
         /// <remarks/>
-        public Location PlayerLocation {
-            get {
+        public Location PlayerLocation
+        {
+            get
+            {
                 return this.playerLocationField;
             }
-            set {
+            set
+            {
                 this.playerLocationField = value;
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    public partial class GameBoard {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    public partial class GameBoard
+    {
+
         private uint widthField;
-        
+
         private uint tasksHeightField;
-        
+
         private uint goalsHeightField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public uint width {
-            get {
+        public uint width
+        {
+            get
+            {
                 return this.widthField;
             }
-            set {
+            set
+            {
                 this.widthField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public uint tasksHeight {
-            get {
+        public uint tasksHeight
+        {
+            get
+            {
                 return this.tasksHeightField;
             }
-            set {
+            set
+            {
                 this.tasksHeightField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public uint goalsHeight {
-            get {
+        public uint goalsHeight
+        {
+            get
+            {
                 return this.goalsHeightField;
             }
-            set {
+            set
+            {
                 this.goalsHeightField = value;
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=false)]
-    public partial class RegisterGame {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public partial class RegisterGame
+    {
+
         private GameInfo newGameInfoField;
-        
+
         /// <remarks/>
-        public GameInfo NewGameInfo {
-            get {
+        public GameInfo NewGameInfo
+        {
+            get
+            {
                 return this.newGameInfoField;
             }
-            set {
+            set
+            {
                 this.newGameInfoField = value;
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=true)]
-    public partial class GameInfo {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = true)]
+    public partial class GameInfo
+    {
+
         private string gameNameField;
-        
+
         private ulong redTeamPlayersField;
-        
+
         private ulong blueTeamPlayersField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string gameName {
-            get {
+        public string gameName
+        {
+            get
+            {
                 return this.gameNameField;
             }
-            set {
+            set
+            {
                 this.gameNameField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public ulong redTeamPlayers {
-            get {
+        public ulong redTeamPlayers
+        {
+            get
+            {
                 return this.redTeamPlayersField;
             }
-            set {
+            set
+            {
                 this.redTeamPlayersField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public ulong blueTeamPlayers {
-            get {
+        public ulong blueTeamPlayers
+        {
+            get
+            {
                 return this.blueTeamPlayersField;
             }
-            set {
+            set
+            {
                 this.blueTeamPlayersField = value;
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=false)]
-    public partial class ConfirmGameRegistration {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public partial class ConfirmGameRegistration
+    {
+
         private ulong gameIdField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public ulong gameId {
-            get {
+        public ulong gameId
+        {
+            get
+            {
                 return this.gameIdField;
             }
-            set {
+            set
+            {
                 this.gameIdField = value;
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=false)]
-    public partial class RejectGameRegistration {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public partial class RejectGameRegistration
+    {
+
         private string gameNameField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string gameName {
-            get {
+        public string gameName
+        {
+            get
+            {
                 return this.gameNameField;
             }
-            set {
+            set
+            {
                 this.gameNameField = value;
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=false)]
-    public partial class GameStarted {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public partial class GameStarted
+    {
+
         private ulong gameIdField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public ulong gameId {
-            get {
+        public ulong gameId
+        {
+            get
+            {
                 return this.gameIdField;
             }
-            set {
+            set
+            {
                 this.gameIdField = value;
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=false)]
-    public partial class GetGames {
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public partial class GetGames
+    {
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=false)]
-    public partial class RegisteredGames {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public partial class RegisteredGames
+    {
+
         private GameInfo[] gameInfoField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("GameInfo")]
-        public GameInfo[] GameInfo {
-            get {
+        public GameInfo[] GameInfo
+        {
+            get
+            {
                 return this.gameInfoField;
             }
-            set {
+            set
+            {
                 this.gameInfoField = value;
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=false)]
-    public partial class JoinGame {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public partial class JoinGame
+    {
+
         private string gameNameField;
-        
+
         private TeamColour preferredTeamField;
-        
-        private PlayerType preferredRoleField;
-        
+
+        private PlayerRole preferredRoleField;
+
         private ulong playerIdField;
-        
+
         private bool playerIdFieldSpecified;
-        
+
+        public JoinGame()
+        {
+            playerIdFieldSpecified = true; //haksior na dodawanie playerId do serialziacji ZAWSZE !!!
+        }
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string gameName {
-            get {
+        public string gameName
+        {
+            get
+            {
                 return this.gameNameField;
             }
-            set {
+            set
+            {
                 this.gameNameField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public TeamColour preferredTeam {
-            get {
+        public TeamColour preferredTeam
+        {
+            get
+            {
                 return this.preferredTeamField;
             }
-            set {
+            set
+            {
                 this.preferredTeamField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public PlayerType preferredRole {
-            get {
+        public PlayerRole preferredRole
+        {
+            get
+            {
                 return this.preferredRoleField;
             }
-            set {
+            set
+            {
                 this.preferredRoleField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public ulong playerId {
-            get {
+        public ulong playerId
+        {
+            get
+            {
                 return this.playerIdField;
             }
-            set {
+            set
+            {
                 this.playerIdField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlIgnoreAttribute()]
-        public bool playerIdSpecified {
-            get {
+        public bool playerIdSpecified
+        {
+            get
+            {
                 return this.playerIdFieldSpecified;
             }
-            set {
+            set
+            {
                 this.playerIdFieldSpecified = value;
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=false)]
-    public partial class ConfirmJoiningGame : PlayerMessage {
-        
-        private Agent playerDefinitionField;
-        
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public partial class ConfirmJoiningGame : PlayerMessage
+    {
+
+        private Player playerDefinitionField;
+
         private ulong gameIdField;
-        
+
         private string privateGuidField;
-        
+
         /// <remarks/>
-        public Agent PlayerDefinition {
-            get {
+        public Player PlayerDefinition
+        {
+            get
+            {
                 return this.playerDefinitionField;
             }
-            set {
+            set
+            {
                 this.playerDefinitionField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public ulong gameId {
-            get {
+        public ulong gameId
+        {
+            get
+            {
                 return this.gameIdField;
             }
-            set {
+            set
+            {
                 this.gameIdField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string privateGuid {
-            get {
+        public string privateGuid
+        {
+            get
+            {
                 return this.privateGuidField;
             }
-            set {
+            set
+            {
                 this.privateGuidField = value;
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=false)]
-    public partial class RejectJoiningGame : PlayerMessage {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public partial class RejectJoiningGame : PlayerMessage
+    {
+
         private string gameNameField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string gameName {
-            get {
+        public string gameName
+        {
+            get
+            {
                 return this.gameNameField;
             }
-            set {
+            set
+            {
                 this.gameNameField = value;
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=false)]
-    public partial class GameMasterDisconnected {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public partial class GameMasterDisconnectedMessage
+    {
+
         private ulong gameIdField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public ulong gameId {
-            get {
+        public ulong gameId
+        {
+            get
+            {
                 return this.gameIdField;
             }
-            set {
+            set
+            {
                 this.gameIdField = value;
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="https://se2.mini.pw.edu.pl/17-results/")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="https://se2.mini.pw.edu.pl/17-results/", IsNullable=false)]
-    public partial class PlayerDisconnected {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = false)]
+    public partial class PlayerDisconnected
+    {
+
         private ulong playerIdField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public ulong playerId {
-            get {
+        public ulong playerId
+        {
+            get
+            {
                 return this.playerIdField;
             }
-            set {
+            set
+            {
                 this.playerIdField = value;
+            }
+        }
+    }
+
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Xsd2", "1.0.0.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace = "https://se2.mini.pw.edu.pl/17-results/", IsNullable = true)]
+    public partial class ErrorMessage
+    {
+
+        private string exceptionTypeField;
+
+        private string exceptionMessageField;
+
+        private string exceptionCauseParameterNameField;
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute(DataType = "NCName")]
+        public string ExceptionType
+        {
+            get
+            {
+                return this.exceptionTypeField;
+            }
+            set
+            {
+                this.exceptionTypeField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string ExceptionMessage
+        {
+            get
+            {
+                return this.exceptionMessageField;
+            }
+            set
+            {
+                this.exceptionMessageField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute(DataType = "NCName")]
+        public string ExceptionCauseParameterName
+        {
+            get
+            {
+                return this.exceptionCauseParameterNameField;
+            }
+            set
+            {
+                this.exceptionCauseParameterNameField = value;
             }
         }
     }
