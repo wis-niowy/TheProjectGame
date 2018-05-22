@@ -21,6 +21,10 @@ namespace GameMaster.GMMessages
 
         public string[] Process(IGameMaster gameMaster)
         {
+            if (gameMaster.GameEndDate > ReceiveDate || gameMaster.GameStartDate > ReceiveDate || gameMaster.IsGameFinished)
+            {
+                return null;
+            }
             return gameMaster.HandleData(this);
         }
     }

@@ -11,5 +11,7 @@ namespace GameArea.ControllerInterfaces
         void RejectJoin(string name, ulong clientId);
         void DataSend(string message, ulong clientId);
         void BeginGame();
+        void SendKeepAliveToGM();
+        void GameFinished(string gameName, ulong redTeamPlayers, ulong blueTeamPlayers, ulong clientId);
     }
 }

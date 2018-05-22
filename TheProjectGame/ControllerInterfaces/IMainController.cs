@@ -11,5 +11,6 @@ namespace GameArea.ControllerInterfaces
         void JoinGame(string name, TeamColour team, PlayerRole role, ulong clientId);
         void GetGames(ulong clientId);
         void SendToClient(ulong clientId, string message);
+        void SendKeepAlive(ulong clientId);
     }
 }

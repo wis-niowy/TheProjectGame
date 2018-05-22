@@ -57,7 +57,8 @@ namespace CommunicationServer
             else
             {
                 var client = RemoveClient(clientId);
-                game.AddClient(client, new JoinGameMessage(name,team,role,(long)clientId));
+                if(client != null)
+                    game.AddClient(client, new JoinGameMessage(name,team,role,(long)clientId));
             }
         }
 
@@ -210,6 +211,11 @@ namespace CommunicationServer
         public void InsertClient(IClientHandle client)
         {
             clients.Add(client);
+        }
+
+        public void SendKeepAlive(ulong clientId)
+        {
+            SendToClient(clientId, "");
         }
     }
 }

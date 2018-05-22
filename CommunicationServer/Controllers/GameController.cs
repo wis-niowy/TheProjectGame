@@ -37,10 +37,6 @@ namespace CommunicationServer.ServerObjects
                 agent.SendMessage(message);
                 return true;
             }
-            else
-            {
-                
-            }
             return false;
         }
 
@@ -82,7 +78,6 @@ namespace CommunicationServer.ServerObjects
             {
                 RemoveClientOrAgent(clientId);
                 return false;
-
             }
         }
 
@@ -120,6 +115,13 @@ namespace CommunicationServer.ServerObjects
             mainController.DoCleaning();
         }
 
+        public void GameFinished(string gameName, ulong redPlayers, ulong bluePlayers, ulong clientId)
+        {
+            State = GameState.Ended;
+            mainController.DoCleaning();
+            mainController.RegisterGame(gameName,redPlayers,bluePlayers,clientId);
+        }
+
         public void RejectJoin(string name, ulong clientId)
         {
             SendMessageToClient(clientId,( new RejectJoiningGameMessage(name,clientId)).Serialize());
@@ -134,6 +136,17 @@ namespace CommunicationServer.ServerObjects
         public void BeginGame()
         {
             State = GameState.InProgress;
+        }
+
+        public void SendKeepAlive(ulong clientId)
+        {
+            if (!SendMessageToAgent(clientId, ""))
+                SendMessageToClient(clientId, "");
+        }
+
+        public void SendKeepAliveToGM()
+        {
+            SendMessageToGameMaster("");
         }
     }
 }

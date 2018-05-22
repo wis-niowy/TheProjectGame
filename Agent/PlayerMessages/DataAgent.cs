@@ -17,7 +17,7 @@ namespace Player.PlayerMessages
 
         public string[] Process(IPlayerController controller)
         {
-            controller.Player.UpdateLocalBoard(this, (ActionType)controller.Player.LastActionTaken);//, (MoveType)player.LastMoveTaken);
+            controller.Player.UpdateLocalBoard(this);//, (MoveType)player.LastMoveTaken);
             return null;
         }
     }

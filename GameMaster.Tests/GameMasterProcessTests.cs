@@ -50,7 +50,7 @@ namespace GameMaster.Tests
             InitGameMaster();
             JoinGameGM data = new JoinGameGM("game", TeamColour.blue, PlayerRole.leader);
             data.Process(gameMaster);
-            Assert.AreEqual(1, gameMaster.GetPlayers.Count);
+            Assert.AreEqual(1, gameMaster.Players.Count);
             Assert.AreEqual(1, gameMaster.GetPlayersByTeam(TeamColour.blue).Count);
             Assert.AreEqual(0, gameMaster.GetPlayersByTeam(TeamColour.red).Count);
         }
@@ -61,12 +61,12 @@ namespace GameMaster.Tests
             InitGameMaster();
             var player = GetPlayer("testGUID-0001", 10, TeamColour.red, ActionType.TestPiece);
             gameMaster.RegisterPlayer(player);
-            GameArea.GameObjects.Location location = gameMaster.GetPlayers[0].Location;
+            GameArea.GameObjects.Location location = gameMaster.Players[0].Location;
 
             PlayerDisconnectedGM data = new PlayerDisconnectedGM(10);
             data.Process(gameMaster);
 
-            Assert.AreEqual(0, gameMaster.GetPlayers.Count);
+            Assert.AreEqual(0, gameMaster.Players.Count);
             Assert.AreEqual(false, gameMaster.GetBoard.GetField(location.X, location.Y).HasPlayer());
         }
 

@@ -18,46 +18,27 @@ namespace GameArea
         public ulong GameId { get; set; }
         public GameMasterState State { get; set; }
         public List<ExchengeRequestContainer> exchangeRequestList { get; set; }
-        public DateTime GameStartDate = DateTime.Now;
+        public DateTime GameStartDate { get; set; }
+        public DateTime GameEndDate { get; set; }
+
         private ulong nextPieceId = 0;
-        private ulong goalsRedLeft;
-        private ulong goalsBlueLeft;
         private Random random;
-        private List<Player.Player> Players;
         private List<GameArea.GameObjects.Piece> pieces;
         public GameMasterSettingsConfiguration Settings { get; set; }
         private GameObjects.GameBoard actualBoard;
         private System.Timers.Timer pieceAdder;
 
-        public ulong GoalsRedLeft
-        {
-            get
-            {
-                return goalsRedLeft;
-            }
-        }
-        public ulong GoalsBlueLeft
-        {
-            get
-            {
-                return goalsBlueLeft;
-            }
-        }
+        public ulong GoalsRedLeft { get; set; }
+        public ulong GoalsBlueLeft { get; set; }
 
         public bool IsGameFinished
         {
             get
             {
-                return goalsBlueLeft == 0 || goalsRedLeft == 0;
+                return GoalsBlueLeft == 0 || GoalsRedLeft == 0;
             }
         }
-        public List<Player.Player> GetPlayers
-        {
-            get
-            {
-                return Players;
-            }
-        }
+        public List<Player.Player> Players { get; set; }
 
         public GameMasterState GetState
         {
@@ -168,27 +149,23 @@ namespace GameArea
             Players = new List<Player.Player>();
             pieces = new List<GameObjects.Piece>();
             exchangeRequestList = new List<ExchengeRequestContainer>();
-            goalsRedLeft = (ulong)settings.GameDefinition.Goals.Where(q => q.Team == TeamColour.red).Count();
-            goalsBlueLeft = (ulong)settings.GameDefinition.Goals.Where(q => q.Team == TeamColour.blue).Count();
             Settings = settings;
-            InitBoard(GetGameDefinition);
             InitPieceAdder();
         }
 
         public string[] RestartGame()
         {
-            State = GameMasterState.AwaitingPlayers;
-            goalsRedLeft = (ulong)GetGameDefinition.Goals.Where(q => q.Team == TeamColour.red).Count();
-            goalsBlueLeft = (ulong)GetGameDefinition.Goals.Where(q => q.Team == TeamColour.blue).Count();
+            var gameFinishedMessages = PrepareGameFinishedMessages();
+            if (gameFinishedMessages.Count() != Settings.GameDefinition.NumberOfPlayersPerTeam * 2 + 1)
+                Console.WriteLine("FATAL ERROR! \n\n\n GAMEMASTER HAS NOT PREPARED ENOUGH DATA MESSAGES!");
+            for (int i = 0; i < gameFinishedMessages.Count(); i++)
+                Console.WriteLine("\nGAMEMASTER GAME FINISHED MESSAGE numer:" + i + "\n" + gameFinishedMessages[i]);
             InitBoard(GetGameDefinition);
-
-            var oldPlayers = Players;
             Players = new List<Player.Player>();
-            foreach (var player in oldPlayers)
-                RegisterPlayer(player, player.GUID, true);
-            State = GameMasterState.GameInprogress;
+
+            State = GameMasterState.RegisteringGame;
             GameStartDate = DateTime.Now;
-            return PrepareGameReadyMessages();    
+            return gameFinishedMessages;    
         }
 
         private void InitPieceAdder()
@@ -201,9 +178,11 @@ namespace GameArea
 
         private void InitBoard(GameMasterSettingsGameDefinitionConfiguration settings)
         {
+            Monitor.Enter(lockObject);
             actualBoard = new GameObjects.GameBoard((int)settings.BoardWidth, (int)settings.TaskAreaLength, (int)settings.GoalAreaLength,GoalFieldType.nongoal);
             PlaceInitialPieces((int)settings.InitialNumberOfPieces);
             PlaceInitialGoals(settings.Goals.Select(q=>q).ToArray());
+            Monitor.Exit(lockObject);
         }
 
         private void PlaceInitialGoals(GameObjects.GoalField[] goals)

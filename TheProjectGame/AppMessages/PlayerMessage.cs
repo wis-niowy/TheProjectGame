@@ -16,8 +16,10 @@ namespace GameArea.AppMessages
         public PlayerMessage(ulong playerId)
         {
             PlayerId = playerId;
+            ReceiveDate = DateTime.Now;
         }
 
         public abstract string Serialize();
+        public DateTime ReceiveDate;
     }
 }

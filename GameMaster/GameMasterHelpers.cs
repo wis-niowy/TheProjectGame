@@ -86,17 +86,19 @@ namespace GameArea
                     switch (goal.Team)
                     {
                         case TeamColour.red:
-                            goalsRedLeft--;    // one goal less before the game is over
+                            GoalsRedLeft--;    // one goal less before the game is over
                             break;
                         case TeamColour.blue:
-                            goalsBlueLeft--;
+                            GoalsBlueLeft--;
                             break;
                     }
-                    if (goalsBlueLeft == 0 || goalsRedLeft == 0)
+                    if (GoalsBlueLeft == 0 || GoalsRedLeft == 0)
                     {
+                        if (IsGameFinished)
+                            Console.WriteLine("!!!ACHTUNG!!!\nGame has ended.");
                         State = GameMasterState.GameResolved;
+                        GameEndDate = DateTime.Now;
                         PrintEndGameState();
-                        Thread.Sleep(5000);
                     }
                     Player.SetPiece(null); // the piece is no longer possesed by an Player
                 }
@@ -245,7 +247,7 @@ namespace GameArea
         {
             var winner = GoalsBlueLeft == 0 ? TeamColour.blue : TeamColour.red;
             var opponent = GoalsBlueLeft == 0 ? TeamColour.red : TeamColour.blue;
-            var opponentScore = winner == TeamColour.blue ? goalsRedLeft : goalsBlueLeft;
+            var opponentScore = winner == TeamColour.blue ? GoalsRedLeft : GoalsBlueLeft;
             ConsoleWriter.Show("\n\n\n************************\n THE WINNERS IS: " + winner + "\n THE NOOBS ARE: " + opponent + "\n WITH GOALS LEFT: " + opponentScore + "\n \n \n END OF GAME: " + GetGameDefinition.GameName + " \n \n*****************");
             Logger.Logger logger = new Logger.Logger(this);
             logger.Log(GameMasterState.GameResolved);

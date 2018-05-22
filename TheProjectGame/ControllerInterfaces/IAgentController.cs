@@ -6,5 +6,6 @@ namespace GameArea.ControllerInterfaces
     {
         void SendMessageToGameMaster(string message);
         void RemoveClientOrAgent(ulong clientId);
+        void SendKeepAlive(ulong clientId);
     }
 }

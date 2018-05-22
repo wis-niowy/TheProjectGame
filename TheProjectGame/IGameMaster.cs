@@ -32,6 +32,8 @@ namespace GameArea
         SuggestActionMessage HandleSuggestAction(SuggestActionMessage msg);
         SuggestActionResponseMessage HandleSuggestActionResponse(SuggestActionResponseMessage msg);
         string[] HandleData(DataMessage data);
+        DateTime GameEndDate { get; set; }
+        DateTime GameStartDate { get; set; }
 
         void HandlerErrorMessage(AppMessages.ErrorMessage error);
     }

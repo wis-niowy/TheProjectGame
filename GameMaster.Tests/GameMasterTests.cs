@@ -66,8 +66,8 @@ namespace GameArea.Tests
         public void InitPlayersList()
         {
             InitGameMaster();
-            Assert.IsNotNull(defaultGameMaster.GetPlayers);
-            Assert.AreEqual(0, defaultGameMaster.GetPlayers.Count);
+            Assert.IsNotNull(defaultGameMaster.Players);
+            Assert.AreEqual(0, defaultGameMaster.Players.Count);
         }
 
         [TestMethod]
@@ -130,7 +130,7 @@ namespace GameArea.Tests
 
             //check if players returned to their locations
             for (int i=0; i<players.Count; i++)
-                Assert.AreEqual(locationsInit[i], defaultGameMaster.GetPlayers[i].Location);
+                Assert.AreEqual(locationsInit[i], defaultGameMaster.Players[i].Location);
 
             Assert.AreEqual(GameMasterState.GameInprogress, defaultGameMaster.State);
 
@@ -138,10 +138,10 @@ namespace GameArea.Tests
             Assert.AreEqual(new GameStartedMessage(defaultGameMaster.GameId).Serialize(), msg[0]);
             for (int i = 0; i < players.Count; i++)
             {
-                AppMessages.GameMessage expMsg = new AppMessages.GameMessage(defaultGameMaster.GetPlayers[i].ID)
+                AppMessages.GameMessage expMsg = new AppMessages.GameMessage(defaultGameMaster.Players[i].ID)
                 {
                     PlayerLocation = locationsInit[i],
-                    Players = defaultGameMaster.GetPlayers.Select(q => new GameObjects.Player(q.ID, q.Team, q.Role)).ToArray(),
+                    Players = defaultGameMaster.Players.Select(q => new GameObjects.Player(q.ID, q.Team, q.Role)).ToArray(),
                     Board = new GameObjects.GameBoard(defaultGameMaster.GetBoard.Width, defaultGameMaster.GetBoard.TaskAreaHeight, defaultGameMaster.GetBoard.GoalAreaHeight)
                 };
                 Assert.AreEqual(expMsg.Serialize(), msg[i+1]);
@@ -304,7 +304,7 @@ namespace GameArea.Tests
             // action: Player places a piece
             var actionResult = defaultGameMaster.TryPlacePieceOnTaskField(new GameArea.GameObjects.Location(1, 5), "testGUID-0003");
 
-            var PlayerGameMasterCopy = defaultGameMaster.GetPlayers.Where(q => q.GUID == "testGUID-0003").First();
+            var PlayerGameMasterCopy = defaultGameMaster.Players.Where(q => q.GUID == "testGUID-0003").First();
 
             Assert.AreEqual(true, setPositionResult);
             Assert.AreEqual(1, actionResult[0].X);
@@ -338,7 +338,7 @@ namespace GameArea.Tests
             // action: Player places a piece
             var actionResult = defaultGameMaster.TryPlacePieceOnTaskField(new GameArea.GameObjects.Location(1, 5), "testGUID-0003");
 
-            var PlayerGameMasterCopy = defaultGameMaster.GetPlayers.Where(q => q.GUID == "testGUID-0003").First();
+            var PlayerGameMasterCopy = defaultGameMaster.Players.Where(q => q.GUID == "testGUID-0003").First();
 
             Assert.AreEqual(true, setPositionResult);
             Assert.IsNull(actionResult[0]);

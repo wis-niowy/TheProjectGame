@@ -180,6 +180,7 @@ namespace Player
             otherTeam = messageObject.Players.ToList().Where(p => p.Team != Team).ToList();
             SetBoard(messageObject.Board);
             Location = messageObject.PlayerLocation;
+            gameFinished = false;
             State = AgentState.Playing;
             ActionToComplete = ActionType.none;
         }

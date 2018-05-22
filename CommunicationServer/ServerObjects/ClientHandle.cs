@@ -47,7 +47,7 @@ namespace CommunicationServer.ServerObjects
                         {
                             foreach (var message in messages.Select(q => q.Trim('\0')))
                             {
-                                ConsoleWriter.Show("Server read: \n" + message + "\n");
+                                ConsoleWriter.Show("Server read from client:" + ID + ", \n" + message + "\n");
                                 MessageInterpreter.ReadMessage(message, ID);
                             }
                         });

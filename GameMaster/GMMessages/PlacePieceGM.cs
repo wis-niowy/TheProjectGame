@@ -19,6 +19,10 @@ namespace GameMaster.GMMessages
 
         public string[] Process(IGameMaster gameMaster)
         {
+            if (gameMaster.GameEndDate > ReceiveDate || gameMaster.GameStartDate > ReceiveDate || gameMaster.IsGameFinished)
+            {
+                return null;
+            }
             var messages = new  string[] { gameMaster.HandlePlacePieceRequest(this)?.Serialize() };
             gameMaster.LockObject();
             try

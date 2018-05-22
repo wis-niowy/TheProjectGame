@@ -11,6 +11,7 @@ namespace Player
 {
     public partial class Player
     {
+        private int awaitsCounter = 0;
         /// <summary>
         /// Awaits for property change.
         /// Returns true if value has changed.
@@ -20,10 +21,19 @@ namespace Player
         public bool WaitForActionComplete(int miliSec = 5000)
         {
             var result =  SpinWait.SpinUntil(() => ActionToComplete == ActionType.none,miliSec);
-            if(!result)
+            if (!result)
             {
+                awaitsCounter++;
                 ConsoleWriter.Warning("Waiting for operation complete timeout: " + ActionToComplete);
             }
+            else
+                awaitsCounter = 0;
+            if (awaitsCounter == 5)
+            {
+                Console.WriteLine("Reached 5 timeouts for action, setting action await to null");
+                ActionToComplete = ActionType.none;
+            }
+
             return result;
         }
         public GameArea.GameObjects.TaskField GetTaskFromDirection(MoveType direction)
@@ -141,9 +151,8 @@ namespace Player
             if (untilSucces) //try to move until succes; if can't move - go Alternative1 or Alternative2 and then try move 3 times, if fail then go back and return
             {
                 bool moved = Move(direction);
-                for (int i = 0; i < 3 && !moved; i++)
+                for (int i = 0; i < 3 && !moved && !gameFinished; i++)
                 {
-                    
                     if (!Move(Alternative1(direction)))
                         Move(Alternative2(direction));
                     moved = Move(direction);

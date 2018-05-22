@@ -38,7 +38,7 @@ namespace GameArea
         PlayerSettingsConfiguration Settings { get; set; }
 
         void DoStrategy();
-        bool UpdateLocalBoard(DataMessage receivedData, ActionType action);
+        bool UpdateLocalBoard(DataMessage receivedData);
         void GameStarted(AppMessages.GameMessage messageObject);
         void GameMasterDisconnected(AppMessages.GameMasterDisconnectedMessage messageObject);
 

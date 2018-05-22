@@ -13,9 +13,13 @@ namespace GameMaster.GMMessages
         public string GUID => PlayerGUID;
         public TestPieceGM(string guid, ulong gameID) : base(guid, gameID) { }
 
-        public string[] Process(IGameMaster controller)
+        public string[] Process(IGameMaster gameMaster)
         {
-            return new string[] { controller.HandleTestPieceRequest(this)?.Serialize() };
+            if (gameMaster.GameEndDate > ReceiveDate || gameMaster.GameStartDate > ReceiveDate || gameMaster.IsGameFinished)
+            {
+                return null;
+            }
+            return new string[] { gameMaster.HandleTestPieceRequest(this)?.Serialize() };
         }
     }
 }

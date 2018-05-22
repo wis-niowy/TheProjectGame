@@ -50,7 +50,7 @@ namespace GameMaster
         {
             PrioritisedTask = Task.Run(() =>
             {
-                while (gameMasterController.GameMaster.State != GameArea.GameMasterState.GameOver)
+                while (gameMasterController.GameMaster.State != GameMasterState.GameOver)
                 {
                     SpinWait.SpinUntil(() => PrioritisedQueue.Count > 0);
                     Monitor.Enter(prioritisedLock);
@@ -87,34 +87,42 @@ namespace GameMaster
 
         private void RunNormalProcess(string guid)
         {
-            if (QueueTasks.ContainsKey(guid) && QueueTasks[guid].Status == TaskStatus.Running)
-                return;
-            else
+            if (QueueTasks.ContainsKey(guid))
             {
-                QueueTasks.Add(guid,Task.Run(() =>
+                if(QueueTasks[guid].Status == TaskStatus.Running)
+                    return;
+                else
                 {
-                    var messagesList = Queue[guid];
-                    while (gameMasterController.GameMaster.State != GameArea.GameMasterState.GameOver)
-                    {
-                        SpinWait.SpinUntil(() => messagesList.Count > 0);
-                        Monitor.Enter(normalLock);
-                        var message = messagesList[0];
-                        messagesList.RemoveAt(0);
-                        Monitor.Exit(normalLock);
-                        try
-                        {
-                            var responses = message?.Process(gameMasterController.GameMaster);
-                            if (responses != null)
-                                foreach (var msg in responses)
-                                    gameMasterController.BeginSend(msg);
-                        }
-                        catch (Exception e)
-                        {
-                            ConsoleWriter.Error("Error during processing normal message for:  " + guid + ".\nError message: " + e.Message + "\nStackTrace:" + e.StackTrace);
-                        }
-                    }
-                }));
+                    QueueTasks[guid].Dispose();
+                    Queue.Remove(guid);
+                }
             }
+               
+           
+            QueueTasks.Add(guid, Task.Run(() =>
+             {
+                 var messagesList = Queue[guid];
+                 while (gameMasterController.GameMaster.State != GameMasterState.GameResolved && gameMasterController.GameMaster.State != GameMasterState.GameOver)
+                 {
+                     SpinWait.SpinUntil(() => messagesList.Count > 0);
+                     Monitor.Enter(normalLock);
+                     var message = messagesList[0];
+                     messagesList.RemoveAt(0);
+                     Monitor.Exit(normalLock);
+                     try
+                     {
+                         var responses = message?.Process(gameMasterController.GameMaster);
+                         if (responses != null)
+                             foreach (var msg in responses)
+                                 gameMasterController.BeginSend(msg);
+                     }
+                     catch (Exception e)
+                     {
+                         ConsoleWriter.Error("Error during processing normal message for:  " + guid + ".\nError message: " + e.Message + "\nStackTrace:" + e.StackTrace);
+                     }
+                 }
+                 messagesList.Clear(); //czyszczenie wiadomości przez zabiciem - nowa gra lub State == Dead
+             }));
         }
     }
 }

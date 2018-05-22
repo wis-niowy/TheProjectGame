@@ -109,10 +109,12 @@ namespace Player
             return !HasPiece;
         }
 
-        public bool UpdateLocalBoard(DataMessage responseMessage, ActionType action)
+        public bool UpdateLocalBoard(DataMessage responseMessage)
         {
             bool updated = false;
-            var gameFinished = responseMessage.GameFinished;
+            gameFinished = gameFinished || responseMessage.GameFinished;
+            if (gameFinished)
+                Console.WriteLine("!!!ACHTUNG!!!\nReceived DATA MESSAGE from GameMaster with GameFinished == true. PlayerId/ClientId:" + ID +  "\nGUID: " + GUID);
             var playerId = responseMessage.PlayerId;
             
             if (playerId == this.ID && !gameFinished)
@@ -180,7 +182,8 @@ namespace Player
             }
             else if (gameFinished)
             {
-                State = AgentState.AwaitingForStart;
+                //wypisywnaie planszy po otryzmaniu Data, wymóg specyfikacji
+                State = AgentState.SearchingForGame;
             }
             ActionToComplete = ActionType.none;
             return updated;

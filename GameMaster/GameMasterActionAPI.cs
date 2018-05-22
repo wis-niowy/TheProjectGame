@@ -27,6 +27,7 @@ namespace GameArea
         public void HandleConfirmGameRegistration(ConfirmGameRegistrationMessage msg)
         {
             ConsoleWriter.Show("Succesfull game registration. Awaiting for clients...");
+            InitBoard(Settings.GameDefinition);
             State = GameMasterState.AwaitingPlayers;
             GameId = msg.GameId;
         }
@@ -37,6 +38,16 @@ namespace GameArea
             msgs.Add(new GameStartedMessage(GameId).Serialize());
             foreach (var player in Players)
                 msgs.Add(PrepareGameMessageForPlayer(player).Serialize());
+            return msgs.ToArray();
+        }
+
+        private string[] PrepareGameFinishedMessages()
+        {
+                #warning Docelowo zmienić na wysyłanie pelnego data z dokumentacji
+            List<string> msgs = new List<string>();
+            foreach (var player in Players)
+                msgs.Add(new DataMessage(player.ID) { PlayerGUID = player.GUID, GameFinished = true }.Serialize());
+            msgs.Add(RegisterGame().Serialize());
             return msgs.ToArray();
         }
 
@@ -98,7 +109,7 @@ namespace GameArea
 
             Player.Player player = null;
 
-            if (redPlayersNumber + bluePlayersNumber < 2 * expectedPlayersNumberPerTeam)
+            if (redPlayersNumber + bluePlayersNumber < 2 * expectedPlayersNumberPerTeam && State == GameMasterState.AwaitingPlayers)
             // player can join one of two teams
             {
                 ConsoleWriter.Show("Join request accepted...");
@@ -113,7 +124,7 @@ namespace GameArea
                     prefferedTeam = prefferedTeam == TeamColour.red ? TeamColour.blue : TeamColour.red;
                     player = PreparePlayerObject(prefferedTeam, playerId);
                 }
-                
+
                 var messagePlayerObject = player.ConvertToMessagePlayer();
                 var leaders = GetPlayersByTeam(prefferedTeam).Where(p => p.Role == PlayerRole.leader);
                 var canBeLeader = prefferedRole == PlayerRole.leader && leaders.Count() == 0;
@@ -129,7 +140,7 @@ namespace GameArea
                 }
                 RegisterPlayer(player); // GameMaster rejestruje playera i umieszcza na boardzie
 
-                responseData =  new string[] { new ConfirmJoiningGameMessage(GameId, messagePlayerObject,player.GUID , player.ID).Serialize() };
+                responseData = new string[] { new ConfirmJoiningGameMessage(GameId, messagePlayerObject, player.GUID, player.ID).Serialize() };
             }
             else
             // player cannot join any of two teams
@@ -139,32 +150,21 @@ namespace GameArea
             }
             if (GameReady)
             {
-                GameStartDate = DateTime.Now;
                 ConsoleWriter.Show("Required number of clients connected. Sending GameReady messages...");
-                State = GameMasterState.GameInprogress;
+                StartGame();
                 var additionalData = PrepareGameReadyMessages();
                 responseData = responseData.Union(additionalData).ToArray();
             }
             Monitor.Exit(lockObject);
             return responseData;
+        }
 
-
-
-            //jeżeli jest już komplet graczy to zwróc rejectjoininggame
-            //dopasuj gracza do jego preferencji w miare możliwości
-            //doczytac w dokumentacji czy w razie jak nikt nie chciał być liderem to nie ma lidera w team (sprawdzić, ajkby co to ustalamy że ostatni z dołączających do teamu zostaje liderem, jeżeli jeszcze go nie ma)
-            //np. jeżeli chce być red i np. Lider to sprawdź czy jest wolne miejsce w red, a potem sprawdź czy nie ma lidera (najpierw dopasowanie po team, potem po roli)
-            //dajmy na to że red jest full ale blue nie ma lidera więc ten agent trafia do blue team jako lider
-            //dodajemy gracza do listy agentów gry 
-            //nadajemy mu unikalne GUID, playerId jest przekazywane z serwera
-            //wysyłamy do gracza ConfirmJoiningGame
-
-            //sprawdzamy czy mamy komplet graczy
-            //{
-            //wysyłamy do każdeggo z gracza wiadomość Game z danymi gry
-            //wysyłamy na serwer wiadomość GameStarted
-            //zmieniamy stan GameMastera na Inprogress z GameMasterState
-            //}
+        private void StartGame()
+        {
+            GameStartDate = DateTime.Now;
+            GoalsRedLeft = (ulong)Settings.GameDefinition.Goals.Where(q => q.Team == TeamColour.red).Count();
+            GoalsBlueLeft = (ulong)Settings.GameDefinition.Goals.Where(q => q.Team == TeamColour.blue).Count();
+            State = GameMasterState.GameInprogress;
         }
 
         public void HandlePlayerDisconnectedRequest(PlayerDisconnectedMessage playerDisconnected)
@@ -274,10 +274,7 @@ namespace GameArea
             var location = Players.Where(q => q.GUID == playerGuid).First().Location;
             var Player = Players.Where(q => q.GUID == playerGuid).First();
             // basic information
-            var response = new DataMessage(Player.ID)
-            {
-                GameFinished = IsGameFinished
-            };
+            var response = new DataMessage(Player.ID);
 
             Monitor.Enter(lockObject);
             try
@@ -310,6 +307,7 @@ namespace GameArea
                 Monitor.Exit(lockObject);
             }
             PrintBoardState();
+            response.GameFinished = IsGameFinished;
             if(!IsGameFinished)
                 Thread.Sleep(GetCosts.PlacingDelay);
             if (msg.ReceiveDate > GameStartDate)
@@ -367,7 +365,6 @@ namespace GameArea
                 }
 
                 // player is either on an empty TaskField or on a GoalField
-                response.GameFinished = IsGameFinished;
             }
             finally
             {
@@ -375,6 +372,7 @@ namespace GameArea
             }
             PrintBoardState();
             Thread.Sleep(GetCosts.PickUpDelay);
+            response.GameFinished = IsGameFinished;
             if (msg.ReceiveDate > GameStartDate)
                 return response;
             else
@@ -450,8 +448,6 @@ namespace GameArea
                     // perform move action
                     PerformMoveAction(currentLocation, futureLocation, playerGuid, response);
                 }
-
-                response.GameFinished = IsGameFinished;
             }
             finally
             {
@@ -459,6 +455,7 @@ namespace GameArea
             }
             PrintBoardState();
             Thread.Sleep((int)GetCosts.MoveDelay);
+            response.GameFinished = IsGameFinished;
             if (msg.ReceiveDate > GameStartDate)
                 return response;
             else

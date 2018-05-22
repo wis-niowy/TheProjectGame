@@ -37,7 +37,7 @@ namespace Logger
                 case GameMasterState.GameOver:
                     break;
                 case GameMasterState.GameResolved:
-                    foreach (var player in gameMaster.GetPlayers)
+                    foreach (var player in gameMaster.Players)
                     {
                         bool isPlayerTeamBlue = player.Team == TeamColour.blue ? true : false;
                         string nameMessage = "";
