@@ -2,6 +2,7 @@
 using GameArea.AppMessages;
 using GameArea.Parsers;
 using Messages;
+using Player.PlayerMessages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -113,8 +114,7 @@ namespace Player
         {
             bool updated = false;
             gameFinished = gameFinished || responseMessage.GameFinished;
-            if (gameFinished)
-                Console.WriteLine("!!!ACHTUNG!!!\nReceived DATA MESSAGE from GameMaster with GameFinished == true. PlayerId/ClientId:" + ID +  "\nGUID: " + GUID);
+                
             var playerId = responseMessage.PlayerId;
             
             if (playerId == this.ID && !gameFinished)
@@ -183,7 +183,9 @@ namespace Player
             else if (gameFinished)
             {
                 //wypisywnaie planszy po otryzmaniu Data, wymóg specyfikacji
+                Console.WriteLine("!!!ACHTUNG!!!\nReceived DATA MESSAGE from GameMaster with GameFinished == true. PlayerId/ClientId:" + ID + "\nGUID: " + GUID);
                 State = AgentState.SearchingForGame;
+
             }
             ActionToComplete = ActionType.none;
             return updated;
@@ -191,8 +193,27 @@ namespace Player
 
         public virtual DataMessage HandleKnowledgeExchangeRequest(KnowledgeExchangeRequestMessage messageObject)
         {
-            // poki co - Player olewa
-            return null;
+            DataMessage responseData = null;
+
+            var leaderId = myTeam.Where(p => p.Role == PlayerRole.leader).Select(p => p.ID).FirstOrDefault();
+
+            if (leaderId == messageObject.SenderPlayerId)
+                // wiadomosc od swojego leadera - natychmiastowa odpowiedz
+            {
+                responseData = PrepareKnowledgeExchangeMessage(messageObject);
+            }
+            else if (myTeam.Select(p => p.ID).Contains(messageObject.SenderPlayerId))
+                // wiadomosc od swojego playera 
+            {
+                AddMyPlayerExhangeKnowledgeRequest(messageObject as KnowledgeExchangeRequestAgent);
+            }
+            else if (otherTeam.Select(p => p.ID).Contains(messageObject.SenderPlayerId))
+            // wiadomosc od obcego playera
+            {
+                AddOtherPlayerExhangeKnowledgeRequest(messageObject as KnowledgeExchangeRequestAgent);
+            }
+
+            return responseData;
         }
 
         public virtual void HandleRejectKnowledgeExchange(RejectKnowledgeExchangeMessage messageObject)
@@ -201,6 +222,37 @@ namespace Player
         }
 
         // helpers ---------------------
+
+        protected DataMessage PrepareKnowledgeExchangeMessage(KnowledgeExchangeRequestMessage messageObject)
+        {
+            var responseData = new DataMessage(messageObject.SenderPlayerId)
+            {
+                Goals = GetBoard.GetRedGoalAreaFields.Union(GetBoard.GetBlueGoalAreaFields).Select(f => new GameArea.GameObjects.GoalField(f)).ToArray(),
+                Tasks = GetBoard.TaskFields.Select(q => new GameArea.GameObjects.TaskField(q)).ToArray()
+            };
+            var xCoord = Location.X;
+            var yCoord = Location.Y;
+
+            // do Data musi też dodać, na Field na ktorym stoi, swoj stan !!!
+            if (GetBoard.GetField(xCoord, yCoord) is GameArea.GameObjects.GoalField)
+            {
+                var field = responseData.Goals.Where(f => f.X == xCoord && f.Y == yCoord).FirstOrDefault();
+                field.Player = new GameArea.GameObjects.Player(this.ID, this.Team, this.Role);
+                field.TimeStamp = DateTime.Now;
+                field.PlayerId = (long)this.ID;
+            }
+            else // is TaskField
+            {
+                var field = responseData.Tasks.Where(f => f.X == xCoord && f.Y == yCoord).FirstOrDefault();
+                field.Player = new GameArea.GameObjects.Player(this.ID, this.Team, this.Role);
+                if (this.HasPiece)
+                    field.Piece = new GameArea.GameObjects.Piece(this.GetPiece.ID, this.GetPiece.TimeStamp, this.GetPiece.Type, this.GetPiece.PlayerId);
+                field.TimeStamp = DateTime.Now;
+                field.PlayerId = (long)this.ID;
+            }
+
+            return responseData;
+        }
 
         public GameArea.GameObjects.Location CalculateFutureLocation(GameArea.GameObjects.Location oldLocation, MoveType direction)
         {

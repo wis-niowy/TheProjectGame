@@ -3,6 +3,7 @@ using GameArea;
 using Messages;
 using Configuration;
 using GameArea.AppConfiguration;
+using System.Collections.Generic;
 
 namespace Player.Tests
 {
@@ -26,6 +27,8 @@ namespace Player.Tests
             player.LastActionTaken = action;
             player.Controller = controller;
             controller.Player = player;
+            player.myTeam = new List<GameArea.GameObjects.Player>();
+            player.otherTeam = new List<GameArea.GameObjects.Player>();
 
             return player;
         }

@@ -5,6 +5,7 @@ using System.Text;
 using GameArea;
 using GameArea.AppMessages;
 using System.Linq;
+using Player.PlayerMessages;
 
 namespace Player
 {
@@ -18,31 +19,19 @@ namespace Player
         public override DataMessage HandleKnowledgeExchangeRequest(KnowledgeExchangeRequestMessage messageObject)
         {
             // Leader zawsze odpowiada, jezeli request jest z jego druzyny
-            
-            DataMessage responseData = new DataMessage(messageObject.SenderPlayerId)
-            {
-                Goals = GetBoard.GetRedGoalAreaFields.Union(GetBoard.GetBlueGoalAreaFields).Select(f => new GameArea.GameObjects.GoalField(f)).ToArray(),
-                Tasks = GetBoard.TaskFields.Select(q => new GameArea.GameObjects.TaskField(q)).ToArray()
-            };
-            var xCoord = Location.X;
-            var yCoord = Location.Y;
+            // wiadomosci od graczy z przeciwnego zespolu zapisuje sobie w kolejce
 
-            // do Data musi też dodać, na Field na ktorym stoi, swoj stan !!!
-            if (GetBoard.GetField(xCoord, yCoord) is GameArea.GameObjects.GoalField)
+            DataMessage responseData = null;
+
+            if (otherTeam.Select(p => p.ID).Contains(messageObject.SenderPlayerId))
+                // wiadomosc od obcego playera - do kolejki
             {
-                var field = responseData.Goals.Where(f => f.X == xCoord && f.Y == yCoord).FirstOrDefault();
-                field.Player = new GameArea.GameObjects.Player(this.ID, this.Team, this.Role);
-                field.TimeStamp = DateTime.Now;
-                field.PlayerId = (long)this.ID;
+                AddOtherPlayerExhangeKnowledgeRequest(messageObject as KnowledgeExchangeRequestAgent);
             }
-            else // is TaskField
+            else if (myTeam.Select(p => p.ID).Contains(messageObject.SenderPlayerId))
+                // wiadomosc od naszego player - natychmiastowa odpoweidz
             {
-                var field = responseData.Tasks.Where(f => f.X == xCoord && f.Y == yCoord).FirstOrDefault();
-                field.Player = new GameArea.GameObjects.Player(this.ID, this.Team, this.Role);
-                if (this.HasPiece)
-                    field.Piece = new GameArea.GameObjects.Piece(this.GetPiece.ID, this.GetPiece.TimeStamp, this.GetPiece.Type, this.GetPiece.PlayerId);
-                field.TimeStamp = DateTime.Now;
-                field.PlayerId = (long)this.ID;
+                responseData = PrepareKnowledgeExchangeMessage(messageObject);
             }
 
             return responseData;
@@ -50,7 +39,7 @@ namespace Player
 
         public override void HandleRejectKnowledgeExchange(RejectKnowledgeExchangeMessage messageObject)
         {
-            // poki co - Player olewa
+            // nic nie robi
         }
     }
 }

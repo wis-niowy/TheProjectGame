@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using GameArea.AppMessages;
 using GameArea.AppConfiguration;
+using Player.PlayerMessages;
 
 namespace Player
 {
@@ -67,6 +68,8 @@ namespace Player
 
         public List<GameArea.GameObjects.Player> myTeam;
         public List<GameArea.GameObjects.Player> otherTeam;
+        public List<KnowledgeExchangeRequestAgent> MyPlayerKnowledgeExchangeQueue { get; set; }
+        public List<KnowledgeExchangeRequestAgent> OtherPlayerKnowledgeExchangeQueue { get; set; }
 
         public ulong GameId { get; set; }
         public TeamColour Team { get; set; }
@@ -83,6 +86,8 @@ namespace Player
             State = AgentState.SearchingForGame;
             LastMoveTaken = MoveType.up;
             ID = id;
+            MyPlayerKnowledgeExchangeQueue = new List<KnowledgeExchangeRequestAgent>();
+            OtherPlayerKnowledgeExchangeQueue = new List<KnowledgeExchangeRequestAgent>();
         }
 
         public Player(Player original)
@@ -192,6 +197,18 @@ namespace Player
             SetBoard(null);
             Location = null;
             piece = null;
+        }
+
+        public void AddOtherPlayerExhangeKnowledgeRequest(KnowledgeExchangeRequestAgent msg)
+        {
+            OtherPlayerKnowledgeExchangeQueue.RemoveAll(r => r.SenderPlayerId == msg.SenderPlayerId); // usun stare rzadanie
+            OtherPlayerKnowledgeExchangeQueue.Add(msg);                                               // zapisz najnowsze rzadanie
+        }
+
+        public void AddMyPlayerExhangeKnowledgeRequest(KnowledgeExchangeRequestAgent msg)
+        {
+            MyPlayerKnowledgeExchangeQueue.RemoveAll(r => r.SenderPlayerId == msg.SenderPlayerId); // usun stare rzadanie
+            MyPlayerKnowledgeExchangeQueue.Add(msg);                                               // zapisz najnowsze rzadanie
         }
 
         public void GameMasterDisconnected(GameArea.AppMessages.GameMasterDisconnectedMessage messageObject)

@@ -13,6 +13,7 @@ namespace Player.Tests
     {
         public Leader GetLeader(string guid, ulong id, TeamColour tc, ActionType action, IPlayerController controller = null)
         {
+            controller = new PlayerControllerMock();
             var leader = new Leader(tc, PlayerRole.leader, guid: guid)
             {
                 ID = id,
@@ -21,6 +22,8 @@ namespace Player.Tests
                 State = AgentState.Playing
             };
             controller.Player = leader;
+            leader.myTeam = new List<GameArea.GameObjects.Player>();
+            leader.otherTeam = new List<GameArea.GameObjects.Player>();
 
             return leader;
         }
@@ -32,6 +35,9 @@ namespace Player.Tests
             InitGameMaster();
             var Player = GetLeader("testGUID-0004", 10, TeamColour.blue, ActionType.PickUpPiece);
             Player.SetLocation(2, 5);
+
+            Player.myTeam = new List<GameArea.GameObjects.Player>();
+            Player.myTeam.Add(new GameArea.GameObjects.Player(5, TeamColour.blue, PlayerRole.member));
 
             RegisterPlayer(Player, Player.GUID);
             Player.GetBoard.GetTaskField(2, 7).Player = new GameArea.GameObjects.Player(50, TeamColour.red, PlayerRole.member);
@@ -65,8 +71,10 @@ namespace Player.Tests
             var Player = GetLeader("testGUID-0004", 10, TeamColour.blue, ActionType.PickUpPiece);
             Player.SetLocation(2, 2);
 
-            RegisterPlayer(Player, Player.GUID);
-            Player.GetBoard.GetTaskField(2, 7).Player = new GameArea.GameObjects.Player(50, TeamColour.red, PlayerRole.member);
+            Player.myTeam.Add(new GameArea.GameObjects.Player(5, TeamColour.blue, PlayerRole.member));
+
+            //RegisterPlayer(Player, Player.GUID);
+            //Player.GetBoard.GetTaskField(2, 7).Player = new GameArea.GameObjects.Player(50, TeamColour.red, PlayerRole.member);
 
             RegisterPlayer(Player, Player.GUID);
             Player.GetBoard.GetTaskField(2, 7).Player = new GameArea.GameObjects.Player(50, TeamColour.red, PlayerRole.member);
@@ -91,6 +99,31 @@ namespace Player.Tests
             Assert.AreEqual(60, responseData.Goals.Where(f => f.X == 2 && f.Y == 0).FirstOrDefault().PlayerId);
 
             Assert.AreEqual(150ul, responseData.Tasks.Where(f => f.X == 3 && f.Y == 5).FirstOrDefault().Piece.ID);
+        }
+
+        [TestMethod]
+        public void HandleKnowledgeExchangeRequestToLeaderFromPlayerFromOtherTeam()
+        {
+            InitGameMaster();
+            var Player = GetLeader("testGUID-0004", 10, TeamColour.blue, ActionType.PickUpPiece);
+            Player.SetLocation(2, 5);
+
+            Player.otherTeam.Add(new GameArea.GameObjects.Player(5, TeamColour.red, PlayerRole.member));
+
+            RegisterPlayer(Player, Player.GUID);
+            Player.GetBoard.GetTaskField(2, 7).Player = new GameArea.GameObjects.Player(50, TeamColour.red, PlayerRole.member);
+            Player.GetBoard.GetGoalField(2, 0).Player = new GameArea.GameObjects.Player(60, TeamColour.red, PlayerRole.leader);
+            Player.GetBoard.GetTaskField(3, 5).Piece = new GameArea.GameObjects.Piece(150, DateTime.Now, PieceType.unknown);
+
+            KnowledgeExchangeRequestAgent request = new KnowledgeExchangeRequestAgent(10, 5);
+
+            var responseArray = request.Process(Player.Controller);
+            var responseData = PlayerReader.GetObjectFromXML(responseArray[0]) as DataAgent;
+
+            Assert.IsNull(responseData);
+
+            Assert.AreEqual(1, Player.OtherPlayerKnowledgeExchangeQueue.Count);
+            Assert.AreEqual(5ul, Player.OtherPlayerKnowledgeExchangeQueue[0].SenderPlayerId);
         }
     }
 }

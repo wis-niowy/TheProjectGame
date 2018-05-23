@@ -29,6 +29,9 @@ namespace GameArea.Tests
             player.ID = id;
             player.LastActionTaken = action;
 
+            player.myTeam = new List<GameArea.GameObjects.Player>();
+            player.otherTeam = new List<GameArea.GameObjects.Player>();
+
             return player;
         }
         public void EquipPlayerWithPiece(Piece piece, Player.Player player)

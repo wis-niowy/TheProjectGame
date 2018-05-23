@@ -529,13 +529,14 @@ namespace GameArea
         public BetweenPlayersAbstractMessage HandleAuthorizeKnowledgeExchange(AuthorizeKnowledgeExchangeMessage msg)
         {
             BetweenPlayersAbstractMessage returnMsg = null;
-            var sender = Players.Where(p => p.GUID == msg.PlayerGUID).FirstOrDefault();
-            var addressee = Players.Where(p => p.ID == msg.WithPlayerId).FirstOrDefault();
-            var fromId = sender.ID;
 
             Monitor.Enter(lockObject);
             try
             {
+                var sender = Players.Where(p => p.GUID == msg.PlayerGUID).FirstOrDefault();
+                var addressee = Players.Where(p => p.ID == msg.WithPlayerId).FirstOrDefault();
+                var fromId = sender.ID;
+
                 ConsoleWriter.Show("Received Authorize Knowledge Exchange from " + fromId + " to " + msg.WithPlayerId + " ...");
 
                 if (addressee == null) // nie ma takiego gracza w rozgrywce
@@ -546,7 +547,7 @@ namespace GameArea
                 }
                 else
                 {
-                    ConsoleWriter.Show("Message sent to PlayerID: " + addressee.ID);
+                    ConsoleWriter.Show("Message sent from PlayerID: " + sender.ID + " to PlayerID: " + addressee.ID);
                     exchangeRequestList.Add(new ExchengeRequestContainer(sender.ID, addressee.ID)); // przechowujemy probe komunikacji - po otrzymaniu DataMessege dopiszemy do struktury
 
                     returnMsg = new KnowledgeExchangeRequestMessage(msg.WithPlayerId, fromId);
@@ -565,11 +566,11 @@ namespace GameArea
         {
             // gracz odbierajacy taki reject message musi sobie zapisac, jezeli to bylo permanentne ?
 
-            var request = exchangeRequestList.Where(r => r.SenderID == msg.PlayerId).Where(r => r.AddresseeID == msg.SenderPlayerId).FirstOrDefault();
-
             Monitor.Enter(lockObject);
             try
             {
+                var request = exchangeRequestList.Where(r => r.SenderID == msg.PlayerId).Where(r => r.AddresseeID == msg.SenderPlayerId).FirstOrDefault();
+
                 if (request != null)
                 {
                     exchangeRequestList.Remove(request);
