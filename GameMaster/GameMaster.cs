@@ -142,6 +142,11 @@ namespace GameArea
             }
         }
 
+        public GameObjects.GameBoard SetBoard
+        {
+            set { actualBoard = value; }
+        }
+
         public GameMaster(GameMasterSettingsConfiguration settings)
         {
             State = GameMasterState.RegisteringGame;
@@ -176,7 +181,7 @@ namespace GameArea
             pieceAdder.Start();
         }
 
-        private void InitBoard(GameMasterSettingsGameDefinitionConfiguration settings)
+        public void InitBoard(GameMasterSettingsGameDefinitionConfiguration settings)
         {
             Monitor.Enter(lockObject);
             actualBoard = new GameObjects.GameBoard((int)settings.BoardWidth, (int)settings.TaskAreaLength, (int)settings.GoalAreaLength,GoalFieldType.nongoal);

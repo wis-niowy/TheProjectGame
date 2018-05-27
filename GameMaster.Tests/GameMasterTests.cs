@@ -22,6 +22,7 @@ namespace GameArea.Tests
         {
             defaultSettings = new GameMasterSettingsConfiguration(GameMasterSettings.GetDefaultGameMasterSettings());
             defaultGameMaster = new GameArea.GameMaster(defaultSettings);
+            defaultGameMaster.InitBoard(defaultGameMaster.Settings.GameDefinition);
         }
         public Player.Player GetPlayer(string guid, ulong id, TeamColour tc, ActionType action)
         {
@@ -127,28 +128,15 @@ namespace GameArea.Tests
                 pl.SetLocation(l);
                 defaultGameMaster.SetAbsolutePlayerLocation(l.X, l.Y, pl.GUID);
             }
-
+            int playerscount = defaultGameMaster.Players.Count;
             //restart game
             string[] msg = defaultGameMaster.RestartGame();
+            string lastMsg = new RegisterGameMessage(defaultGameMaster.GetGameDefinition.GameName, (ulong)defaultGameMaster.GetGameDefinition.NumberOfPlayersPerTeam, (ulong)defaultGameMaster.GetGameDefinition.NumberOfPlayersPerTeam).Serialize();
 
-            //check if players returned to their locations
-            for (int i=0; i<players.Count; i++)
-                Assert.AreEqual(locationsInit[i], defaultGameMaster.Players[i].Location);
-
-            Assert.AreEqual(GameMasterState.GameInprogress, defaultGameMaster.State);
-
-            //check if messages are correct
-            Assert.AreEqual(new GameStartedMessage(defaultGameMaster.GameId).Serialize(), msg[0]);
-            for (int i = 0; i < players.Count; i++)
-            {
-                AppMessages.GameMessage expMsg = new AppMessages.GameMessage(defaultGameMaster.Players[i].ID)
-                {
-                    PlayerLocation = locationsInit[i],
-                    Players = defaultGameMaster.Players.Select(q => new GameObjects.Player(q.ID, q.Team, q.Role)).ToArray(),
-                    Board = new GameObjects.GameBoard(defaultGameMaster.GetBoard.Width, defaultGameMaster.GetBoard.TaskAreaHeight, defaultGameMaster.GetBoard.GoalAreaHeight)
-                };
-                Assert.AreEqual(expMsg.Serialize(), msg[i+1]);
-            }
+            Assert.AreEqual(0, defaultGameMaster.Players.Count);
+            Assert.AreEqual(playerscount + 1, msg.Length);
+            Assert.AreEqual(GameMasterState.RegisteringGame, defaultGameMaster.State);
+            Assert.AreEqual(lastMsg, msg[msg.Length - 1]);
         }
 
         [TestMethod]
