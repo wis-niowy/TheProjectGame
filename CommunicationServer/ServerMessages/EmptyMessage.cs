@@ -11,6 +11,11 @@ namespace CommunicationServer.ServerMessages
     {
         public ulong ClientId { get; }
 
+        public EmptyMessage(ulong clientId)
+        {
+            ClientId = clientId;
+        }
+
         public void Process(IGMController controller)
         {
             controller.SendKeepAliveToGM();
