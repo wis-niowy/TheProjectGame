@@ -9,52 +9,23 @@ using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 using GameArea.AppConfiguration;
+using System.Text.RegularExpressions;
 
 namespace Player
 {
     public class MainPlayer
     {
+        private static IPAddress serverIP;
+        private static int serverPort;
+        private static PlayerSettingsConfiguration settings;
+        private static Messages.TeamColour colour;
+        private static Messages.PlayerRole role;
+
         private static IPlayerController PController { get; set; }
 
         public static void Main(string[] args)
         {
-            IPAddress serverIP;
-            int serverPort;
-            PlayerSettingsConfiguration settings;
-            var valid = ValidateArgs(args);
-            Messages.TeamColour colour;
-            Messages.PlayerRole role;
-
-            if (valid)
-            {
-                serverIP = IPAddress.Parse(args[0]);
-                serverPort = Int32.Parse(args[1]);
-                colour = StringToTeamColour(args[2]);
-                role = StringToRole(args[3]);
-                settings = LoadSettingsFromFile(args[4]);
-
-                ConsoleWriter.Show("Loading settings from file: " + args[4]);
-                var settingsErrors = settings == null ? null : Validator.ValidateSettings(settings);
-                if (settings == null || (settingsErrors != null && settingsErrors != ""))
-                {
-                    ConsoleWriter.Error("Failed to load settings from file. Verify file and try again.\n Closing Agent.");
-                    return;
-                }
-            }
-            else
-            {
-                ConsoleWriter.Warning("Invalid args, loading default!");
-                serverIP = IPAddress.Parse("127.0.0.1");
-                serverPort = Int32.Parse("5678");
-                colour = Messages.TeamColour.blue;
-                role = Messages.PlayerRole.member;
-                settings = LoadSettingsFromFile("PlayerSettings.xml");
-                //settings = new PlayerSettingsConfiguration(new PlayerSettings()
-                //{
-                //    KeepAliveInterval = 4000,
-                //    RetryJoinGameInterval = 4000
-                //});
-            }
+            ParseArgs(args);
 
             ConsoleWriter.Show("Settings loaded. Establishing connection to server.");
 
@@ -88,6 +59,67 @@ namespace Player
             return PController.ConnectToServer(ip, port);
         }
 
+        public static void ParseArgs(string[] args)
+        {
+            // initialize parameters with default values
+            SetDefaultParameters();
+
+            Regex optionPattern = new Regex("^--.+$");
+            string currentOption = null;
+
+            foreach (var arg in args)
+            {
+                if (optionPattern.Match(arg).Success)
+                {
+                    currentOption = arg;
+                }
+                else if (currentOption != null)
+                {
+                    AssignParameterValue(currentOption, arg);
+                }
+            }
+        }
+
+        public static void SetDefaultParameters()
+        {
+            serverIP = IPAddress.Parse("127.0.0.1");
+            serverPort = Int32.Parse("5678");
+            colour = Messages.TeamColour.blue;
+            role = Messages.PlayerRole.member;
+            settings = LoadSettingsFromFile("PlayerSettings.xml");
+        }
+
+        public static void AssignParameterValue(string option, string arg)
+        {
+            switch(option)
+            {
+                case "--address":
+                    serverIP = IPAddress.Parse(arg);
+                    break;
+                case "--port":
+                    serverPort = Int32.Parse(arg);
+                    break;
+                case "--conf":
+                    settings = LoadSettingsFromFile(arg);
+                    ConsoleWriter.Show("Loading settings from file: " + arg);
+                    var settingsErrors = settings == null ? null : Validator.ValidateSettings(settings);
+                    if (settings == null || (settingsErrors != null && settingsErrors != ""))
+                    {
+                        ConsoleWriter.Error("Failed to load settings from file. Verify file and try again.\n Closing Agent.");
+                        settings = LoadSettingsFromFile("PlayerSettings.xml");
+                    }
+                    break;
+                case "--game":
+
+                    break;
+                case "--team":
+                    colour = StringToTeamColour(arg);
+                    break;
+                case "--role":
+                    role = StringToRole(arg);
+                    break;
+            }
+        }
 
         public static bool ValidateArgs(string[] args)
         {

@@ -185,7 +185,7 @@ namespace Player
                 //wypisywnaie planszy po otryzmaniu Data, wymóg specyfikacji
                 Console.WriteLine("!!!ACHTUNG!!!\nReceived DATA MESSAGE from GameMaster with GameFinished == true. PlayerId/ClientId:" + ID + "\nGUID: " + GUID);
                 State = AgentState.SearchingForGame;
-
+                PrintBoardState();
             }
             ActionToComplete = ActionType.none;
             return updated;
@@ -273,6 +273,31 @@ namespace Player
                     break;
             }
             return newLocation;
+        }
+
+        public void PrintBoardState()
+        {
+            StringBuilder boardPrint = new StringBuilder("\n BOARD STATE: \n");
+            for (int y = (int)GetBoard.Height - 1; y >= 0; y--)
+            {
+                boardPrint.Append("[" + y);
+                if (y < 10)
+                    boardPrint.Append(" ");
+                boardPrint.Append("] ");
+                for (int x = 0; x < GetBoard.Width; x++)
+                {
+                    var field = GetBoard.GetField(x, y);
+                    boardPrint.Append(field.ToString());
+                }
+                boardPrint.AppendLine();
+            }
+            for (int x = 0; x < GetBoard.Width; x++)
+            {
+                if (x == 0)
+                    boardPrint.Append("     ");
+                boardPrint.Append("[ " + x + " ]");
+            }
+            ConsoleWriter.Show(boardPrint.ToString());
         }
     }
 }
