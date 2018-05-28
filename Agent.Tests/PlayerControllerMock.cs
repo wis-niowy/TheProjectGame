@@ -20,6 +20,7 @@ namespace Player.Tests
         TeamColour PrefferedColor { get; set; }
         PlayerRole PrefferedRole { get; set; }
         public PlayerSettingsConfiguration Settings { get; set; }
+        public string GameName { get; set; }
 
         public PlayerControllerMock()
         {

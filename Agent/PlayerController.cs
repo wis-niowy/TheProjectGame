@@ -25,19 +25,22 @@ namespace Player
         private List<GameArea.GameObjects.GameInfo> GamesList { get; set; }
         TeamColour PrefferedColor { get; set; }
         PlayerRole PrefferedRole { get; set; }
+        public string GameName { get; set; }
 
-        public PlayerController(IPlayer player)
+        public PlayerController(IPlayer player, string gameName = null)
         {
             clientSocket = new TcpClient();
             Player = player;
+            GameName = gameName;
         }
 
-        public PlayerController(TeamColour team, PlayerRole role, PlayerSettingsConfiguration settings)
+        public PlayerController(TeamColour team, PlayerRole role, PlayerSettingsConfiguration settings, string gameName = null)
         {
             clientSocket = new TcpClient();
             PrefferedColor = team;
             PrefferedRole = role;
             Settings = settings;
+            GameName = gameName;
             
         }
 
@@ -97,8 +100,14 @@ namespace Player
             }
             else
             {
-                var game = GamesList[0];
-                GamesList.RemoveAt(0);
+                var game = GamesList.Where(q => q.GameName == this.GameName).FirstOrDefault();
+                if (game == null)
+                {
+                    game = GamesList[0];
+                }
+                GamesList.Remove(game);
+                
+
                 BeginSend(new JoinGameMessage(game.GameName, PrefferedColor, PrefferedRole).Serialize());
                 ActionToComplete = ActionType.Joining;
             }

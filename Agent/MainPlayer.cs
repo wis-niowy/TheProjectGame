@@ -20,6 +20,7 @@ namespace Player
         private static PlayerSettingsConfiguration settings;
         private static Messages.TeamColour colour;
         private static Messages.PlayerRole role;
+        private static string gameName;
 
         private static IPlayerController PController { get; set; }
 
@@ -37,7 +38,7 @@ namespace Player
 
         public static bool StartPlayerController(IPAddress ip, Int32 port, PlayerSettingsConfiguration settings, Messages.TeamColour colour, Messages.PlayerRole role)
         {
-            PController = new PlayerController(colour, role, settings);
+            PController = new PlayerController(colour, role, settings, gameName);
             return PController.ConnectToServer(ip, port);
         }
 
@@ -53,7 +54,7 @@ namespace Player
         /// <returns></returns>
         public static bool TestStartPlayer(IPAddress ip, Int32 port, PlayerSettingsConfiguration settings, Messages.TeamColour colour, out PlayerController PController, Messages.PlayerRole role = Messages.PlayerRole.member)
         {
-            var player = new Player(colour, role,settings);
+            var player = new Player(colour, role, settings);
             PController = new PlayerController(player);
             player.Controller = PController;
             return PController.ConnectToServer(ip, port);
@@ -110,7 +111,7 @@ namespace Player
                     }
                     break;
                 case "--game":
-
+                    gameName = arg;
                     break;
                 case "--team":
                     colour = StringToTeamColour(arg);

@@ -14,6 +14,7 @@ namespace Player
         AgentState State { get; set; }
         ActionType ActionToComplete { get; set; }
         PlayerSettingsConfiguration Settings { get; set; }
+        string GameName { get; set; }
 
         bool ConnectToServer(IPAddress ip, Int32 port);
         void StartPerformance();
