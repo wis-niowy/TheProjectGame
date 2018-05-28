@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<GameMasterSettings xmlns="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/"
+                    KeepAliveInterval="30000"
+                    RetryRegisterGameInterval="60000">
+  <GameDefinition>
+    <Goals team="red" x="4" y="15" type="goal" />
+    <Goals team="red" x="5" y="15" type="goal" />
+    <Goals team="red" x="6" y="15" type="goal" />
+    <Goals team="red" x="7" y="15" type="goal" />
+    <Goals team="red" x="8" y="15" type="goal" />
+    <Goals team="red" x="9" y="15" type="goal" />
+    <Goals team="red" x="10" y="15" type="goal" />
+    <Goals team="red" x="11" y="15" type="goal" />
+    <Goals team="red" x="12" y="15" type="goal" />
+    <Goals team="red" x="13" y="15" type="goal" />
+    <Goals team="red" x="14" y="15" type="goal" />
+    <Goals team="red" x="15" y="15" type="goal" />
+    <Goals team="red" x="4" y="14" type="goal" />
+    <Goals team="red" x="5" y="14" type="goal" />
+    <Goals team="red" x="6" y="14" type="goal" />
+    <Goals team="red" x="7" y="14" type="goal" />
+    <Goals team="red" x="8" y="14" type="goal" />
+    <Goals team="red" x="9" y="14" type="goal" />
+    <Goals team="red" x="10" y="14" type="goal" />
+    <Goals team="red" x="11" y="14" type="goal" />
+    <Goals team="red" x="12" y="14" type="goal" />
+    <Goals team="red" x="13" y="14" type="goal" />
+    <Goals team="red" x="14" y="14" type="goal" />
+    <Goals team="red" x="15" y="14" type="goal" />
+    <Goals team="blue" x="4" y="0" type="goal" />
+    <Goals team="blue" x="5" y="0" type="goal" />
+    <Goals team="blue" x="6" y="0" type="goal" />
+    <Goals team="blue" x="7" y="0" type="goal" />
+    <Goals team="blue" x="8" y="0" type="goal" />
+    <Goals team="blue" x="9" y="0" type="goal" />
+    <Goals team="blue" x="10" y="0" type="goal" />
+    <Goals team="blue" x="11" y="0" type="goal" />
+    <Goals team="blue" x="12" y="0" type="goal" />
+    <Goals team="blue" x="13" y="0" type="goal" />
+    <Goals team="blue" x="14" y="0" type="goal" />
+    <Goals team="blue" x="15" y="0" type="goal" />
+    <Goals team="blue" x="4" y="1" type="goal" />
+    <Goals team="blue" x="5" y="1" type="goal" />
+    <Goals team="blue" x="6" y="1" type="goal" />
+    <Goals team="blue" x="7" y="1" type="goal" />
+    <Goals team="blue" x="8" y="1" type="goal" />
+    <Goals team="blue" x="9" y="1" type="goal" />
+    <Goals team="blue" x="10" y="1" type="goal" />
+    <Goals team="blue" x="11" y="1" type="goal" />
+    <Goals team="blue" x="12" y="1" type="goal" />
+    <Goals team="blue" x="13" y="1" type="goal" />
+    <Goals team="blue" x="14" y="1" type="goal" />
+    <Goals team="blue" x="15" y="1" type="goal" />
+    <ShamProbability>0.33</ShamProbability>
+    <PlacingNewPiecesFrequency>10</PlacingNewPiecesFrequency>
+    <InitialNumberOfPieces>20</InitialNumberOfPieces>
+    <BoardWidth>20</BoardWidth>
+    <TaskAreaLength>10</TaskAreaLength>
+    <GoalAreaLength>3</GoalAreaLength>
+    <NumberOfPlayersPerTeam>2</NumberOfPlayersPerTeam>
+    <GameName>Endgame</GameName>
+  </GameDefinition>
+  <ActionCosts>
+    <MoveDelay>10</MoveDelay>
+    <DiscoverDelay>45</DiscoverDelay>
+    <TestDelay>50</TestDelay>
+    <PickUpDelay>10</PickUpDelay>
+    <PlacingDelay>10</PlacingDelay>
+    <KnowledgeExchangeDelay>500</KnowledgeExchangeDelay>
+  </ActionCosts>
+</GameMasterSettings>
