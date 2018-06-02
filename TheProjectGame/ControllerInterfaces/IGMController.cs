@@ -13,5 +13,6 @@ namespace GameArea.ControllerInterfaces
         void BeginGame();
         void SendKeepAliveToGM();
         void GameFinished(string gameName, ulong redTeamPlayers, ulong blueTeamPlayers, ulong clientId);
+        void PrintServerState(string message = null);
     }
 }

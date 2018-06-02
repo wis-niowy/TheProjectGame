@@ -22,7 +22,7 @@ namespace CommunicationServer.Interpreters
                 messageObject = ServerReader.GetObjectFromXML<IGMController>(message,clientId);//message must be without any \0 characters
                 messageObject?.Process(GameController);
             }
-            ConsoleWriter.Show("GM Client: " + clientId + " sent message of type: " + messageObject?.GetType().Name);
+            ServerWriter.Show("GM Client: " + clientId + " sent message of type: " + messageObject?.GetType().Name);
         }
 
         public GMInterpreter(IGMController controller)

@@ -64,6 +64,7 @@ namespace CommunicationServer.ServerObjects
             var agent = new AGENT(client);
             Agents.Add(agent);
             client.BeginSend(message);
+            PrintServerState("Agent with ID: " + client.ID + " joins as Player to game: " + GameInfo.GameName);
         }
 
         public bool SendMessageToClient(ulong clientId, string message) //always first one in JoiningAgents
@@ -86,6 +87,7 @@ namespace CommunicationServer.ServerObjects
             JoiningAgents.Add(client);
             message.PlayerId = (long)client.ID;
             SendMessageToGameMaster(message.Serialize());
+            PrintServerState("Agent with ID: " + client.ID + " tries to join game: " + GameInfo.GameName);
         }
 
         public void RemoveClientOrAgent(ulong clientId)
@@ -102,6 +104,7 @@ namespace CommunicationServer.ServerObjects
                 var message = new PlayerDisconnectedMessage(agent.PlayerId);
                 SendMessageToGameMaster(message.Serialize());
             }
+            PrintServerState("Player disconnected: " + clientId + " from game: " + GameInfo.GameName);
         }
 
         public void CloseGame()
@@ -136,6 +139,7 @@ namespace CommunicationServer.ServerObjects
         public void BeginGame()
         {
             State = GameState.InProgress;
+            PrintServerState("Game started: " + this.GameInfo.GameName);
         }
 
         public void SendKeepAlive(ulong clientId)
@@ -147,6 +151,11 @@ namespace CommunicationServer.ServerObjects
         public void SendKeepAliveToGM()
         {
             SendMessageToGameMaster("");
+        }
+
+        public void PrintServerState(string message = null)
+        {
+            mainController.PrintServerState(message);
         }
     }
 }

@@ -19,6 +19,7 @@ namespace CommunicationServer.ServerMessages
         public void Process(IGMController controller)
         {
             controller.SendMessageToClient(PlayerId, Serialize());
+            controller.PrintServerState("GM rejects joining game:" + GameName + " for client with ID: " + ClientId);
         }
     }
 }

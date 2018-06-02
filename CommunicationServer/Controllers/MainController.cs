@@ -35,30 +35,32 @@ namespace CommunicationServer
                 var GM = new GM(client);
                 controller.SetGM(GM);
                 gameDefinitions.Add(name, controller);
-                ConsoleWriter.Show("Successful registration for game: " + name);
+                ServerWriter.Show("Successful registration for game: " + name);
                 controller.SendMessageToGameMaster((new ConfirmGameRegistrationMessage(controller.gameId)).Serialize());
+                PrintServerState("GM with ID: " + clientId + " registered game: " + name);
                 return true;
             }
             else
             {
                 SendToClient(clientId, (new RejectGameRegistrationMessage(name)).Serialize());
+                PrintServerState("GM with ID: " + clientId + " rejected game registration: " + name);
             }
-            ConsoleWriter.Show("Game not registered (possible that already exists): " + name);
+            ServerWriter.Show("Game not registered (possible that already exists): " + name);
             return false;
         }
 
         public void JoinGame(string name, TeamColour team, PlayerRole role, ulong clientId)
         {
-            var game = gameDefinitions.Where(q => q.Value.GameInfo.GameName == name).Select(q=>q.Value).FirstOrDefault();
-            if(game == null)
+            var game = gameDefinitions.Where(q => q.Value.GameInfo.GameName == name && q.Value.State == GameState.New).Select(q => q.Value).FirstOrDefault();
+            if (game == null)
             {
                 SendToClient(clientId, (new RejectJoiningGameMessage(name, clientId).Serialize()));
             }
             else
             {
                 var client = RemoveClient(clientId);
-                if(client != null)
-                    game.AddClient(client, new JoinGameMessage(name,team,role,(long)clientId));
+                if (client != null)
+                    game.AddClient(client, new JoinGameMessage(name, team, role, (long)clientId));
             }
         }
 
@@ -105,6 +107,7 @@ namespace CommunicationServer
         public void AddClient(IClientHandle client)
         {
             clients.Add(client);
+            PrintServerState("Added client with ID: " + client.ID);
         }
 
         private ulong GetNewGameId()
@@ -151,6 +154,7 @@ namespace CommunicationServer
                 }
                 gameDefinitions.Remove(game);
             }
+            PrintServerState("Games removed: " + string.Join(',', gamesToDelete));
         }
 
         public ulong GetNewClientId()
@@ -216,6 +220,20 @@ namespace CommunicationServer
         public void SendKeepAlive(ulong clientId)
         {
             SendToClient(clientId, "");
+        }
+
+        public void PrintServerState(string additionalMessage = null)
+        {
+            var messageBuilder = new StringBuilder();
+            messageBuilder.AppendLine("Games registered: " + gameDefinitions?.Count);
+            messageBuilder.AppendLine("Games in progress: " + gameDefinitions?.Where(q=>q.Value?.State == GameState.InProgress).Count());
+            messageBuilder.AppendLine("Games awaiting for players: " + gameDefinitions?.Where(q => q.Value?.State == GameState.New).Count());
+            messageBuilder.AppendLine("Games ended:" + gameDefinitions?.Where(q => q.Value?.State == GameState.Ended).Count());
+            foreach (var game in gameDefinitions)
+                messageBuilder.AppendLine("Clients in game: " + game.Key + " Agents: " + game.Value?.Agents?.Count + " Joining agents: " + game.Value?.JoiningAgents?.Count + " gamemaster client id: " + game.Value?.GameMaster?.Client?.ID);
+            messageBuilder.AppendLine("Clients in maincontroller: " + clients?.Count);
+            messageBuilder.AppendLine(additionalMessage ?? "");
+            ServerWriter.ForcedShow(messageBuilder.ToString());
         }
     }
 }

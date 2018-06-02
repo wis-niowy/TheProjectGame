@@ -27,7 +27,7 @@ namespace CommunicationServer
                 listener.Start();
                 accept = true;
 
-                Console.WriteLine($"Server started. Listening to TCP clients at " + address + ":" + port);
+                ServerWriter.Show($"Server started. Listening to TCP clients at " + address + ":" + port);
             }
 
             private static volatile bool work = true;
@@ -39,14 +39,14 @@ namespace CommunicationServer
                     // Continue listening.  
                     while (work)
                     {
-                        Console.WriteLine("Waiting for client...");
+                        ServerWriter.Show("Waiting for client...");
                         try
                         {
                             var clientTask = listener.AcceptTcpClientAsync(); // Get the client  
 
                             if (clientTask.Result != null)
                             {
-                                Console.WriteLine("Client connected. Waiting for data.");
+                                ServerWriter.Show("Client connected. Waiting for data.");
                                 var client = clientTask.Result;
 
                                 manager.AddClient(client);
@@ -75,11 +75,12 @@ namespace CommunicationServer
             var valid = ValidateArgs(args, out port, out IP, out year, out lang);
             if (!valid)
             {
-                ConsoleWriter.Warning("Invalid args, loading default!");
+                ServerWriter.Warning("Invalid args, loading default!");
                 lang = "en";
                 year = 18;
                 IP = IPAddress.Parse("127.0.0.1");
                 port = 5678;
+                ServerWriter.StateOnly = true;
             }
             TcpHelper.StartServer(IP, port);
             TcpHelper.Listen(); // Start listening. 
@@ -96,7 +97,7 @@ namespace CommunicationServer
             portNumber = 5678;
             if (args.Length < 5)
             {
-                ConsoleWriter.Error("Args too short: YY-LANG-XX-cs --port [portnumber] --address [server IPv4 address or IPv6 address or host name]");
+                ServerWriter.Error("Args too short: YY-LANG-XX-cs --port [portnumber] --address [server IPv4 address or IPv6 address or host name] --logStateOnly [1|0]");
                 return false;
             }
             int portId = 0, addressId = 0, baseId = 0;
@@ -120,6 +121,9 @@ namespace CommunicationServer
                             if (serverAddress != null)
                                 validAddress = true;
                             break;
+                        case "--logStateOnly":
+                            ServerWriter.StateOnly = args[++i] == "1" ? true : false;
+                            break;
                         default:
                             baseId = i;
                             if (Regex.IsMatch(args[i], "[0-9]{2}-LANG-(pl|en)-cs"))
@@ -135,15 +139,15 @@ namespace CommunicationServer
             }
             catch (Exception e)
             {
-                ConsoleWriter.Error("Error during reading args: \n" + e.Message);
+                ServerWriter.Error("Error during reading args: \n" + e.Message);
                 return false;
             }
             if (!validAddress)
-                ConsoleWriter.Error("IP adress is not valid: " + args[addressId]);
+                ServerWriter.Error("IP adress is not valid: " + args[addressId]);
             if (!validPort)
-                ConsoleWriter.Error("Socket number not valid: " + args[portId]);
+                ServerWriter.Error("Socket number not valid: " + args[portId]);
             if (!validBase)
-                ConsoleWriter.Error("Invalid year and language param: " + args[baseId]);
+                ServerWriter.Error("Invalid year and language param: " + args[baseId]);
             return validAddress && validPort && validBase;
         }
     }

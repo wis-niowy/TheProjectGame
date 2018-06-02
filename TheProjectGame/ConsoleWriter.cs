@@ -5,20 +5,24 @@ using System.Text;
 
 namespace GameArea
 {
-    public static class ConsoleWriter
+    public class ConsoleWriter
     {
+        public static bool WriteEnabled = true;
         public static void Warning(string message)
         {
-            Console.WriteLine(DateTime.Now.ToString() + " " + Constants.WARNING + message);
+            if(WriteEnabled)
+                Console.WriteLine(DateTime.Now.ToString() + " " + Constants.WARNING + message);
         }
         public static void Error(string error)
         {
-            Console.WriteLine(DateTime.Now.ToString() + " " + Constants.ERROR + error);
+            if (WriteEnabled)
+                Console.WriteLine(DateTime.Now.ToString() + " " + Constants.ERROR + error);
         }
 
         public static void Show(string message)
         {
-            Console.WriteLine(DateTime.Now.ToString() + " " + message);
+            if (WriteEnabled)
+                Console.WriteLine(DateTime.Now.ToString() + " " + message);
         }
     }
 }

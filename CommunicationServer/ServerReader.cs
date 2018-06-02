@@ -18,7 +18,7 @@ namespace CommunicationServer
         {
             if(string.IsNullOrWhiteSpace(message))
             {
-                ConsoleWriter.Show("Read empty or whitespace message. Probably KeepAlive");
+                ServerWriter.Show("Read empty or whitespace message. Probably KeepAlive");
                 return new EmptyMessage(clientId) as IMessage<T>;
             }
             var xmlDoc = new XmlDocument();
@@ -28,7 +28,7 @@ namespace CommunicationServer
             }
             catch (Exception e)
             {
-                ConsoleWriter.Error("Could not load message to XML. \nMessage content: \n" + message);
+                ServerWriter.Error("Could not load message to XML. \nMessage content: \n" + message);
                 return null;
             }
             switch (xmlDoc.DocumentElement.Name)

@@ -47,7 +47,7 @@ namespace CommunicationServer.ServerObjects
                         {
                             foreach (var message in messages.Select(q => q.Trim('\0')))
                             {
-                                ConsoleWriter.Show("Server read from client:" + ID + ", \n" + message + "\n");
+                                ServerWriter.Show("Server read from client:" + ID + ", \n" + message + "\n");
                                 MessageInterpreter.ReadMessage(message, ID);
                             }
                         });
@@ -56,13 +56,13 @@ namespace CommunicationServer.ServerObjects
                 }
                 catch (Exception e)
                 {
-                    ConsoleWriter.Error("Error while handling message from socket for client: " + ID + "\n Error message: \n" + e.ToString());
+                    ServerWriter.Error("Error while handling message from socket for client: " + ID + "\n Error message: \n" + e.ToString());
                     MessageInterpreter.ReadMessage("client disconnected", ID);
                 }
             }
             else
             {
-                ConsoleWriter.Warning("Client disconnected: " + ID);
+                ServerWriter.Warning("Client disconnected: " + ID);
                 MessageInterpreter.ReadMessage("client disconnected", ID);
             }
         }
@@ -78,8 +78,8 @@ namespace CommunicationServer.ServerObjects
         public void EndSend(IAsyncResult result)
         {
             var bytes = (byte[])result.AsyncState;
-            Console.WriteLine("Sent  {0} bytes to server by: " + ID, bytes.Length);
-            Console.WriteLine("Sent: {0}", Encoding.ASCII.GetString(bytes).Trim('\0'));
+            ServerWriter.Show(string.Format("Sent  {0} bytes to server by: " + ID, bytes.Length));
+            ServerWriter.Show(string.Format("Sent: {0}", Encoding.ASCII.GetString(bytes).Trim('\0')));
         }
     }
 }

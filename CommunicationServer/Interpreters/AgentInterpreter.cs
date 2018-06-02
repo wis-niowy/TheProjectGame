@@ -23,7 +23,7 @@ namespace CommunicationServer.Interpreters
                 messageObject = ServerReader.GetObjectFromXML<IAgentController>(message, clientId);//message must be without any \0 characters
                 messageObject?.Process(GameController);
             }
-            ConsoleWriter.Show("Agent/Joiner Client: " + clientId + " sent message of type: " + messageObject?.GetType().Name);
+            ServerWriter.Show("Agent/Joiner Client: " + clientId + " sent message of type: " + messageObject?.GetType().Name);
         }
 
         public AgentInterpreter(IAgentController controller)
