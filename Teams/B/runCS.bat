@@ -1,0 +1,1 @@
+start "" java -jar game-communication-server.jar --port 5678 --conf communicationServerSettings.xml

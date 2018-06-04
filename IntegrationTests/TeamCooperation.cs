@@ -71,6 +71,93 @@ namespace IntegrationTests
 
             Assert.AreEqual(GameMasterState.AwaitingPlayers, gameMaster.State);
         }
+        /// <summary>
+        /// Test nawiązania połączenia
+        /// CS - Swierzaki
+        /// GM - Nasz
+        /// </summary>
+        [TestMethod]
+        public void CSfromTeamB()
+        {
+            var ip = IPAddress.Parse("127.0.0.1");
+            Int32 port = 5678;
+            var defaultSettings = new GameMasterSettingsConfiguration(GameMasterSettings.GetDefaultGameMasterSettings());
+            var gameMaster = new GameArea.GameMaster(defaultSettings);
+
+            Thread t2 = new Thread(new ParameterizedThreadStart(ExecuteCommand));
+            t2.Start("Teams/B/runCS.bat");
+            Thread.Sleep(2000);
+
+            bool isConnected = MainGameMaster.StartGameMaster(gameMaster, ip, port);
+            Thread t = new Thread(new ThreadStart(MainGameMaster.GMController.StartPerformance));
+            t.Start();
+            Thread.Sleep(2000);
+
+            Assert.AreEqual(GameMasterState.AwaitingPlayers, gameMaster.State);
+        }
+
+        /// <summary>
+        /// Test nawiązania połączenia
+        /// CS - Nasz
+        /// GM - Swierzaki
+        /// </summary>
+        [TestMethod]
+        public void GMfromTeamB()
+        {
+            var ip = IPAddress.Parse("127.0.0.1");
+            Int32 port = 5678;
+            
+            Thread t2 = new Thread(new ParameterizedThreadStart(ExecuteCommand));
+            t2.Start("Teams/B/runGM.bat");
+            Thread.Sleep(2000);
+
+            CS.TcpHelper.StartServer(ip, port);
+            Thread t = new Thread(new ThreadStart(CS.TcpHelper.Listen));
+            t.Start();
+            Thread.Sleep(400);
+            var InitialControlersCount = CS.TcpHelper.manager.defaultController.gameDefinitions.Count;
+            Assert.AreEqual(0, InitialControlersCount);
+            Thread.Sleep(4000);
+
+
+            var controlersCount = CS.TcpHelper.manager.defaultController.gameDefinitions.Count;
+            Assert.AreEqual(1, controlersCount);
+        }
+
+        /// <summary>
+        /// Test nawiązania połączenia
+        /// CS - Nasz
+        /// GM - Swierzaki
+        /// Player - Swierzaki
+        /// </summary>
+        [TestMethod]
+        public void GMandPlayerfromTeamB()
+        {
+            var ip = IPAddress.Parse("127.0.0.1");
+            Int32 port = 5678;
+
+            Thread t2 = new Thread(new ParameterizedThreadStart(ExecuteCommand));
+            t2.Start("Teams/B/runGM.bat");
+            Thread.Sleep(2000);
+
+            CS.TcpHelper.StartServer(ip, port);
+            Thread t = new Thread(new ThreadStart(CS.TcpHelper.Listen));
+            t.Start();
+            Thread.Sleep(400);
+
+            Thread t3 = new Thread(new ParameterizedThreadStart(ExecuteCommand));
+            t2.Start("Teams/B/bluePlayerLeader.bat");
+            
+
+            Thread.Sleep(4000);
+
+
+            var controlersCount = CS.TcpHelper.manager.defaultController.gameDefinitions.Count;
+            Assert.AreEqual(2, controlersCount);
+        }
+
+
+
 
         /// <summary>
         /// Funkcja pomocnicza, startuje proces .bat lub .ps1

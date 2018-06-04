@@ -1,0 +1,23 @@
+<GameMasterSettings xmlns="https://se2.mini.pw.edu.pl/17-pl-19/17-pl-19/">
+    <GameDefinition>
+        <Goals x="1" y="1" type="goal" team="red"/>
+        <ShamProbability>0</ShamProbability>
+        <PlacingNewPiecesFrequency>10</PlacingNewPiecesFrequency>
+        <InitialNumberOfPieces>10</InitialNumberOfPieces>
+        <BoardWidth>10</BoardWidth>
+        <TaskAreaLength>4</TaskAreaLength>
+        <GoalAreaLength>2</GoalAreaLength>
+        <NumberOfPlayersPerTeam>1</NumberOfPlayersPerTeam>
+        <GameName>Endgame</GameName>
+    </GameDefinition>
+    <ActionCosts>
+        <MoveDelay>100</MoveDelay>
+        <DiscoverDelay>100</DiscoverDelay>
+        <TestDelay>100</TestDelay>
+        <DestroyDelay>100</DestroyDelay>
+        <PickUpDelay>100</PickUpDelay>
+        <PlacingDelay>100</PlacingDelay>
+        <KnowledgeExchangeDelay>100</KnowledgeExchangeDelay>
+        <SuggestActionDelay>100</SuggestActionDelay>
+    </ActionCosts>
+</GameMasterSettings>
