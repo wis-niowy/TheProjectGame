@@ -106,10 +106,6 @@ namespace IntegrationTests
         {
             var ip = IPAddress.Parse("127.0.0.1");
             Int32 port = 5678;
-            
-            Thread t2 = new Thread(new ParameterizedThreadStart(ExecuteCommand));
-            t2.Start("Teams/B/runGM.bat");
-            Thread.Sleep(2000);
 
             CS.TcpHelper.StartServer(ip, port);
             Thread t = new Thread(new ThreadStart(CS.TcpHelper.Listen));
@@ -118,6 +114,12 @@ namespace IntegrationTests
             var InitialControlersCount = CS.TcpHelper.manager.defaultController.gameDefinitions.Count;
             Assert.AreEqual(0, InitialControlersCount);
             Thread.Sleep(4000);
+
+            Thread t2 = new Thread(new ParameterizedThreadStart(ExecuteCommand));
+            t2.Start("Teams/B/runGM.bat");
+            Thread.Sleep(2000);
+
+            
 
 
             var controlersCount = CS.TcpHelper.manager.defaultController.gameDefinitions.Count;
@@ -136,24 +138,28 @@ namespace IntegrationTests
             var ip = IPAddress.Parse("127.0.0.1");
             Int32 port = 5678;
 
-            Thread t2 = new Thread(new ParameterizedThreadStart(ExecuteCommand));
-            t2.Start("Teams/B/runGM.bat");
-            Thread.Sleep(2000);
 
             CS.TcpHelper.StartServer(ip, port);
             Thread t = new Thread(new ThreadStart(CS.TcpHelper.Listen));
             t.Start();
             Thread.Sleep(400);
 
-            Thread t3 = new Thread(new ParameterizedThreadStart(ExecuteCommand));
-            t2.Start("Teams/B/bluePlayerLeader.bat");
+            Thread t2 = new Thread(new ParameterizedThreadStart(ExecuteCommand));
+            t2.Start("Teams/B/runGM.bat");
+            Thread.Sleep(2000);
+
             
 
-            Thread.Sleep(4000);
+            Thread t3 = new Thread(new ParameterizedThreadStart(ExecuteCommand));
+            t3.Start("Teams/B/bluePlayerLeader.bat");
+            
+
+            Thread.Sleep(2000);
 
 
-            var controlersCount = CS.TcpHelper.manager.defaultController.gameDefinitions.Count;
-            Assert.AreEqual(2, controlersCount);
+            var controler = CS.TcpHelper.manager.defaultController.GetGameControllerByName("Endgame");
+            int countClients = controler.Agents.Count + 1; 
+            Assert.AreEqual(2, countClients);
         }
 
 
